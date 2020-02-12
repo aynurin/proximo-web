@@ -1,7 +1,7 @@
 <template>
 
     <div if.bind="editing">
-        <form submit.trigger="addTran()">
+        <form submit.trigger="addNewTran()">
       
           <label for="date">Date</label>
           <select id="date" value.bind="tran.date">

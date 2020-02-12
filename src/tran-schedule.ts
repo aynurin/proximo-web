@@ -2,15 +2,29 @@ import {
   ViewEngineHooks,
   View,
   bindable,
-  bindingMode
+  inject
 } from "aurelia-framework";
+import {EventAggregator} from 'aurelia-event-aggregator';
+import {TranAddRequest, TranEditRequested} from './messages';
 
+@inject(EventAggregator)
 export class TranScheduleCustomElement {
   @bindable editing: boolean = false;
   @bindable tran: TranSchedule = null;
 
-  public constructor(editing: boolean) {
-    this.editing = editing;
+  accounts: string[] = [];
+
+  public constructor(private ea: EventAggregator) { }
+
+  addNewTran() {
+    if (this.tran.canSave) {
+      this.ea.publish(new TranAddRequest(this.tran));
+      if (this.accounts.find(acc => acc == this.tran.account) == null) {
+        this.accounts.push(this.tran.account)
+      }
+      this.tran = new TranSchedule();
+      this.accounts.sort((a, b) => a.localeCompare(b));
+    }
   }
 }
 
@@ -25,24 +39,15 @@ export class TranSchedule {
   description: string = null;
 
   get maxDate(): number {
-    console.log(this.month);
-    if (!this.month) {
-      return 31;
-    } else {
-      return 20;
-    }
-  }
-
-  static isEmpty(tran: TranSchedule): boolean {
-    return tran == null || tran.account == null;
+    return daysInMonth(this.month, this.year);
   }
 
   get canSave(): boolean {
     return (
-      this.amount != null &&
-      this.account != null &&
+      this.amount !== null &&
+      this.account !== null &&
       this.account.length > 0 &&
-      this.description != null &&
+      this.description !== null &&
       this.description.length > 0
     );
   }
@@ -76,7 +81,7 @@ export enum DayOfWeek {
 }
 
 export enum HolidayRule {
-  Exact = 0,
+  Exact,
   Before,
   After
 }
@@ -94,8 +99,8 @@ export class TranScheduleViewEngineHooks implements ViewEngineHooks {
     // to the view without interfering with any properties on the
     // bindingContext itself.
     view.overrideContext["Month"] = Month;
-    view.overrideContext["DayOfWeek"] = Month;
-    view.overrideContext["HolidayRule"] = Month;
+    view.overrideContext["DayOfWeek"] = DayOfWeek;
+    view.overrideContext["HolidayRule"] = HolidayRule;
 
     // Since TypeScript enums are not iterable, we need to do a bit of extra
     // legwork if we plan on iterating over the enum keys.
