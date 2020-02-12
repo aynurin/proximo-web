@@ -1,0 +1,45 @@
+<template>
+
+    <div if.bind="editing">
+        <form submit.trigger="addTran()">
+      
+          <label for="date">Date</label>
+          <select id="date" value.bind="tran.date">
+            <option model.bind="0">Any</option>
+            <!-- When we iterate, we need to iterate over the Months variable,
+              which is the iterable version of the Month enum. -->
+            <option model.bind="date" repeat.for="date of tran.maxDate">${date+1}</option>
+          </select>
+      
+          <label for="month">Month</label>
+          <select id="month" value.bind="tran.month">
+            <option model.bind="Month[month]" repeat.for="month of Months">${month}</option>
+          </select>
+      
+          <label for="dayOfWeek">Day Of Week</label>
+          <select id="dayOfWeek" value.bind="tran.dayOfWeek">
+            <option model.bind="DayOfWeek[dayOfWeek]" repeat.for="dayOfWeek of DaysOfWeek">${dayOfWeek}</option>
+          </select>
+      
+          <label for="year">Year</label>
+          <input id="year" type="text" value.bind="tran.year">
+
+          <label for="holidayRule">Holiday Rule</label>
+          <select id="holidayRule" value.bind="tran.holidayRule">
+            <option model.bind="HolidayRule[holidayRule]" repeat.for="holidayRule of HolidayRules">${holidayRule}</option>
+          </select>
+      
+          <label for="amount">Amount</label>
+          <input id="amount" type="text" value.bind="tran.amount">
+      
+          <label for="account">Account</label>
+          <input id="account" type="text" value.bind="tran.account">
+      
+          <label for="description">Description</label>
+          <input id="description" type="text" value.bind="tran.description">
+
+          <button type="submit" disabled.bind="!tran.canSave">Add Tran</button>
+        </form>
+    </div>
+  </template>
+  
