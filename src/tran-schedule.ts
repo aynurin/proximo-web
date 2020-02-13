@@ -2,28 +2,29 @@ import {
   ViewEngineHooks,
   View,
   bindable,
-  inject
+  inject,
 } from "aurelia-framework";
 import {EventAggregator} from 'aurelia-event-aggregator';
 import {TranAddRequest, TranEditRequested} from './messages';
+import cronstrue from 'cronstrue';
 
 @inject(EventAggregator)
 export class TranScheduleCustomElement {
   @bindable editing: boolean = false;
-  @bindable tran: TranSchedule = null;
+  @bindable tran: TranSchedule = new TranSchedule();
+  scheduleForm: any;
+  @bindable accounts: string[] = [];
 
-  accounts: string[] = [];
 
   public constructor(private ea: EventAggregator) { }
 
   addNewTran() {
+    console.log(this.scheduleForm);
     if (this.tran.canSave) {
+      // this.ea.publish(new TranAddRequest(Object.assign({}, this.tran)));
       this.ea.publish(new TranAddRequest(this.tran));
-      if (this.accounts.find(acc => acc == this.tran.account) == null) {
-        this.accounts.push(this.tran.account)
-      }
       this.tran = new TranSchedule();
-      this.accounts.sort((a, b) => a.localeCompare(b));
+      this.scheduleForm.reset();
     }
   }
 }
@@ -38,8 +39,54 @@ export class TranSchedule {
   account: string = null;
   description: string = null;
 
+  callcount: number = 0;
+
   get maxDate(): number {
     return daysInMonth(this.month, this.year);
+  }
+
+  get scheduleLabel(): string {
+    // every 4th
+    // of july
+    // every Tuesday
+    // 2002
+    // last business day before | first business day after |
+    let parts = ['*', '*'];
+    if (this.date !== null && this.date >= 0) {
+      parts.push(this.date.toString())
+    } else {
+      console.log('date null', this.date);
+      parts.push('*');
+    }
+    console.log('month', this.month);
+    if (this.date !== null && this.date >= 0) {
+      parts.push(this.date.toString())
+    } else {
+      console.log('date null', this.date);
+      parts.push('*');
+    }
+    // if (this.month !== null && this.month !== Month.Any) {
+    //   parts.push(this.month.toString())
+    // } else {
+    //   console.log('month null', this.month);
+    //   parts.push('*');
+    // }
+    // if (this.dayOfWeek !== null && this.dayOfWeek !== DayOfWeek.Any) {
+    //   parts.push(this.dayOfWeek.toString())
+    // } else {
+    //   console.log('dayOfWeek null', this.dayOfWeek);
+    //   parts.push('*');
+    // }
+    // if (this.year !== null && this.year > 0) {
+    //   parts.push(this.year.toString())
+    // } else {
+    //   console.log('year null', this.year);
+    //   parts.push('*');
+    // }
+    const cron = parts.join(' ');
+    console.log(cron);
+    return ""
+    // return cronstrue.toString(cron);
   }
 
   get canSave(): boolean {

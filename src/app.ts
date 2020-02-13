@@ -10,7 +10,6 @@ export class App {
   message = "FinForecast";
   schedule: TranSchedule[] = [];
   accounts: string[] = [];
-  newTran: TranSchedule = new TranSchedule();
 
   public constructor(public ea: EventAggregator) {
     ea.subscribe(TranAddRequest, (r: TranAddRequest) => this.addTran(r.tran));
@@ -19,6 +18,7 @@ export class App {
   addTran(tran: TranSchedule) {
     console.log("addTran", tran);
     this.schedule.push(tran);
+    
     if (this.accounts.find(acc => acc == tran.account) == null) {
       this.accounts.push(tran.account)
     }

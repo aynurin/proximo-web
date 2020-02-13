@@ -1,4 +1,4 @@
-import numeral from 'numeral';
+// import numeral from 'numeral';
 
 export class TextToMoneyValueConverter {
   // toView(val: number) {
@@ -8,6 +8,7 @@ export class TextToMoneyValueConverter {
 
   fromView(val: string) {
     if (!val) return null;
-    return numeral(val).value();
+    return parseFloat(val);
+    // return numeral(val).value();
   }
 }

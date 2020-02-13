@@ -1,6 +1,6 @@
 <template>
   <div if.bind="editing">
-    <form submit.trigger="addNewTran()">
+    <form submit.trigger="addNewTran()" ref="scheduleForm">
       <fieldset>
         <legend>Schedule</legend>
         <label for="date">Date</label>
@@ -93,5 +93,16 @@
       </fieldset>
       <button type="submit" disabled.bind="!tran.canSave">Add Tran</button>
     </form>
+  </div>
+  <div if.bind="!editing">
+    <span>${tran.scheduleLabel}</span>
+    <span>${tran.date}</span>
+    <span>${tran.month}</span>
+    <span>${tran.dayOfWeek}</span>
+    <span>${tran.year}</span>
+    <span>${tran.holidayRule}</span>
+    <span>${tran.amount}</span>
+    <span>${tran.account}</span>
+    <span>${tran.description}</span>
   </div>
 </template>

@@ -1,4 +1,4 @@
-import numeral from 'numeral';
+// import numeral from 'numeral';
 
 export class TextToFloatValueConverter {
   // toView(val: number) {
