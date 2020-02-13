@@ -1,45 +1,97 @@
 <template>
-
-    <div if.bind="editing">
-        <form submit.trigger="addNewTran()">
-      
-          <label for="date">Date</label>
-          <select id="date" value.bind="tran.date">
-            <option model.bind="0">Any</option>
-            <!-- When we iterate, we need to iterate over the Months variable,
+  <div if.bind="editing">
+    <form submit.trigger="addNewTran()">
+      <fieldset>
+        <legend>Schedule</legend>
+        <label for="date">Date</label>
+        <select
+          id="date"
+          title="Day of month on which this transaction reoccurs"
+          value.bind="tran.date"
+        >
+          <option model.bind="0">Any</option>
+          <!-- When we iterate, we need to iterate over the Months variable,
               which is the iterable version of the Month enum. -->
-            <option model.bind="date" repeat.for="date of tran.maxDate">${date+1}</option>
-          </select>
-      
-          <label for="month">Month</label>
-          <select id="month" value.bind="tran.month">
-            <option model.bind="Month[month]" repeat.for="month of Months">${month}</option>
-          </select>
-      
-          <label for="dayOfWeek">Day Of Week</label>
-          <select id="dayOfWeek" value.bind="tran.dayOfWeek">
-            <option model.bind="DayOfWeek[dayOfWeek]" repeat.for="dayOfWeek of DaysOfWeek">${dayOfWeek}</option>
-          </select>
-      
-          <label for="year">Year</label>
-          <input id="year" type="text" value.bind="tran.year">
+          <option model.bind="date" repeat.for="date of tran.maxDate"
+            >${date+1}</option
+          >
+        </select>
 
-          <label for="holidayRule">Holiday Rule</label>
-          <select id="holidayRule" value.bind="tran.holidayRule">
-            <option model.bind="HolidayRule[holidayRule]" repeat.for="holidayRule of HolidayRules">${holidayRule}</option>
-          </select>
-      
-          <label for="amount">Amount</label>
-          <input id="amount" type="text" value.bind="tran.amount">
-      
-          <label for="account">Account</label>
-          <input id="account" type="text" value.bind="tran.account">
-      
-          <label for="description">Description</label>
-          <input id="description" type="text" value.bind="tran.description">
+        <label for="month">Month</label>
+        <select
+          id="month"
+          title="Month on which this transaction reoccurs"
+          value.bind="tran.month"
+        >
+          <option model.bind="Month[month]" repeat.for="month of Months"
+            >${month}</option
+          >
+        </select>
 
-          <button type="submit" disabled.bind="!tran.canSave">Add Tran</button>
-        </form>
-    </div>
-  </template>
-  
+        <label for="dayOfWeek">Day Of Week</label>
+        <select
+          id="dayOfWeek"
+          title="Day of week on which this transaction reoccurs"
+          value.bind="tran.dayOfWeek"
+        >
+          <option
+            model.bind="DayOfWeek[dayOfWeek]"
+            repeat.for="dayOfWeek of DaysOfWeek"
+            >${dayOfWeek}</option
+          >
+        </select>
+
+        <label for="year">Year</label>
+        <input
+          id="year"
+          type="text"
+          pattern="^20\d{2}|19[7-9]\d|\d{2}$"
+          title="Two or four digits year between 1970 and 2099"
+          value.bind="tran.year"
+        />
+
+        <label for="holidayRule">Holiday Rule</label>
+        <select id="holidayRule" value.bind="tran.holidayRule">
+          <option
+            model.bind="HolidayRule[holidayRule]"
+            repeat.for="holidayRule of HolidayRules"
+            >${holidayRule}</option
+          >
+        </select>
+      </fieldset>
+      <fieldset>
+        <legend>Transaction details</legend>
+        <label for="amount">Amount</label>
+        <input
+          id="amount"
+          type="text"
+          required
+          pattern="^(:?\+|-|\()?\d*\.?\d*(:?\))?$"
+          title="Transaction amount"
+          value.bind="tran.amount"
+        />
+
+        <label for="account">Account</label>
+        <input
+          id="account"
+          type="text"
+          required
+          pattern=".+"
+          title="Account on which this transaction was made"
+          value.bind="tran.account"
+        />
+
+        <label for="description">Description</label>
+        <input
+          id="description"
+          type="text"
+          required
+          pattern=".+"
+          title="Transaction description"
+          value.bind="tran.description"
+        />
+      </fieldset>
+      <button type="submit" disabled.bind="!tran.canSave">Add Tran</button>
+    </form>
+  </div>
+</template>

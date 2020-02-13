@@ -18,15 +18,11 @@ export class App {
 
   addTran(tran: TranSchedule) {
     console.log("addTran", tran);
-    // const newTran = TranSchedule.isEmpty(tran) ? this.newTran : tran;
-    // if (!TranSchedule.isEmpty(newTran)) {
-    //   this.schedule.push(newTran);
-    //   if (this.accounts.find(acc => acc == newTran.account) == null) {
-    //     this.accounts.push(newTran.account)
-    //   }
-    //   this.newTran = new TranSchedule();
-    //   this.accounts.sort((a, b) => a.localeCompare(b));
-    // }
+    this.schedule.push(tran);
+    if (this.accounts.find(acc => acc == tran.account) == null) {
+      this.accounts.push(tran.account)
+    }
+    this.accounts.sort((a, b) => a.localeCompare(b));
   }
 
   removeTran(tran: TranSchedule) {

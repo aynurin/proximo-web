@@ -45,6 +45,7 @@ export class TranSchedule {
   get canSave(): boolean {
     return (
       this.amount !== null &&
+      !isNaN(this.amount) &&
       this.account !== null &&
       this.account.length > 0 &&
       this.description !== null &&
@@ -99,17 +100,19 @@ export class TranScheduleViewEngineHooks implements ViewEngineHooks {
     // to the view without interfering with any properties on the
     // bindingContext itself.
     view.overrideContext["Month"] = Month;
-    view.overrideContext["DayOfWeek"] = DayOfWeek;
-    view.overrideContext["HolidayRule"] = HolidayRule;
 
     // Since TypeScript enums are not iterable, we need to do a bit of extra
     // legwork if we plan on iterating over the enum keys.
     view.overrideContext["Months"] = Object.keys(Month).filter(
       key => typeof Month[key] === "number"
     );
+
+    view.overrideContext["DayOfWeek"] = DayOfWeek;
     view.overrideContext["DaysOfWeek"] = Object.keys(DayOfWeek).filter(
       key => typeof DayOfWeek[key] === "number"
     );
+
+    view.overrideContext["HolidayRule"] = HolidayRule;
     view.overrideContext["HolidayRules"] = Object.keys(HolidayRule).filter(
       key => typeof HolidayRule[key] === "number"
     );
