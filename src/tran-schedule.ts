@@ -3,10 +3,11 @@ import {
   View,
   bindable,
   inject,
+  computedFrom,
 } from "aurelia-framework";
 import {EventAggregator} from 'aurelia-event-aggregator';
 import {TranAddRequest, TranEditRequested} from './messages';
-import cronstrue from 'cronstrue';
+import cronstr from './components/cronstr'
 
 @inject(EventAggregator)
 export class TranScheduleCustomElement {
@@ -41,52 +42,20 @@ export class TranSchedule {
 
   callcount: number = 0;
 
+  @computedFrom('month', 'year')
   get maxDate(): number {
     return daysInMonth(this.month, this.year);
   }
 
+  @computedFrom('date', 'month', 'dayOfWeek', 'year', 'holidayRule')
   get scheduleLabel(): string {
-    // every 4th
-    // of july
-    // every Tuesday
-    // 2002
-    // last business day before | first business day after |
-    let parts = ['*', '*'];
-    if (this.date !== null && this.date >= 0) {
-      parts.push(this.date.toString())
-    } else {
-      console.log('date null', this.date);
-      parts.push('*');
-    }
-    console.log('month', this.month);
-    if (this.date !== null && this.date >= 0) {
-      parts.push(this.date.toString())
-    } else {
-      console.log('date null', this.date);
-      parts.push('*');
-    }
-    // if (this.month !== null && this.month !== Month.Any) {
-    //   parts.push(this.month.toString())
-    // } else {
-    //   console.log('month null', this.month);
-    //   parts.push('*');
-    // }
-    // if (this.dayOfWeek !== null && this.dayOfWeek !== DayOfWeek.Any) {
-    //   parts.push(this.dayOfWeek.toString())
-    // } else {
-    //   console.log('dayOfWeek null', this.dayOfWeek);
-    //   parts.push('*');
-    // }
-    // if (this.year !== null && this.year > 0) {
-    //   parts.push(this.year.toString())
-    // } else {
-    //   console.log('year null', this.year);
-    //   parts.push('*');
-    // }
-    const cron = parts.join(' ');
-    console.log(cron);
-    return ""
-    // return cronstrue.toString(cron);
+    let parts = [
+      this.date !== null && this.date > 0 ? (this.date + 1).toString() : '*',
+      this.month !== null && this.month !== Month.Any ? this.month.toString() : '*',
+      this.dayOfWeek !== null && this.dayOfWeek !== DayOfWeek.Any ? this.dayOfWeek.toString() : '*',
+      this.year !== null && this.year > 0 ? this.year.toString() : '*'
+    ];
+    return cronstr(parts);
   }
 
   get canSave(): boolean {
@@ -98,6 +67,16 @@ export class TranSchedule {
       this.description !== null &&
       this.description.length > 0
     );
+  }
+
+  @computedFrom('date')
+  get exactDateSelected(): boolean {
+    return this.date !== null && this.date > 0;
+  }
+
+  @computedFrom('dayOfWeek')
+  get exactWeekDaySelected(): boolean {
+    return this.dayOfWeek !== null && this.dayOfWeek !== DayOfWeek.Any;
   }
 }
 

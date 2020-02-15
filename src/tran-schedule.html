@@ -8,11 +8,12 @@
           id="date"
           title="Day of month on which this transaction reoccurs"
           value.bind="tran.date"
+          disabled.bind="tran.exactWeekDaySelected"
         >
           <option model.bind="0">Any</option>
           <!-- When we iterate, we need to iterate over the Months variable,
               which is the iterable version of the Month enum. -->
-          <option model.bind="date" repeat.for="date of tran.maxDate"
+          <option model.bind="date + 1" repeat.for="date of tran.maxDate"
             >${date+1}</option
           >
         </select>
@@ -33,6 +34,7 @@
           id="dayOfWeek"
           title="Day of week on which this transaction reoccurs"
           value.bind="tran.dayOfWeek"
+          disabled.bind="tran.exactDateSelected"
         >
           <option
             model.bind="DayOfWeek[dayOfWeek]"
@@ -51,7 +53,7 @@
         />
 
         <label for="holidayRule">Holiday Rule</label>
-        <select id="holidayRule" value.bind="tran.holidayRule">
+        <select id="holidayRule" value.bind="tran.holidayRule" disabled.bind="tran.exactWeekDaySelected">
           <option
             model.bind="HolidayRule[holidayRule]"
             repeat.for="holidayRule of HolidayRules"
@@ -96,12 +98,8 @@
   </div>
   <div if.bind="!editing">
     <span>${tran.scheduleLabel}</span>
-    <span>${tran.date}</span>
-    <span>${tran.month}</span>
-    <span>${tran.dayOfWeek}</span>
-    <span>${tran.year}</span>
     <span>${tran.holidayRule}</span>
-    <span>${tran.amount}</span>
+    <span>${tran.amount | textToMoney}</span>
     <span>${tran.account}</span>
     <span>${tran.description}</span>
   </div>
