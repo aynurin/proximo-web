@@ -10,9 +10,7 @@
   "dependencies": {
     "aurelia-animator-css": "^1.0.4",
     "aurelia-bootstrapper": "^2.3.2",
-    "cronstrue": "^1.88.0",
-    "numeral": "^2.0.6",
-    "tslint": "^6.0.0"
+    "numeral": "^2.0.6"
   },
   "devDependencies": {
     "@types/jest": "^24.0.9",
@@ -49,6 +47,7 @@
     "ts-jest": "^24.0.0",
     "ts-loader": "^5.2.1",
     "ts-node": "^7.0.1",
+    "tslint": "^6.0.0",
     "typescript": "^3.1.2",
     "url-loader": "^1.1.2",
     "vinyl-fs": "^3.0.3",

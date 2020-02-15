@@ -1,16 +1,5 @@
-// import cronstrue from 'cronstrue';
-// import { CronParser } from 'cronstrue/cronParser';
-
 export default function cronstr(cronparts: Array<string>): string {
     return buildit(cronparts);
-    // const cronstr = ['*', '*', '*', ...cronparts].join(' ');
-    // // const parser = new CronParser(cronstr);
-    // // const parsed = parser.parse();
-    // // console.log(parsed)
-    // let str = cronstrue.toString(cronstr);
-    // str = str.replace('Every second, ', '');
-    // str = str.replace(/on day (\d+)(?= )/gm, onDayReplace);
-    // return str;
 }
 
 function buildit(parts: Array<string>): string {
