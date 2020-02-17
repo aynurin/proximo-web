@@ -1,0 +1,63 @@
+<!--
+  Option to add your own schedule (dynamically rendered using cronstrue).
+  Try moving allOptions into CustomElement
+-->
+<template>
+  <div if.bind="editing">
+    <form ref="scheduleForm" submit.trigger="addNewTran()">
+      <fieldset>
+        <legend>Schedule</legend>
+        <label for="date">Date</label>
+        <input type="date" id="date" name="date" value.bind="tran.date" />
+        <label repeat.for="schedule of allOptions">
+        <input type="radio" name="scheduleOption"
+          model.bind="schedule" checked.bind="tran.selectedSchedule"/>${schedule.label}</label>
+        <label for="holidayRule" if.bind="showHolidayRule">If falls on holiday, execute 
+        <select id="holidayRule" value.bind="tran.selectedSchedule.holidayRule" disabled.bind="tran.exactWeekDaySelected">
+          <option model.bind="HolidayRule[holidayRule]"
+            repeat.for="holidayRule of HolidayRules">${holidayRule}</option>
+        </select> the holiday</label>
+        <button click.trigger="clickme()">Click me!</button>
+      </fieldset>
+      <fieldset>
+        <legend>Transaction details</legend>
+        <label for="amount">Amount</label>
+        <input
+          id="amount"
+          type="text"
+          required
+          pattern="^(:?\+|-|\()?\d*\.?\d*(:?\))?$"
+          title="Transaction amount"
+          value.bind="tran.amount"
+        />
+
+        <label for="account">Account</label>
+        <input
+          id="account"
+          type="text"
+          required
+          pattern=".+"
+          title="Account on which this transaction was made"
+          value.bind="tran.account"
+        />
+
+        <label for="description">Description</label>
+        <input
+          id="description"
+          type="text"
+          required
+          pattern=".+"
+          title="Transaction description"
+          value.bind="tran.description"
+        />
+      </fieldset>
+      <button type="submit" disabled.bind="!canSave">Add Tran</button>
+    </form>
+  </div>
+  <div if.bind="!editing">
+    <span>${tran.selectedSchedule.cronLabel}</span>
+    <span>${tran.amount | textToMoney}</span>
+    <span>${tran.account}</span>
+    <span>${tran.description}</span>
+  </div>
+</template>

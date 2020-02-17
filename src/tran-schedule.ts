@@ -18,16 +18,6 @@ export class TranScheduleCustomElement {
 
 
   public constructor(private ea: EventAggregator) { }
-
-  addNewTran() {
-    console.log(this.scheduleForm);
-    if (this.tran.canSave) {
-      // this.ea.publish(new TranAddRequest(Object.assign({}, this.tran)));
-      this.ea.publish(new TranAddRequest(this.tran));
-      this.tran = new TranSchedule();
-      this.scheduleForm.reset();
-    }
-  }
 }
 
 export class TranSchedule {

@@ -1,13 +1,14 @@
 <template>
 
   <require from="./tran-schedule"></require>
+  <require from="./tran-builder"></require>
 
   <h1>${message}</h1>
-  <tran-schedule editing.bind="true" accounts.bind="accounts"></tran-schedule>
+  <tran-builder editing.bind="true"accounts.bind="accounts"></tran-builder>
   
   <ul>
     <li repeat.for="tran of schedule">
-      <tran-schedule editing.bind="false" tran.bind="tran" accounts.bind="accounts"></tran-schedule>
+      <tran-builder editing.bind="false" tran.bind="tran" accounts.bind="accounts"></tran-builder>
       <button click.trigger="removeTran(tran)">Remove</button>
     </li>
   </ul>

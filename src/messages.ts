@@ -1,9 +1,9 @@
-import { TranSchedule } from "./tran-schedule";
+import { TranBuilder } from "./tran-builder";
 
 export class TranAddRequest {
-  constructor(public tran: TranSchedule) {}
+  constructor(public tran: TranBuilder) {}
 }
 
 export class TranEditRequested {
-  constructor(public tran: TranSchedule) {}
+  constructor(public tran: TranBuilder) {}
 }
