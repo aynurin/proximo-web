@@ -2,33 +2,49 @@ import {
   ViewEngineHooks,
   View,
   bindable,
-  inject,
+  autoinject,
   computedFrom
 } from "aurelia-framework";
-import { EventAggregator } from "aurelia-event-aggregator";
-import { TranAddRequest, TranEditRequested } from "./messages";
 import cronstr from "./components/cronstr";
 import * as moment from "moment";
 
-@inject(EventAggregator)
+import { Store, connectTo } from 'aurelia-store';
+import { State } from './state';
+
+import { Schedule, HolidayRule } from './model/schedule';
+import { TranTemplate } from './model/tran-template';
+import { TranStateActions } from './model/tran-actions';
+
+@autoinject()
+@connectTo()
 export class TranBuilderCustomElement {
   @bindable editing: boolean = false;
-  @bindable tran: TranBuilder = new TranBuilder();
+  @bindable tran: TranTemplate = new TranTemplate();
   scheduleForm: any;
   @bindable accounts: string[] = [];
+  public state: State;
+  private tranActions: TranStateActions;
 
-  public constructor(private ea: EventAggregator) {}
+  public constructor(private store: Store<State>) {
+    this.tranActions = new TranStateActions(this.store);
+  }
 
   clickme() {
+    if (this.tran) {
+      console.log('clickme', this.tran.selectedSchedule);
+    }
   }
 
   addNewTran() {
     if (this.canSave) {
-      // this.ea.publish(new TranAddRequest(Object.assign({}, this.tran)));
-      this.ea.publish(new TranAddRequest(this.tran));
-      this.tran = new TranBuilder();
+      this.tranActions.addTran(this.tran);
+      this.tran = new TranTemplate();
       this.scheduleForm.reset();
     }
+  }
+
+  removeTran(tran: TranTemplate) {
+    this.tranActions.removeTran(tran);
   }
 
   @computedFrom("tran.selectedSchedule")
@@ -40,35 +56,35 @@ export class TranBuilderCustomElement {
 
   @computedFrom("tran.date")
   get allOptions(): Schedule[] {
-    const options = [];
-
     const date = moment(this.tran.date);
+    const options: Schedule[] = [];
 
     if (this.tran.date == null || this.tran.date == '') {
       return options;
     }
 
+
     options.push(
-      new Schedule("Every " + moment(date).format("dddd"), false, {
-        dayOfWeek: date.day() + 1
+      new Schedule("Every " + moment(date).format("dddd"), {
+        dayOfWeek: date.day()
       })
     );
 
     options.push(
-      new Schedule("Monthly, on the " + moment(date).format("Do"), true, {
+      new Schedule("Monthly, on the " + moment(date).format("Do"), {
         day: date.date()
       })
     );
 
     options.push(
-      new Schedule("Once a year, on " + moment(date).format("MMM Do"), true, {
+      new Schedule("Once a year, on " + moment(date).format("MMM Do"), {
         day: date.date(),
         month: date.month() + 1
       })
     );
 
     options.push(
-      new Schedule("Once, on " + moment(date).format("MMM Do YYYY"), true, {
+      new Schedule("Once, on " + moment(date).format("MMM Do YYYY"), {
         day: date.date(),
         month: date.month() + 1,
         year: date.year()
@@ -90,70 +106,27 @@ export class TranBuilderCustomElement {
       this.tran.description.length > 0
     );
   }
-}
-
-export class TranBuilder {
-  date: string = null;
-  selectedSchedule: Schedule = null;
-
-  amount: number = null;
-  account: string = null;
-  description: string = null;
-}
-
-interface CronParts {
-  day?: number;
-  month?: number;
-  dayOfWeek?: number;
-  year?: number;
-  nthDayOfWeek?: number;
-}
-
-class Schedule {
-  cron: string[];
-  label: string;
-  allowHolidayRule: boolean;
-  holidayRule: HolidayRule = HolidayRule.on;
-
-  constructor(label: string, allowHolidayRule: boolean, cron: CronParts) {
-    this.cron = [
-      cron.day == null || cron.day === NaN ? "*" : cron.day.toString(),
-      cron.month == null || cron.month === NaN ? "*" : cron.month.toString(),
-      cron.dayOfWeek == null || cron.dayOfWeek === NaN
-        ? "*"
-        : cron.nthDayOfWeek == null || cron.nthDayOfWeek === NaN
-        ? cron.dayOfWeek.toString()
-        : `${cron.dayOfWeek}#${cron.nthDayOfWeek}`,
-      cron.year == null || cron.year === NaN ? "*" : cron.year.toString()
-    ];
-    this.label = label;
-    this.allowHolidayRule = allowHolidayRule;
-  }
 
   @computedFrom("cron")
-  get id(): string {
-    return this.cron.join('_').replace(/[#<>/-]/, '_');
-  }
-
-  @computedFrom("cron")
-  get val(): string {
-    return this.cron.join(' ');
-  }
-
-  @computedFrom("cron")
-  get cronLabel(): string {
-    let label = cronstr(this.cron);
-    if (this.allowHolidayRule) {
-      label += ', ' + HolidayRule[this.holidayRule] + ' holidays';
+  get scheduleLabel(): string {
+    console.log('scheduleLabel', this.tran.selectedSchedule.cron);
+    let label = cronstr(this.tran.selectedSchedule.cron);
+    if (this.tran.selectedSchedule.allowHolidayRule) {
+      label += ", " + HolidayRule[this.tran.selectedSchedule.holidayRule] + " holidays";
     }
     return label;
   }
-}
+  
+  @computedFrom("cron")
+  get scheduleId(): string {
+    return [this.tran.selectedSchedule.holidayRule, ...this.tran.selectedSchedule.cron]
+      .join("_").replace(/[#<>/-]/, "_");
+  }
 
-export enum HolidayRule {
-  on,
-  before,
-  after
+  @computedFrom("cron")
+  get scheduleCron(): string {
+    return this.tran.selectedSchedule.cron.join(" ");
+  }
 }
 
 // By convention, Aurelia will look for any classes of the form

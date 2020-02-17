@@ -4,6 +4,14 @@ This project is bootstrapped by [aurelia-cli](https://github.com/aurelia/cli).
 
 For more information, go to https://aurelia.io/docs/cli/webpack
 
+## Todo
+
+Save to local storage
+Accounts autocomplete
+Schedule table
+Build progression
+Draw chart
+
 ## Run dev app
 
 Run `npm start`, then open `http://localhost:8080`

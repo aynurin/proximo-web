@@ -10,10 +10,11 @@
         <label for="date">Date</label>
         <input type="date" id="date" name="date" value.bind="tran.date" />
         <label repeat.for="schedule of allOptions">
-        <input type="radio" name="scheduleOption"
-          model.bind="schedule" checked.bind="tran.selectedSchedule"/>${schedule.label}</label>
+          <input type="radio" name="scheduleOption"
+                 model.bind="schedule" checked.two-way="tran.selectedSchedule"
+                 />${schedule.label}</label>
         <label for="holidayRule" if.bind="showHolidayRule">If falls on holiday, execute 
-        <select id="holidayRule" value.bind="tran.selectedSchedule.holidayRule" disabled.bind="tran.exactWeekDaySelected">
+        <select id="holidayRule" value.bind="tran.selectedSchedule.holidayRule" disabled.bind="!showHolidayRule">
           <option model.bind="HolidayRule[holidayRule]"
             repeat.for="holidayRule of HolidayRules">${holidayRule}</option>
         </select> the holiday</label>
@@ -55,9 +56,10 @@
     </form>
   </div>
   <div if.bind="!editing">
-    <span>${tran.selectedSchedule.cronLabel}</span>
+    <span>${scheduleLabel}</span>
     <span>${tran.amount | textToMoney}</span>
     <span>${tran.account}</span>
     <span>${tran.description}</span>
+    <span><button click.trigger="removeTran(tran)">Remove</button></span>
   </div>
 </template>
