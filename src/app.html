@@ -1,13 +1,20 @@
 <template>
 
   <require from="./tran-builder"></require>
+  <require from="./account-balance"></require>
 
   <h1>${message}</h1>
   <tran-builder editing.bind="true"accounts.bind="accounts"></tran-builder>
-  
+schedule:
   <div>
     <div repeat.for="tran of state.schedule">
-      <tran-builder editing.bind="false" tran.bind="tran" accounts.bind="accounts"></tran-builder>
+      <tran-builder editing.bind="false" tran.bind="tran"></tran-builder>
+    </div>
+  </div>
+accounts:
+  <div>
+    <div repeat.for="account of state.accounts2">
+      <account-balance account.bind="account"></account-balance>
     </div>
   </div>
 </template>

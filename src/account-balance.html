@@ -1,0 +1,21 @@
+<!--
+  Option to add your own schedule (dynamically rendered using cronstrue).
+  Try moving allOptions into CustomElement
+-->
+<template>
+  <form ref="accountBalanceForm" submit.trigger="saveAccountBalance()">
+    <div if.bind="!create">
+      <span>${account.account}</span>
+      <input type="text" name="balance" value.bind="account.balance" />
+    </div>
+    <div if.bind="create">
+      <label for="account">Account name:
+        <input type="text" name="account" value.bind="account.account" />
+      </label>
+      <label for="account">Starting balance:
+        <input type="text" name="balance" value.bind="account.balance" />
+      </label>
+    </div>
+    <button type="submit" disabled.bind="!canSave">Save</button>
+  </form>
+</template>

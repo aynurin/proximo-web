@@ -47,11 +47,22 @@ export class TranBuilderCustomElement {
     this.tranActions.removeTran(tran);
   }
 
+  get minDateTill(): string {
+    return moment(this.tran.selectedSchedule.dateSince).format("YYYY-MM-DD");
+  }
+
   @computedFrom("tran.selectedSchedule")
   get showHolidayRule(): boolean {
     return this.tran && 
       this.tran.selectedSchedule && 
-      this.tran.selectedSchedule.allowHolidayRule;
+      this.tran.selectedSchedule.allowsHolidayRule;
+  }
+
+  @computedFrom("tran.selectedSchedule")
+  get showDateRange(): boolean {
+    return this.tran && 
+      this.tran.selectedSchedule && 
+      this.tran.selectedSchedule.allowsDateRange;
   }
 
   @computedFrom("tran.date")
@@ -109,10 +120,17 @@ export class TranBuilderCustomElement {
 
   @computedFrom("cron")
   get scheduleLabel(): string {
-    console.log('scheduleLabel', this.tran.selectedSchedule.cron);
-    let label = cronstr(this.tran.selectedSchedule.cron);
-    if (this.tran.selectedSchedule.allowHolidayRule) {
-      label += ", " + HolidayRule[this.tran.selectedSchedule.holidayRule] + " holidays";
+    const sched = this.tran.selectedSchedule;
+    let label = cronstr(sched.cron);
+    if (sched.allowsHolidayRule) {
+      label += ", " + HolidayRule[sched.holidayRule] + " holidays";
+    }
+    if (sched.dateSince && sched.dateTill) {
+      label += ", between " + moment(sched.dateSince).format('MMMM Do YYYY') + " and " + moment(sched.dateTill).format('MMMM Do YYYY');
+    } else if (sched.dateSince) {
+      label += ", starting from " + moment(sched.dateSince).format('MMMM Do YYYY');
+    } else if (sched.dateTill) {
+      label += ", until " + moment(sched.dateTill).format('MMMM Do YYYY');
     }
     return label;
   }

@@ -13,9 +13,15 @@ export class Schedule {
   label: string;
   // allowHolidayRule: boolean;
   holidayRule: HolidayRule = HolidayRule.on;
+  dateSince: Date;
+  dateTill: Date;
 
-  get allowHolidayRule(): boolean {
-    return this.cron && (this.cron[2] === "*" || this.cron[2] === "?");
+  get allowsHolidayRule(): boolean {
+    return this.cron && isCronAny(this.cron[2]);
+  }
+
+  get allowsDateRange(): boolean {
+    return this.cron && !(!isCronAny(this.cron[0]) && !isCronAny(this.cron[1]) && !isCronAny(this.cron[3]))
   }
 
   constructor(label: string, cron: CronParts) {
@@ -44,4 +50,8 @@ export enum HolidayRule {
   on,
   before,
   after
+}
+
+function isCronAny(str: string): boolean {
+  return str == null || str === '*' || str === '?';
 }

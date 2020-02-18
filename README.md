@@ -6,8 +6,8 @@ For more information, go to https://aurelia.io/docs/cli/webpack
 
 ## Todo
 
-Save to local storage
-Accounts autocomplete
+Save to local storage - done
+Accounts autocomplete - postpone, try taking advantage of the browser's autocomplete
 Schedule table
 Build progression
 Draw chart

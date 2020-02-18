@@ -1,6 +1,7 @@
 import { Store } from 'aurelia-store';
 import { State } from '../state';
 import { TranTemplate } from './tran-template';
+import { AccountBalance } from './account-balance';
 
 export class TranStateActions {
   public constructor(public store: Store<State>) {}
@@ -8,6 +9,7 @@ export class TranStateActions {
   public register() {
     this.store.registerAction('addTran', addTranAction);
     this.store.registerAction('removeTran', removeTranAction);
+    this.store.registerAction('saveAccount', saveAccountAction);
   }
 
   public addTran(tran: TranTemplate) {
@@ -17,16 +19,23 @@ export class TranStateActions {
   public removeTran(tran: TranTemplate) {
     this.store.dispatch('removeTran', tran);
   }
+
+  public saveAccount(account: AccountBalance) {
+    this.store.dispatch('saveAccount', account);
+  }
 }
 
 const addTranAction = (state: State, tran: TranTemplate) => {
   const newState = Object.assign({}, state);
   newState.schedule = [...newState.schedule, tran];
   
-  if (newState.accounts.find(acc => acc == tran.account) == null) {
-    let newAccounts = [...newState.accounts, tran.account];
-    newAccounts.sort((a, b) => a.localeCompare(b));
-    newState.accounts = newAccounts;
+  if (typeof newState.accounts2 == 'undefined') {
+    newState.accounts2 = [];
+  }
+  if (newState.accounts2.find(acc => acc.account == tran.account) == null) {
+    let newAccounts = [...newState.accounts2, { account: tran.account, date: new Date(), balance: 0 }];
+    newAccounts.sort((a, b) => a.account.localeCompare(b.account));
+    newState.accounts2 = newAccounts;
   }
 
   return newState;
@@ -41,4 +50,15 @@ const removeTranAction = (state: State, tran: TranTemplate) => {
     return newState;
   }
   return state;
+}
+
+const saveAccountAction = (state: State, account: AccountBalance) => {
+  const newState = Object.assign({}, state);
+
+  let newAccounts = [...newState.accounts2.filter(f => f.account != account.account), 
+      Object.assign({}, account)];
+  newAccounts.sort((a, b) => a.account.localeCompare(b.account));
+  newState.accounts2 = newAccounts;
+
+  return newState;
 }

@@ -11,13 +11,16 @@
         <input type="date" id="date" name="date" value.bind="tran.date" />
         <label repeat.for="schedule of allOptions">
           <input type="radio" name="scheduleOption"
-                 model.bind="schedule" checked.two-way="tran.selectedSchedule"
+                 model.bind="schedule" checked.bind="tran.selectedSchedule"
                  />${schedule.label}</label>
         <label for="holidayRule" if.bind="showHolidayRule">If falls on holiday, execute 
         <select id="holidayRule" value.bind="tran.selectedSchedule.holidayRule" disabled.bind="!showHolidayRule">
           <option model.bind="HolidayRule[holidayRule]"
             repeat.for="holidayRule of HolidayRules">${holidayRule}</option>
         </select> the holiday</label>
+        <label for="dateRange" if.bind="showDateRange">Repeat between  
+          <input type="date" id="dateRangeSince" name="dateRangeSince" value.bind="tran.selectedSchedule.dateSince" /> and 
+          <input type="date" id="dateRangeTill" name="dateRangeTill" value.bind="tran.selectedSchedule.dateTill" min.bind="minDateTill" /></label>
         <button click.trigger="clickme()">Click me!</button>
       </fieldset>
       <fieldset>
