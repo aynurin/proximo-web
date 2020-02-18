@@ -8,8 +8,8 @@ For more information, go to https://aurelia.io/docs/cli/webpack
 
 Save to local storage - done
 Accounts autocomplete - postpone, try taking advantage of the browser's autocomplete
-Schedule table
-Build progression
+Schedule table - done
+Build progression - done
 Draw chart
 
 ## Run dev app

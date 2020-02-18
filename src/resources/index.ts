@@ -8,6 +8,7 @@ export function configure(config: FrameworkConfiguration) {
     // As it becomes very inconvenient to use with e.g. money formatting
     PLATFORM.moduleName("./value-converters/text-to-int"),
     PLATFORM.moduleName("./value-converters/text-to-money"),
-    PLATFORM.moduleName("./value-converters/text-to-float")
+    PLATFORM.moduleName("./value-converters/text-to-float"),
+    PLATFORM.moduleName("./value-converters/date-format")
   ]);
 }

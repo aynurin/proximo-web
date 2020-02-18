@@ -21,7 +21,6 @@ import {
   
     public constructor(private store: Store<State>) {
       this.tranActions = new TranStateActions(this.store);
-      console.log('AccountBalanceCustomElement');
     }
   
     saveAccountBalance() {

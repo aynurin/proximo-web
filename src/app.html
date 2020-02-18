@@ -2,6 +2,7 @@
 
   <require from="./tran-builder"></require>
   <require from="./account-balance"></require>
+  <require from="./tran-generator"></require>
 
   <h1>${message}</h1>
   <tran-builder editing.bind="true"accounts.bind="accounts"></tran-builder>
@@ -16,5 +17,8 @@ accounts:
     <div repeat.for="account of state.accounts2">
       <account-balance account.bind="account"></account-balance>
     </div>
+    <account-balance create.bind="true"></account-balance>
   </div>
+  ledger:
+  <tran-generator></tran-generator>
 </template>
