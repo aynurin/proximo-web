@@ -13,10 +13,11 @@
       <tr repeat.for="tran of generatedLedger">
         <td>${tran.date | dateFormat}</td>
         <td>${tran.account}</td>
-        <td>${tran.amount}</td>
+        <td>${tran.amount | textToMoney}</td>
         <td>${tran.description}</td>
-        <td>${tran.balance}</td>
+        <td>${tran.balance | textToMoney}</td>
       </tr>
     </tbody>
   </table>
+  <button click.trigger="publish()">Publish ledger!</button>
 </template>

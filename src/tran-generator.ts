@@ -1,4 +1,5 @@
-import { autoinject, computedFrom } from "aurelia-framework";
+import { autoinject, computedFrom, inject } from "aurelia-framework";
+import { EventAggregator } from "aurelia-event-aggregator";
 
 import { Store, connectTo } from "aurelia-store";
 import { State } from "./state";
@@ -14,7 +15,14 @@ import * as moment from "moment";
 export class TranGeneratorCustomElement {
   public state: State;
 
-  public constructor(private store: Store<State>) {}
+  public constructor(
+    private store: Store<State>,
+    private ea: EventAggregator
+  ) {}
+
+  publish() {
+    return this.generatedLedger;
+  }
 
   @computedFrom("state.schedule")
   get generatedLedger(): TranGenerated[] {
@@ -24,21 +32,33 @@ export class TranGeneratorCustomElement {
 
     var options = {
       currentDate: start,
-      endDate: end,
+      endDate: end
     };
 
     let ledger: TranGenerated[] = [];
     for (const tran of this.state.schedule) {
+      const thisOptions = Object.assign({}, options);
+      const since = getBestDate(start, tran.selectedSchedule.dateSince);
+      const till = getBestDate(end, tran.selectedSchedule.dateTill);
+      if (
+        since > moment(thisOptions.currentDate)
+      ) {
+        thisOptions.currentDate = since.toDate();
+      }
+      if (
+        till < moment(thisOptions.endDate)
+      ) {
+        thisOptions.endDate = till.toDate();
+      }
+      console.log(tran.description, thisOptions);
       const interval = CronParser.parseExpression(
         cronexpr(tran.selectedSchedule),
-        options
+        thisOptions
       );
       while (true) {
         try {
-          let something = interval.next();
-          console.log(something);
           let tr = {
-            date: something.toDate(),
+            date: interval.next().toDate(),
             account: tran.account,
             amount: tran.amount,
             balance: 0,
@@ -74,10 +94,20 @@ export class TranGeneratorCustomElement {
         balances[acc] = +accBalance;
       }
     }
+    this.ea.publish("ledgerGenerated", ledger);
+    console.log("published ledger", ledger.length);
     return ledger;
   }
 }
 
 function cronexpr(sched: Schedule): string {
   return ["0", "0", ...sched.cron.slice(0, 3)].join(" ");
+}
+
+function getBestDate(one: Date, another: Date | string) {
+  if (another == null || another.toString().trim() == '') {
+    return moment(one);
+  } else {
+    return moment(another);
+  }
 }

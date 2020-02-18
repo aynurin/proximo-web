@@ -3,6 +3,7 @@
   <require from="./tran-builder"></require>
   <require from="./account-balance"></require>
   <require from="./tran-generator"></require>
+  <require from="./tran-chart"></require>
 
   <h1>${message}</h1>
   <tran-builder editing.bind="true"accounts.bind="accounts"></tran-builder>
@@ -21,4 +22,6 @@ accounts:
   </div>
   ledger:
   <tran-generator></tran-generator>
+  chart:
+  <tran-chart></tran-chart>
 </template>

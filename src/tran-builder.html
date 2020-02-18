@@ -32,7 +32,7 @@
           required
           pattern="^(:?\+|-|\()?\d*\.?\d*(:?\))?$"
           title="Transaction amount"
-          value.bind="tran.amount"
+          value.bind="tran.amount | textToFloat"
         />
 
         <label for="account">Account</label>
@@ -42,7 +42,7 @@
           required
           pattern=".+"
           title="Account on which this transaction was made"
-          value.bind="tran.account"
+          value.bind="tran.account | trimSpace"
         />
 
         <label for="description">Description</label>
@@ -52,7 +52,7 @@
           required
           pattern=".+"
           title="Transaction description"
-          value.bind="tran.description"
+          value.bind="tran.description | trimSpace"
         />
       </fieldset>
       <button type="submit" disabled.bind="!canSave">Add Tran</button>

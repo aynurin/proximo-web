@@ -5,13 +5,14 @@ import {
   MiddlewarePlacement,
   rehydrateFromLocalStorage
 } from "aurelia-store";
+import {observable, bindable} from "aurelia-framework";
 import * as State from "./state";
 import { TranStateActions } from "./model/tran-actions";
+import { TranGenerated } from "model/tran-generated";
 
 @connectTo()
 export class App {
   message = "FinForecast";
-  accounts: string[] = [];
 
   public state: State.State;
 

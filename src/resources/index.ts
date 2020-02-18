@@ -9,6 +9,7 @@ export function configure(config: FrameworkConfiguration) {
     PLATFORM.moduleName("./value-converters/text-to-int"),
     PLATFORM.moduleName("./value-converters/text-to-money"),
     PLATFORM.moduleName("./value-converters/text-to-float"),
+    PLATFORM.moduleName("./value-converters/trim-space"),
     PLATFORM.moduleName("./value-converters/date-format")
   ]);
 }

@@ -10,7 +10,8 @@ Save to local storage - done
 Accounts autocomplete - postpone, try taking advantage of the browser's autocomplete
 Schedule table - done
 Build progression - done
-Draw chart
+Draw chart - done
+Download CSV
 
 ## Run dev app
 
