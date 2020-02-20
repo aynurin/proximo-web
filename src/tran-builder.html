@@ -5,26 +5,37 @@
 <template>
   <div if.bind="editing">
     <form ref="scheduleForm" submit.trigger="addNewTran()">
-      <fieldset>
-        <legend>Schedule</legend>
-        <label for="date">Date</label>
-        <input type="date" id="date" name="date" value.bind="tran.date" />
+      <stage if.bind="!flow.isInitial && !flow.isDate && !flow.isParameters">
+        <button type="button" id="backButton" click.delegate="flow.back()">back</button>
+      </stage>
+      <stage if.bind="flow.isInitial">
+        <button type="button" id="addTransaction" name="addTransaction" click.delegate="formChange()">Add transaction</button>
+      </stage>
+      <stage if.bind="flow.isDate">
+        <label for="date">Date
+        <input type="date" id="date" name="date" value.bind="tran.date" change.delegate="formChange()" /></label>
+      </stage>
+      <stage if.bind="flow.isSchedule">
+        ${tran.date | dateFormat:'MMMM Do YYYY'}:
         <label repeat.for="schedule of allOptions">
           <input type="radio" name="scheduleOption"
-                 model.bind="schedule" checked.bind="tran.selectedSchedule"
-                 />${schedule.label}</label>
-        <label for="holidayRule" if.bind="showHolidayRule">If falls on holiday, execute 
+                  model.bind="schedule" checked.bind="tran.selectedSchedule"
+                  />${schedule.label}</label>
+      </stage>
+      <stage if.bind="flow.isHolidayRule">
+        <label for="holidayRule" if.bind="showHolidayRule">If ${tran.selectedSchedule.label} falls on holiday, execute 
         <select id="holidayRule" value.bind="tran.selectedSchedule.holidayRule" disabled.bind="!showHolidayRule">
           <option model.bind="HolidayRule[holidayRule]"
             repeat.for="holidayRule of HolidayRules">${holidayRule}</option>
         </select> the holiday</label>
-        <label for="dateRange" if.bind="showDateRange">Repeat between  
+      </stage>
+      <stage if.bind="flow.isDateRange">
+        <label for="dateRange" if.bind="showDateRange">Optionally, repeat only between  
           <input type="date" id="dateRangeSince" name="dateRangeSince" value.bind="tran.selectedSchedule.dateSince" /> and 
           <input type="date" id="dateRangeTill" name="dateRangeTill" value.bind="tran.selectedSchedule.dateTill" min.bind="minDateTill" /></label>
-        <button click.trigger="clickme()">Click me!</button>
-      </fieldset>
-      <fieldset>
-        <legend>Transaction details</legend>
+      </stage>
+      <stage if.bind="flow.isParameters">
+        <p>We will simulate the following transaction ${scheduleLabel}:</p>
         <label for="amount">Amount</label>
         <input
           id="amount"
@@ -54,8 +65,14 @@
           title="Transaction description"
           value.bind="tran.description | trimSpace"
         />
-      </fieldset>
-      <button type="submit" disabled.bind="!canSave">Add Tran</button>
+      </stage>
+      <stage if.bind="flow.isParameters">
+        <button type="submit" disabled.bind="!canSave">add Tran</button>
+        <button click.delegate="flow.reset()">start over</button>
+      </stage>
+      <stage if.bind="!flow.isParameters && !flow.isInitial && !flow.isDate">
+        <button click.delegate="formChange()">next</button>
+      </stage>
     </form>
   </div>
   <div if.bind="!editing">
@@ -63,6 +80,6 @@
     <span>${tran.amount | textToMoney}</span>
     <span>${tran.account}</span>
     <span>${tran.description}</span>
-    <span><button click.trigger="removeTran(tran)">Remove</button></span>
+    <span><button click.delegate="removeTran(tran)">Remove</button></span>
   </div>
 </template>

@@ -13,8 +13,8 @@ export class Schedule {
   label: string;
   // allowHolidayRule: boolean;
   holidayRule: HolidayRule = HolidayRule.on;
-  dateSince: Date;
-  dateTill: Date;
+  dateSince: string;
+  dateTill: string;
 
   get allowsHolidayRule(): boolean {
     return this.cron && isCronAny(this.cron[2]);

@@ -8,12 +8,12 @@ import {
 import cronstr from "./components/cronstr";
 import * as moment from "moment";
 
-import { Store, connectTo } from 'aurelia-store';
-import { State } from './state';
+import { Store, connectTo } from "aurelia-store";
+import { State } from "./state";
 
-import { Schedule, HolidayRule } from './model/schedule';
-import { TranTemplate } from './model/tran-template';
-import { TranStateActions } from './model/tran-actions';
+import { Schedule, HolidayRule } from "./model/schedule";
+import { TranTemplate } from "./model/tran-template";
+import { TranStateActions } from "./model/tran-actions";
 
 @autoinject()
 @connectTo()
@@ -25,18 +25,25 @@ export class TranBuilderCustomElement {
   public state: State;
   private tranActions: TranStateActions;
 
+  public flow: AddTransactionWorkflow = new AddTransactionWorkflow();
+
   public constructor(private store: Store<State>) {
     this.tranActions = new TranStateActions(this.store);
   }
 
+  formChange() {
+    this.flow.advanceIfValid(this.tran);
+  }
+
   clickme() {
     if (this.tran) {
-      console.log('clickme', this.tran.selectedSchedule);
+      console.log("clickme", this.tran.selectedSchedule);
     }
   }
 
   addNewTran() {
     if (this.canSave) {
+      this.flow.reset();
       this.tranActions.addTran(this.tran);
       this.tran = new TranTemplate();
       this.scheduleForm.reset();
@@ -53,16 +60,20 @@ export class TranBuilderCustomElement {
 
   @computedFrom("tran.selectedSchedule")
   get showHolidayRule(): boolean {
-    return this.tran && 
-      this.tran.selectedSchedule && 
-      this.tran.selectedSchedule.allowsHolidayRule;
+    return (
+      this.tran &&
+      this.tran.selectedSchedule &&
+      this.tran.selectedSchedule.allowsHolidayRule
+    );
   }
 
   @computedFrom("tran.selectedSchedule")
   get showDateRange(): boolean {
-    return this.tran && 
-      this.tran.selectedSchedule && 
-      this.tran.selectedSchedule.allowsDateRange;
+    return (
+      this.tran &&
+      this.tran.selectedSchedule &&
+      this.tran.selectedSchedule.allowsDateRange
+    );
   }
 
   @computedFrom("tran.date")
@@ -70,10 +81,9 @@ export class TranBuilderCustomElement {
     const date = moment(this.tran.date);
     const options: Schedule[] = [];
 
-    if (this.tran.date == null || this.tran.date == '') {
+    if (this.tran.date == null || this.tran.date == "") {
       return options;
     }
-
 
     options.push(
       new Schedule("Every " + moment(date).format("dddd"), {
@@ -126,24 +136,216 @@ export class TranBuilderCustomElement {
       label += ", " + HolidayRule[sched.holidayRule] + " holidays";
     }
     if (sched.dateSince && sched.dateTill) {
-      label += ", between " + moment(sched.dateSince).format('MMMM Do YYYY') + " and " + moment(sched.dateTill).format('MMMM Do YYYY');
+      label +=
+        ", between " +
+        moment(sched.dateSince).format("MMMM Do YYYY") +
+        " and " +
+        moment(sched.dateTill).format("MMMM Do YYYY");
     } else if (sched.dateSince) {
-      label += ", starting from " + moment(sched.dateSince).format('MMMM Do YYYY');
+      label +=
+        ", starting from " + moment(sched.dateSince).format("MMMM Do YYYY");
     } else if (sched.dateTill) {
-      label += ", until " + moment(sched.dateTill).format('MMMM Do YYYY');
+      label += ", until " + moment(sched.dateTill).format("MMMM Do YYYY");
     }
     return label;
   }
-  
+
   @computedFrom("cron")
   get scheduleId(): string {
-    return [this.tran.selectedSchedule.holidayRule, ...this.tran.selectedSchedule.cron]
-      .join("_").replace(/[#<>/-]/, "_");
+    return [
+      this.tran.selectedSchedule.holidayRule,
+      ...this.tran.selectedSchedule.cron
+    ]
+      .join("_")
+      .replace(/[#<>/-]/, "_");
   }
 
   @computedFrom("cron")
   get scheduleCron(): string {
     return this.tran.selectedSchedule.cron.join(" ");
+  }
+}
+
+export enum ScheduleStage {
+  Initial = 0,
+  Date,
+  Schedule,
+  HolidayRule,
+  DateRange,
+  Parameters
+}
+
+class AddTransactionWorkflow {
+  public stage: ScheduleStage = ScheduleStage.Initial;
+  public complete: () => {} = null;
+
+  get isInitial(): boolean {
+    return this.stage == ScheduleStage.Initial;
+  }
+  get isDate(): boolean {
+    return this.stage == ScheduleStage.Date;
+  }
+  get isSchedule(): boolean {
+    return this.stage == ScheduleStage.Schedule;
+  }
+  get isHolidayRule(): boolean {
+    return this.stage == ScheduleStage.HolidayRule;
+  }
+  get isDateRange(): boolean {
+    return this.stage == ScheduleStage.DateRange;
+  }
+  get isParameters(): boolean {
+    return this.stage == ScheduleStage.Parameters;
+  }
+
+  advance(tran: TranTemplate) {
+    if (this.stage != ScheduleStage.Parameters) {
+      this.stage += 1;
+      if (
+        this.stage == ScheduleStage.HolidayRule &&
+        tran &&
+        tran.selectedSchedule &&
+        !tran.selectedSchedule.allowsHolidayRule
+      ) {
+        this.advance(tran);
+      }
+      if (
+        this.stage == ScheduleStage.DateRange &&
+        tran &&
+        tran.selectedSchedule &&
+        !tran.selectedSchedule.allowsDateRange
+      ) {
+        this.advance(tran);
+      }
+    } else {
+      if (this.complete != null) {
+        this.complete();
+        this.reset();
+      }
+    }
+  }
+
+  advanceIfValid(tran: TranTemplate) {
+    console.log(
+      `Request to advance from ${ScheduleStage[this.stage]} to ${
+        ScheduleStage[this.stage + 1]
+      }`
+    );
+    if (this.isInitial) {
+      tran.date = "";
+      this.advance(tran);
+    } else if (this.isDate) {
+      if (
+        tran.date != null &&
+        tran.date.trim() != "" &&
+        moment(tran.date).isValid
+      ) {
+        this.advance(tran);
+      } else {
+        console.log(
+          "Cannot advance from " + this.stage + " stage with tran.date =",
+          tran.date
+        );
+      }
+    } else if (this.isSchedule) {
+      if (
+        tran.selectedSchedule != null &&
+        tran.selectedSchedule.cron != null &&
+        tran.selectedSchedule.cron.length == 4
+      ) {
+        this.advance(tran);
+      } else {
+        console.log(
+          "Cannot advance from " +
+            this.stage +
+            " stage with tran.selectedSchedule =",
+          tran.selectedSchedule
+        );
+      }
+    } else if (this.isHolidayRule) {
+      if (
+        tran.selectedSchedule != null &&
+        tran.selectedSchedule.holidayRule != null &&
+        tran.selectedSchedule.holidayRule >= 0 &&
+        tran.selectedSchedule.holidayRule <= 2
+      ) {
+        this.advance(tran);
+      } else {
+        console.log(
+          "Cannot advance from " +
+            this.stage +
+            " stage with tran.selectedSchedule =",
+          tran.selectedSchedule
+        );
+      }
+    } else if (this.isDateRange) {
+      if (tran.selectedSchedule != null) {
+        if (
+          (tran.selectedSchedule.dateSince == null ||
+            tran.selectedSchedule.dateSince.trim() == "") &&
+          (tran.selectedSchedule.dateTill == null ||
+            tran.selectedSchedule.dateTill.trim() == "")
+        ) {
+          this.advance(tran);
+        } else {
+          let since =
+            tran.selectedSchedule.dateSince != null &&
+            tran.selectedSchedule.dateSince.trim() != "" &&
+            moment(tran.selectedSchedule.dateSince).isValid
+              ? moment(tran.selectedSchedule.dateSince)
+              : null;
+          let till =
+            tran.selectedSchedule.dateTill != null &&
+            tran.selectedSchedule.dateTill.trim() != "" &&
+            moment(tran.selectedSchedule.dateTill).isValid
+              ? moment(tran.selectedSchedule.dateTill)
+              : null;
+          if (since == null || till == null || since < till) {
+            this.advance(tran);
+          } else {
+            console.log(
+              "Cannot advance from " +
+                this.stage +
+                " stage with tran.selectedSchedule =",
+              tran.selectedSchedule
+            );
+          }
+        }
+      } else {
+        console.log(
+          "Cannot advance from " +
+            this.stage +
+            " stage with tran.selectedSchedule =",
+          tran.selectedSchedule
+        );
+      }
+    } else if (this.isParameters) {
+      if (
+        tran.account != null &&
+        tran.account.trim() != "" &&
+        tran.description != null &&
+        tran.description.trim() != "" &&
+        tran.amount != null &&
+        !isNaN(tran.amount)
+      ) {
+        this.advance(tran);
+      } else {
+        console.log(
+          "Cannot advance from " + this.stage + " stage with tran =",
+          tran
+        );
+      }
+    }
+  }
+
+  back() {
+    if (this.stage != ScheduleStage.Initial) {
+      this.stage -= 1;
+    }
+  }
+
+  reset() {
+    this.stage = ScheduleStage.Initial;
   }
 }
 
@@ -160,5 +362,6 @@ export class TranScheduleViewEngineHooks implements ViewEngineHooks {
     view.overrideContext["HolidayRules"] = Object.keys(HolidayRule).filter(
       key => typeof HolidayRule[key] === "number"
     );
+    view.overrideContext["ScheduleStage"] = ScheduleStage;
   }
 }
