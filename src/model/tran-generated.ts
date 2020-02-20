@@ -3,5 +3,5 @@ export class TranGenerated {
   amount: number = null;
   account: string = null;
   description: string = null;
-  balance: number = null;
+  balances: any = null;
 }

@@ -6,7 +6,7 @@
         <th>Account</th>
         <th>Amount</th>
         <th>Description</th>
-        <th>Account balance</th>
+        <th repeat.for="acc of state.accounts2">${acc.account}</th>
       </tr>
     </thead>
     <tbody>
@@ -15,7 +15,7 @@
         <td>${tran.account}</td>
         <td>${tran.amount | textToMoney}</td>
         <td>${tran.description}</td>
-        <td>${tran.balance | textToMoney}</td>
+        <td repeat.for="balance of objectValues(tran.balances)">${balance | textToMoney}</td>
       </tr>
     </tbody>
   </table>

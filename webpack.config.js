@@ -26,7 +26,7 @@ const cssRules = [
 ];
 
 
-module.exports = ({ production } = {}, {extractCss, analyze, tests, hmr, port, host } = {}) => ({
+module.exports = ({ production } = {}, { extractCss, analyze, tests, hmr, port, host } = {}) => ({
   resolve: {
     extensions: ['.ts', '.js'],
     modules: [srcDir, 'node_modules'],
@@ -131,6 +131,44 @@ module.exports = ({ production } = {}, {extractCss, analyze, tests, hmr, port, h
         // because Aurelia would try to require it again in runtime
         use: cssRules
       },
+      {
+        test: /\.scss$/,
+        use: [{
+          loader: 'style-loader', // inject CSS to page
+        }, {
+          loader: 'css-loader', // translates CSS into CommonJS modules
+        }, {
+          loader: 'postcss-loader', // Run postcss actions
+          options: {
+            plugins: function () { // postcss plugins, can be exported to postcss.config.js
+              return [
+                require('autoprefixer')
+              ];
+            }
+          }
+        }, {
+          loader: 'sass-loader' // compiles Sass to CSS
+        }],
+        issuer: /\.[tj]s$/i
+      },
+      {
+        test: /\.scss$/,
+        use: [{
+          loader: 'css-loader', // translates CSS into CommonJS modules
+        }, {
+          loader: 'postcss-loader', // Run postcss actions
+          options: {
+            plugins: function () { // postcss plugins, can be exported to postcss.config.js
+              return [
+                require('autoprefixer')
+              ];
+            }
+          }
+        }, {
+          loader: 'sass-loader' // compiles Sass to CSS
+        }],
+        issuer: /\.html?$/i
+      },
       { test: /\.html$/i, loader: 'html-loader' },
       { test: /\.ts$/, loader: "ts-loader" },
       // embed small images and fonts as Data Urls and larger ones as files:
@@ -140,7 +178,7 @@ module.exports = ({ production } = {}, {extractCss, analyze, tests, hmr, port, h
       // load these fonts normally, as files:
       { test: /\.(ttf|eot|svg|otf)(\?v=[0-9]\.[0-9]\.[0-9])?$/i, loader: 'file-loader' },
       { test: /environment\.json$/i, use: [
-        {loader: "app-settings-loader", options: {env: production ? 'production' : 'development' }},
+          { loader: "app-settings-loader", options: { env: production ? 'production' : 'development' } },
       ]},
       ...when(tests, {
         test: /\.[jt]s$/i, loader: 'istanbul-instrumenter-loader',

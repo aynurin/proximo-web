@@ -10,15 +10,21 @@ import { Schedule } from "./model/schedule";
 import * as CronParser from "cron-parser";
 import * as moment from "moment";
 
+import { TranStateActions } from "./model/tran-actions";
+
 @autoinject()
 @connectTo()
 export class TranGeneratorCustomElement {
   public state: State;
+  private ledger: TranGenerated[] = null;
+  private lastGenerated: number = null;
+  private cachedCount: number = 0.0;
+  private calculatedCount: number = 0.0;
+  private tranActions: TranStateActions;
 
-  public constructor(
-    private store: Store<State>,
-    private ea: EventAggregator
-  ) {}
+  public constructor(private store: Store<State>, private ea: EventAggregator) {
+    this.tranActions = new TranStateActions(this.store);
+  }
 
   publish() {
     return this.generatedLedger;
@@ -26,6 +32,29 @@ export class TranGeneratorCustomElement {
 
   @computedFrom("state.schedule")
   get generatedLedger(): TranGenerated[] {
+    const generatingTime = Math.floor(+new Date() / 1000);
+    const returnCached = generatingTime - this.lastGenerated < 2;
+    if (returnCached) {
+      this.cachedCount++;
+      console.log(
+        "Returning cached ledger.",
+        "Cache-hit ratio:",
+        this.cachedCount / this.calculatedCount
+      );
+    } else {
+      this.calculatedCount++;
+      console.log(
+        "Recalculating ledger. Last calculated:",
+        generatingTime - this.lastGenerated,
+        "Cache-hit ratio:",
+        this.cachedCount / this.calculatedCount
+      );
+    }
+
+    if (returnCached) {
+      return this.ledger;
+    }
+
     let start = new Date();
     let end = new Date();
     end.setFullYear(end.getFullYear() + 1);
@@ -40,17 +69,12 @@ export class TranGeneratorCustomElement {
       const thisOptions = Object.assign({}, options);
       const since = getBestDate(start, tran.selectedSchedule.dateSince);
       const till = getBestDate(end, tran.selectedSchedule.dateTill);
-      if (
-        since > moment(thisOptions.currentDate)
-      ) {
+      if (since > moment(thisOptions.currentDate)) {
         thisOptions.currentDate = since.toDate();
       }
-      if (
-        till < moment(thisOptions.endDate)
-      ) {
+      if (till < moment(thisOptions.endDate)) {
         thisOptions.endDate = till.toDate();
       }
-      console.log(tran.description, thisOptions);
       const interval = CronParser.parseExpression(
         cronexpr(tran.selectedSchedule),
         thisOptions
@@ -61,7 +85,7 @@ export class TranGeneratorCustomElement {
             date: interval.next().toDate(),
             account: tran.account,
             amount: tran.amount,
-            balance: 0,
+            balances: {},
             description: tran.description
           };
           ledger.push(tr);
@@ -69,34 +93,40 @@ export class TranGeneratorCustomElement {
           break;
         }
       }
-
-      ledger.sort((a, b) => {
-        let diff = +a.date - +b.date;
-        if (diff == 0) {
-          diff = b.amount - a.amount;
-        }
-        return diff;
-      });
-
-      let balances = {};
-      for (let acc of this.state.accounts2) {
-        balances[acc.account] = acc.balance;
-      }
-
-      for (let tran of ledger) {
-        let acc = tran.account;
-        let accBalance = 0;
-        if (acc in balances) {
-          accBalance = +balances[acc];
-        }
-        accBalance += +tran.amount;
-        tran.balance = +accBalance;
-        balances[acc] = +accBalance;
-      }
     }
+
+    let balances = {};
+    for (let acc of this.state.accounts2) {
+      balances[acc.account] = +acc.balance;
+    }
+
+    ledger.sort((a, b) => {
+      let diff = +a.date - +b.date;
+      if (diff == 0) {
+        diff = b.amount - a.amount;
+      }
+      return diff;
+    });
+
+    for (let gtran of ledger) {
+      let acc = gtran.account;
+      // if there is an inconsistency where the state does not have this transaction's account,
+      // this code will break. May it break, so we can find a root cause.
+      let accBalance = balances[acc];
+      accBalance += +gtran.amount;
+      balances[acc] = accBalance;
+      gtran.balances = Object.assign({}, balances);
+    }
+
     this.ea.publish("ledgerGenerated", ledger);
     console.log("published ledger", ledger.length);
-    return ledger;
+    this.ledger = ledger;
+    this.lastGenerated = generatingTime;
+    return this.ledger;
+  }
+
+  objectValues(o: any): any[] {
+    return Object.values(o);
   }
 }
 
@@ -105,7 +135,7 @@ function cronexpr(sched: Schedule): string {
 }
 
 function getBestDate(one: Date, another: Date | string) {
-  if (another == null || another.toString().trim() == '') {
+  if (another == null || another.toString().trim() == "") {
     return moment(one);
   } else {
     return moment(another);
