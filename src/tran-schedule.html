@@ -1,0 +1,22 @@
+<template>
+  <table>
+    <thead>
+      <tr>
+        <th>Schedule</th>
+        <th>Account</th>
+        <th>Amount</th>
+        <th>Description</th>
+        <th></th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr repeat.for="tran of state.schedule">
+        <td>${tran.selectedSchedule | scheduleLabel}</td>
+        <td>${tran.account}</td>
+        <td>${tran.amount | textToMoney}</td>
+        <td>${tran.description}</td>
+        <td><button click.delegate="removeTran(tran)">Remove</button></td>
+      </tr>
+    </tbody>
+  </table>
+</template>

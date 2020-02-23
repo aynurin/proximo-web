@@ -14,7 +14,7 @@ import { TranStateActions } from "./model/tran-actions";
 
 @autoinject()
 @connectTo()
-export class TranGeneratorCustomElement {
+export class LedgerCustomElement {
   public state: State;
   private ledger: TranGenerated[] = null;
   private lastGenerated: number = null;

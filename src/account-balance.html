@@ -1,17 +1,69 @@
 <template>
-  <form ref="accountBalanceForm" submit.trigger="saveAccountBalance()">
-    <div if.bind="!create">
-      <span>${account.account}</span>
-      <input type="text" name="balance" value.bind="account.balance" />
-    </div>
-    <div if.bind="create">
-      <label for="account">Account name:
-        <input type="text" name="account" value.bind="account.account" />
-      </label>
-      <label for="account">Starting balance:
-        <input type="text" name="balance" value.bind="account.balance" />
-      </label>
-    </div>
-    <button type="submit" disabled.bind="!canSave">Save</button>
-  </form>
+  <form id="newAccForm" ref="newAccForm" submit.trigger="saveNewAccount()"></form>
+  <table>
+    <thead>
+      <tr>
+        <th colspan="2">Current account balances:</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr repeat.for="account of state.accounts2">
+        <td>${account.account}</td>
+        <td>
+          <input
+            type="text"
+            value.bind="account.balance"
+            pattern="^(:?\+|-|\()?\d*\.?\d*(:?\))?$"
+            title="Current balance on this account"
+            change.delegate="saveAccount(account)"
+          />
+        </td>
+      </tr>
+    </tbody>
+    <thead>
+      <tr>
+        <th colspan="2">Create a new account:</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><label for="newAccName">Account name:</label></td>
+        <td>
+          <input
+            type="text"
+            form="newAccForm"
+            name="newAccName"
+            value.bind="newAccount.account"
+            required
+          />
+        </td>
+      </tr>
+      <tr>
+        <td><label for="newAccBalance">Account balance:</label></td>
+        <td>
+          <input
+            type="text"
+            form="newAccForm"
+            name="newAccBalance"
+            pattern="^(:?\+|-|\()?\d*\.?\d*(:?\))?$"
+            title="Current balance on this account"
+            value.bind="newAccount.balance"
+            required
+          />
+        </td>
+      </tr>
+      <tr>
+        <td>&nbsp;</td>
+        <td>
+          <button
+            type="submit"
+            form="newAccForm"
+            disabled.bind="!canSaveNewAccount"
+          >
+            Save
+          </button>
+        </td>
+      </tr>
+    </tbody>
+  </table>
 </template>

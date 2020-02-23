@@ -18,10 +18,8 @@ import { TranStateActions } from "./model/tran-actions";
 @autoinject()
 @connectTo()
 export class TranBuilderCustomElement {
-  @bindable editing: boolean = false;
   @bindable tran: TranTemplate = new TranTemplate();
-  scheduleForm: any;
-  @bindable accounts: string[] = [];
+  scheduleForm: HTMLFormElement;
   public state: State;
   private tranActions: TranStateActions;
 
@@ -35,23 +33,13 @@ export class TranBuilderCustomElement {
     this.flow.advanceIfValid(this.tran);
   }
 
-  clickme() {
-    if (this.tran) {
-      console.log("clickme", this.tran.selectedSchedule);
-    }
-  }
-
   addNewTran() {
     if (this.canSave) {
-      this.flow.reset();
       this.tranActions.addTran(this.tran);
       this.tran = new TranTemplate();
+      this.flow.reset();
       this.scheduleForm.reset();
     }
-  }
-
-  removeTran(tran: TranTemplate) {
-    this.tranActions.removeTran(tran);
   }
 
   get minDateTill(): string {
@@ -149,21 +137,6 @@ export class TranBuilderCustomElement {
     }
     return label;
   }
-
-  @computedFrom("cron")
-  get scheduleId(): string {
-    return [
-      this.tran.selectedSchedule.holidayRule,
-      ...this.tran.selectedSchedule.cron
-    ]
-      .join("_")
-      .replace(/[#<>/-]/, "_");
-  }
-
-  @computedFrom("cron")
-  get scheduleCron(): string {
-    return this.tran.selectedSchedule.cron.join(" ");
-  }
 }
 
 export enum ScheduleStage {
@@ -229,7 +202,7 @@ class AddTransactionWorkflow {
     console.log(
       `Request to advance from ${ScheduleStage[this.stage]} to ${
         ScheduleStage[this.stage + 1]
-      }`
+      }`, tran
     );
     if (this.isInitial) {
       tran.date = "";

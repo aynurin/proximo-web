@@ -13,31 +13,45 @@ import {
   @autoinject()
   @connectTo()
   export class AccountBalanceCustomElement {
-    @bindable create: boolean = false;
-    @bindable account: AccountBalance = { account: null, date: null, balance: null };
-    accountBalanceForm: any;
+    newAccForm: HTMLFormElement;
+    @bindable newAccount: AccountBalance;
     public state: State;
     private tranActions: TranStateActions;
   
     public constructor(private store: Store<State>) {
       this.tranActions = new TranStateActions(this.store);
+      this.reset();
     }
   
-    saveAccountBalance() {
-      if (this.canSave) {
-        this.tranActions.saveAccount(this.account);
-        if (this.create) {
-            this.account = { account: null, date: null, balance: null };
-            this.accountBalanceForm.reset();
+    saveAccount(account: AccountBalance) {
+      if (this.canSave(account)) {
+        if (typeof account.balance === 'string') {
+          account.balance = parseFloat(account.balance);
         }
+        this.tranActions.saveAccount(account);
       }
     }
+
+    reset() {
+      this.newAccount = { account: null, date: null, balance: null };
+    }
+
+    saveNewAccount() {
+      this.saveAccount(this.newAccount);
+      this.reset();
+      this.newAccForm.reset();
+    }
+
+    @computedFrom('newAccount', 'newAccount.account', 'newAccount.balance')
+    get canSaveNewAccount(): boolean {
+      return this.canSave(this.newAccount);
+    }
   
-    get canSave(): boolean {
+    canSave(account: AccountBalance): boolean {
       return (
-        this.account != null &&
-        this.account.account != null &&
-        this.account.balance != null
+        account != null &&
+        account.account != null &&
+        account.balance != null
       );
     }
   }

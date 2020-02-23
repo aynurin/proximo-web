@@ -1,28 +1,33 @@
 <template>
-
   <require from="./style.scss"></require>
   <require from="./tran-builder"></require>
+  <require from="./tran-schedule"></require>
   <require from="./account-balance"></require>
-  <require from="./tran-generator"></require>
+  <require from="./ledger"></require>
   <require from="./tran-chart"></require>
+  <require from="./app-header.html"></require>
 
-  <h1>${message}</h1>
-  <tran-builder editing.bind="true"accounts.bind="accounts"></tran-builder>
-schedule:
-  <div>
-    <div repeat.for="tran of state.schedule">
-      <tran-builder editing.bind="false" tran.bind="tran"></tran-builder>
-    </div>
-  </div>
-accounts:
-  <div>
-    <div repeat.for="account of state.accounts2">
-      <account-balance account.bind="account"></account-balance>
-    </div>
-    <account-balance create.bind="true"></account-balance>
-  </div>
-  ledger:
-  <tran-generator></tran-generator>
-  chart:
-  <tran-chart></tran-chart>
+  <page>
+    <header>
+      <app-header></app-header>
+      <aup-tabs tabs.bind="myTabs" active-tab-id.two-way="tabId" translate="true"></aup-tabs>
+      <button type="button" id="addTransaction" name="addTransaction" click.delegate="formChange()">Add transaction</button>
+      <div class="h-spacer"></div>
+    </header>
+    <tran-builder displayStartButton.bind="false"></tran-builder>
+    <lane>
+      <aup-tab-content>
+        <aup-tab-pane tab="tab1">
+          <tran-chart></tran-chart>
+        </aup-tab-pane>
+        <aup-tab-pane tab="tab2">
+          <tran-schedule></tran-schedule>
+          <account-balance></account-balance>
+        </aup-tab-pane>
+        <aup-tab-pane tab="tab3">
+          <ledger></ledger>
+        </aup-tab-pane>
+      </aup-tab-content>
+    </lane>
+  </paper>
 </template>

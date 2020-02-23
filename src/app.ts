@@ -13,6 +13,11 @@ import { TranGenerated } from "model/tran-generated";
 @connectTo()
 export class App {
   message = "FinForecast";
+  myTabs = [
+    { id: 'tab1', label: 'Dashboard', tooltip: 'Your forecast summary' },
+    { id: 'tab2', label: 'Schedule', tooltip: 'Schedule of the transactions' },
+    { id: 'tab3', label: 'Ledger', tooltip: 'Your ledger generated based on the schedule' }
+  ];
 
   public state: State.State;
 

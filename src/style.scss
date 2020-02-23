@@ -1,1 +1,74 @@
+$body-bg: #f6f6f6;
+$nav-tabs-link-active-bg: #fff;
+$box-shadow-sm: 0 .2rem .25rem rgba(#000, .075);
+
 @import "~bootstrap/scss/bootstrap";
+
+$content-bg: $white;
+
+$header-lane-height: $spacer * 1.5;
+$shadow-width: .125rem;
+
+page {
+    margin: 0 80px;
+    display: block;
+}
+
+header {
+    display: flex;
+    flex-direction: row;
+    align-items: flex-end;
+    justify-content: flex-start;
+    width: 100%;
+    border-bottom: $nav-tabs-border-width solid $nav-tabs-border-color;
+}
+
+lane {
+    width: 100%;
+    display:flex;
+    flex-direction: column;
+    margin-left: -$shadow-width;
+    margin-right: -$shadow-width;
+}
+
+app-header {
+    height: $header-lane-height;
+
+    @extend .my-4;
+
+    img {
+        height: 100%;
+        margin-left: $spacer/2;
+        margin-right: $spacer;
+    }
+}
+
+aup-tabs {
+    margin-bottom: -1px;
+
+    .nav-item {
+        &>.nav-link {
+            color: $gray-700;
+        }
+        &>.active {
+            color: $gray-900;
+            @extend .shadow-sm, .bg-white;
+        }
+    }
+}
+
+aup-tab-content {
+    .tab-content {
+        @extend .border, .border-top-0, .shadow-sm, .p-3, .mb-5, .bg-white, .rounded-bottom;
+    }
+}
+
+button#addTransaction {
+    @extend .btn, .btn-primary, .btn-sm;
+    margin: $spacer/4+$spacer/8 $spacer/2;
+}
+
+tran-builder {
+    width: 100%;
+    position: absolute;
+}
