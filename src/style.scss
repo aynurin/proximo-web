@@ -6,7 +6,7 @@ $box-shadow-sm: 0 .2rem .25rem rgba(#000, .075);
 
 $content-bg: $white;
 
-$header-lane-height: $spacer * 1.5;
+$header-lane-height: $spacer * 2;
 $shadow-width: .125rem;
 
 page {
@@ -34,7 +34,7 @@ lane {
 app-header {
     height: $header-lane-height;
 
-    @extend .my-4;
+    @extend .my-3;
 
     img {
         height: 100%;
@@ -60,6 +60,7 @@ aup-tabs {
 aup-tab-content {
     .tab-content {
         @extend .border, .border-top-0, .shadow-sm, .p-3, .mb-5, .bg-white, .rounded-bottom;
+        min-height: 80vh;
     }
 }
 

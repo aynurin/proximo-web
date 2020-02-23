@@ -12,6 +12,7 @@ import * as moment from "moment";
 
 import { TranStateActions } from "./model/tran-actions";
 
+const __cacheSec: number = 10;
 @autoinject()
 @connectTo()
 export class LedgerCustomElement {
@@ -33,7 +34,7 @@ export class LedgerCustomElement {
   @computedFrom("state.schedule")
   get generatedLedger(): TranGenerated[] {
     const generatingTime = Math.floor(+new Date() / 1000);
-    const returnCached = generatingTime - this.lastGenerated < 2;
+    const returnCached = generatingTime - this.lastGenerated <= __cacheSec;
     if (returnCached) {
       this.cachedCount++;
       console.log(
@@ -86,7 +87,8 @@ export class LedgerCustomElement {
             account: tran.account,
             amount: tran.amount,
             balances: {},
-            description: tran.description
+            description: tran.description,
+            schedule: tran.selectedSchedule.label
           };
           ledger.push(tr);
         } catch (e) {

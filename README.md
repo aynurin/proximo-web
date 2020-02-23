@@ -6,9 +6,14 @@ For more information, go to https://aurelia.io/docs/cli/webpack
 
 ## Todo
 
+External "Add transaction" is not working
+Add icons
+Edit schedule
 Perf optimization
 Loader
 Add tran UI
+Highlight negative
+Make chart generated on launch
 Responsive
 
 ## Run dev app
