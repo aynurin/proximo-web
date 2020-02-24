@@ -1,5 +1,5 @@
 <template>
-  <table class="table table-sm">
+  <table class="table table-sm table-hover">
     <thead>
       <tr>
         <th>Schedule</th>
@@ -15,7 +15,12 @@
         <td>${tran.account}</td>
         <td>${tran.amount | textToMoney}</td>
         <td>${tran.description}</td>
-        <td><button click.delegate="removeTran(tran)">Remove</button></td>
+        <td>
+          <div class="btn-group" role="group" aria-label="Transaction controls">
+            <button type="button" click.delegate="editTran(tran)" class="btn btn-outline-dark border-0 btn-sm"><i class="fa fa-edit"></i></button>
+            <button type="button" click.delegate="removeTran(tran)" class="btn btn-outline-dark border-0 btn-sm"><i class="fa fa-trash"></i></button>
+          </div>
+        </td>
       </tr>
     </tbody>
   </table>

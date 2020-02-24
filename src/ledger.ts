@@ -31,6 +31,14 @@ export class LedgerCustomElement {
     return this.generatedLedger;
   }
 
+  getRowStyleForTran(tran: TranGenerated) {
+    if (tran.balances[tran.account] < 0) {
+      return 'table-danger';
+    } else if (tran.balances[tran.account] < 50) {
+      return 'table-warning';
+    }
+  }
+
   @computedFrom("state.schedule")
   get generatedLedger(): TranGenerated[] {
     const generatingTime = Math.floor(+new Date() / 1000);

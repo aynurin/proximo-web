@@ -1,6 +1,22 @@
 $body-bg: #f6f6f6;
+$body-color: #495057;
 $nav-tabs-link-active-bg: #fff;
 $box-shadow-sm: 0 .2rem .25rem rgba(#000, .075);
+
+$blue:    #113348;
+$red:     #FE5350;
+$yellow:  #FFDB3A;
+$green:   #59CF44;
+$cyan:    #27A8A6;
+
+$primary:       $blue;
+$success:       $green;
+$info:          $cyan;
+$warning:       $yellow;
+$danger:        $red;
+// $secondary:     $gray-600 !default;
+// $light:         $gray-100 !default;
+// $dark:          $gray-800 !default;
 
 @import "~bootstrap/scss/bootstrap";
 
@@ -69,7 +85,7 @@ button#addTransaction {
     margin: $spacer/4+$spacer/8 $spacer/2;
 }
 
-tran-builder {
+schedule-wizard {
     width: 100%;
     position: absolute;
 }

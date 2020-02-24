@@ -62,18 +62,18 @@ module.exports = ({ production } = {}, { extractCss, analyze, tests, hmr, port, 
         // You can insert additional cacheGroup entries here if you want to split out specific modules
         // This is required in order to split out vendor css from the app css when using --extractCss
         // For example to separate font-awesome and bootstrap:
-        // fontawesome: { // separates font-awesome css from the app css (font-awesome is only css/fonts)
-        //   name: 'vendor.font-awesome',
-        //   test:  /[\\/]node_modules[\\/]font-awesome[\\/]/,
-        //   priority: 100,
-        //   enforce: true
-        // },
-        // bootstrap: { // separates bootstrap js from vendors and also bootstrap css from app css
-        //   name: 'vendor.font-awesome',
-        //   test:  /[\\/]node_modules[\\/]bootstrap[\\/]/,
-        //   priority: 90,
-        //   enforce: true
-        // },
+        fontawesome: { // separates font-awesome css from the app css (font-awesome is only css/fonts)
+          name: 'vendor.font-awesome',
+          test:  /[\\/]node_modules[\\/]font-awesome[\\/]/,
+          priority: 100,
+          enforce: true
+        },
+        bootstrap: { // separates bootstrap js from vendors and also bootstrap css from app css
+          name: 'vendor.bootstrap',
+          test:  /[\\/]node_modules[\\/]bootstrap[\\/]/,
+          priority: 90,
+          enforce: true
+        },
 
         // This is the HTTP/1.1 optimised cacheGroup configuration
         vendors: { // picks up everything from node_modules as long as the sum of node modules is larger than minSize

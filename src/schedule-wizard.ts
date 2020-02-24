@@ -14,19 +14,26 @@ import { State } from "./state";
 import { Schedule, HolidayRule } from "./model/schedule";
 import { TranTemplate } from "./model/tran-template";
 import { TranStateActions } from "./model/tran-actions";
+import {DialogController} from 'aurelia-dialog';
 
 @autoinject()
 @connectTo()
-export class TranBuilderCustomElement {
+export class ScheduleWizardCustomElement {
   @bindable tran: TranTemplate = new TranTemplate();
   scheduleForm: HTMLFormElement;
+  htmlModal: HTMLDivElement;
   public state: State;
   private tranActions: TranStateActions;
 
   public flow: AddTransactionWorkflow = new AddTransactionWorkflow();
 
-  public constructor(private store: Store<State>) {
+  public constructor(private store: Store<State>, private dialogController: DialogController) {
     this.tranActions = new TranStateActions(this.store);
+  }
+
+  activate(tran: TranTemplate) {
+    this.tran = tran;
+    this.flow.advanceIfValid(this.tran);
   }
 
   formChange() {

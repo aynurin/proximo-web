@@ -5,10 +5,11 @@ import {
   MiddlewarePlacement,
   rehydrateFromLocalStorage
 } from "aurelia-store";
-import {observable, bindable} from "aurelia-framework";
 import * as State from "./state";
 import { TranStateActions } from "./model/tran-actions";
 import { TranGenerated } from "model/tran-generated";
+import { EventAggregator } from "aurelia-event-aggregator";
+import { ScheduleWizardCustomElement } from "schedule-wizard";
 
 @connectTo()
 export class App {
@@ -20,8 +21,11 @@ export class App {
   ];
 
   public state: State.State;
+  public tranBuilder: ScheduleWizardCustomElement;
 
-  public constructor(private store: Store<State.State>) {
+  public constructor(
+    private store: Store<State.State>,
+    private ea: EventAggregator) {
     let tranActions = new TranStateActions(this.store);
     tranActions.register();
     store.registerMiddleware(
@@ -31,5 +35,11 @@ export class App {
     );
     store.registerAction("Rehydrate", rehydrateFromLocalStorage);
     store.dispatch(rehydrateFromLocalStorage, "tran-schedule-state");
+  }
+  attached() {
+    console.log("subscribing to ledgerGenerated");
+    this.ea.subscribe("ledgerGenerated", (ledger: TranGenerated[]) => {
+      console.log("APP GETTING ledgerGenerated");
+    });
   }
 }

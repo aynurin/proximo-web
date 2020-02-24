@@ -3,7 +3,7 @@ import * as environment from '../config/environment.json';
 import {PLATFORM} from 'aurelia-pal';
 import { initialState } from './state';
 import {I18N, Backend, TCustomAttribute} from 'aurelia-i18n';
-
+import 'font-awesome/css/font-awesome.css';
 export function configure(aurelia: Aurelia) {
   aurelia.use
     .standardConfiguration()
@@ -18,6 +18,7 @@ export function configure(aurelia: Aurelia) {
   aurelia.use
     .plugin(PLATFORM.moduleName('aurelia-store'), { initialState })
     .plugin(PLATFORM.moduleName('aurelia-plugins-tabs'))
+    .plugin(PLATFORM.moduleName('aurelia-dialog'))
     .plugin(PLATFORM.moduleName('aurelia-i18n'), (instance) => {
       let aliases = ['t', 'i18n'];
       // add aliases for 't' attribute

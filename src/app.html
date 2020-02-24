@@ -1,6 +1,6 @@
 <template>
   <require from="./style.scss"></require>
-  <require from="./tran-builder"></require>
+  <require from="./schedule-wizard-dialogue"></require>
   <require from="./tran-schedule"></require>
   <require from="./account-balance"></require>
   <require from="./ledger"></require>
@@ -11,10 +11,8 @@
     <header>
       <app-header></app-header>
       <aup-tabs tabs.bind="myTabs" active-tab-id.two-way="tabId" translate="true"></aup-tabs>
-      <button type="button" id="addTransaction" name="addTransaction" click.delegate="formChange()">Add transaction</button>
-      <div class="h-spacer"></div>
+      <schedule-wizard-dialogue></schedule-wizard-dialogue>
     </header>
-    <tran-builder displayStartButton.bind="false"></tran-builder>
     <lane>
       <aup-tab-content>
         <aup-tab-pane tab="tab1">
