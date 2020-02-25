@@ -6,14 +6,8 @@ For more information, go to https://aurelia.io/docs/cli/webpack
 
 ## Todo
 
-External "Add transaction" is not working
-Fit canvas into panel
-Add icons
-Edit schedule
 Perf optimization
 Loader
-Add tran UI
-Highlight negative
 Make chart generated on launch
 Responsive
 Routing
