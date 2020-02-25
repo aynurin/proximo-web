@@ -3,62 +3,65 @@
   Try moving allOptions into CustomElement
 -->
 <template bindable="displayStartButton">
+  <require from="./model/schedule-view-engine-hooks"></require>
   <!-- Modal -->
   <form ref="scheduleForm" submit.trigger="addNewTran()">
-    <stage if.bind="!flow.isInitial && !flow.isDate && !flow.isParameters">
-      <button type="button" id="backButton" click.delegate="flow.back()">back</button>
-    </stage>
-    <stage if.bind="flow.isInitial && displayStartButton">
+    <flow-stage if.bind="flow.isInitial && displayStartButton">
       <button type="button" id="addTransaction" name="addTransaction" click.delegate="formChange()">Add
         transaction</button>
-    </stage>
-    <stage if.bind="flow.isDate">
-      <label for="date">Date
-        <input type="date" id="date" name="date" value.bind="tran.date"
-          change.delegate="formChange()" /></label>
-    </stage>
-    <stage if.bind="flow.isSchedule">
-      ${tran.date | dateFormat:'MMMM Do YYYY'}:
-      <label repeat.for="schedule of allOptions">
-        <input type="radio" name="scheduleOption" model.bind="schedule"
-          checked.bind="tran.selectedSchedule" />${schedule.label}</label>
-    </stage>
-    <stage if.bind="flow.isHolidayRule">
+    </flow-stage>
+    <flow-stage if.bind="flow.isDate">
+      <stage-title>When is this transaction going to happen?</stage-title>
+        <input type="date" id="date" name="date" value.bind="tran.date" class="form-control"
+          change.delegate="formChange()" />
+    </flow-stage>
+    <flow-stage if.bind="flow.isSchedule" class="form-check">
+      <stage-title>Choose a schedule for the transaction happening on ${tran.date | dateFormat:'MMMM Do YYYY'}:</stage-title>
+      <div class="form-check" repeat.for="schedule of allOptions">
+        <label class="form-check-label">
+          <input class="form-check-input" type="radio" name="scheduleOption" model.bind="schedule"
+            checked.bind="tran.selectedSchedule" />${schedule.label}</label>
+      </div>
+    </flow-stage>
+    <flow-stage if.bind="flow.isHolidayRule">
       <label for="holidayRule" if.bind="showHolidayRule">If ${tran.selectedSchedule.label} falls on holiday,
         execute
-        <select id="holidayRule" value.bind="tran.selectedSchedule.holidayRule"
-          disabled.bind="!showHolidayRule">
+        <select id="holidayRule" value.bind="tran.selectedSchedule.holidayRule" disabled.bind="!showHolidayRule">
           <option model.bind="HolidayRule[holidayRule]" repeat.for="holidayRule of HolidayRules">${holidayRule}
           </option>
         </select> the holiday</label>
-    </stage>
-    <stage if.bind="flow.isDateRange">
+    </flow-stage>
+    <flow-stage if.bind="flow.isDateRange">
       <label for="dateRange" if.bind="showDateRange">Optionally, repeat only between
-        <input type="date" id="dateRangeSince" name="dateRangeSince"
-          value.bind="tran.selectedSchedule.dateSince" /> and
-        <input type="date" id="dateRangeTill" name="dateRangeTill" value.bind="tran.selectedSchedule.dateTill"
+        <input type="date" class="form-control" id="dateRangeSince" name="dateRangeSince" value.bind="tran.selectedSchedule.dateSince" /> and
+        <input type="date" class="form-control" id="dateRangeTill" name="dateRangeTill" value.bind="tran.selectedSchedule.dateTill"
           min.bind="minDateTill" /></label>
-    </stage>
-    <stage if.bind="flow.isParameters">
+    </flow-stage>
+    <flow-stage if.bind="flow.isParameters">
       <p>We will simulate the following transaction ${tran.selectedSchedule | scheduleLabel}:</p>
       <label for="amount">Amount</label>
-      <input id="amount" type="text" required pattern="^(:?\+|-|\()?\d*\.?\d*(:?\))?$"
-        title="Transaction amount" value.bind="tran.amount | textToFloat" />
+      <input id="amount" type="text" class="form-control" required pattern="^(:?\+|-|\()?\d*\.?\d*(:?\))?$" title="Transaction amount"
+        value.bind="tran.amount | textToFloat" />
 
       <label for="account">Account</label>
-      <input id="account" type="text" required pattern=".+" title="Account on which this transaction was made"
+      <input id="account" type="text" class="form-control" required pattern=".+" title="Account on which this transaction was made"
         value.bind="tran.account | trimSpace" />
 
       <label for="description">Description</label>
-      <input id="description" type="text" required pattern=".+" title="Transaction description"
+      <input id="description" type="text" class="form-control" required pattern=".+" title="Transaction description"
         value.bind="tran.description | trimSpace" />
-    </stage>
-    <stage if.bind="flow.isParameters">
-      <button type="submit" disabled.bind="!canSave">add Tran</button>
-      <button click.delegate="flow.reset()">start over</button>
-    </stage>
-    <stage if.bind="!flow.isParameters && !flow.isInitial && !flow.isDate">
-      <button click.delegate="formChange()">next</button>
-    </stage>
+    </flow-stage>
+    <flow-stage if.bind="flow.isParameters">
+      <div class="flowButtons">
+        <button class="btn btn-light" type="button" click.delegate="flow.reset()"><i class="fa fa-undo"></i>&nbsp;start over</button>
+        <button class="btn btn-light" type="submit" disabled.bind="!canSave">schedule transaction&nbsp;<i class="fa fa-save"></i></button>
+      </div>
+    </flow-stage>
+    <flow-stage if.bind="!flow.isInitial && !flow.isDate && !flow.isParameters">
+      <div class="flowButtons">
+        <button class="btn btn-light" type="button" id="backButton" click.delegate="flow.back()"><i class="fa fa-undo"></i>&nbsp;back</button>
+        <button class="btn btn-primary" type="button" id="backButton" click.delegate="formChange()">next&nbsp;<i class="fa fa-chevron-right"></i></button>
+      </div>
+    </flow-stage>
   </form>
 </template>

@@ -1,5 +1,7 @@
 import {
+  bindable,
   autoinject,
+  computedFrom
 } from "aurelia-framework";
 import cronstr from "./components/cronstr";
 import * as moment from "moment";
@@ -7,26 +9,39 @@ import * as moment from "moment";
 import { Store, connectTo } from "aurelia-store";
 import { State } from "./state";
 
-import { HolidayRule, Schedule } from "./model/schedule";
+import { Schedule, HolidayRule } from "./model/schedule";
 import { TranTemplate } from "./model/tran-template";
 import { TranStateActions } from "./model/tran-actions";
+import { DialogController } from 'aurelia-dialog';
 
 @autoinject()
 @connectTo()
-export class TranScheduleCustomElement {
+export class DeleteScheduleCustomElement {
+  @bindable tran: TranTemplate;
+  scheduleForm: HTMLFormElement;
   public state: State;
   private tranActions: TranStateActions;
 
-  public constructor(private store: Store<State>) {
+  public constructor(private store: Store<State>, private dialogController: DialogController) {
     this.tranActions = new TranStateActions(this.store);
   }
 
-  removeSchedule(tran: TranTemplate) {
-    this.tranActions.removeSchedule(tran);
+  activate(tran: TranTemplate) {
+    this.tran = tran;
   }
 
-  scheduleLabel(tran: TranTemplate): string {
-    const sched = tran.selectedSchedule;
+  cancelForm() {
+    this.dialogController.cancel();
+  }
+
+  deleteSchedule() {
+    this.tranActions.removeSchedule(this.tran);
+    this.dialogController.ok();
+  }
+
+  @computedFrom("cron")
+  get scheduleLabel(): string {
+    const sched = this.tran.selectedSchedule;
     let label = cronstr(sched.cron);
     if (Schedule.allowsHolidayRule(sched)) {
       label += ", " + HolidayRule[sched.holidayRule] + " holidays";

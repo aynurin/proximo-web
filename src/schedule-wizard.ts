@@ -1,6 +1,4 @@
 import {
-  ViewEngineHooks,
-  View,
   bindable,
   autoinject,
   computedFrom
@@ -14,7 +12,7 @@ import { State } from "./state";
 import { Schedule, HolidayRule } from "./model/schedule";
 import { TranTemplate } from "./model/tran-template";
 import { TranStateActions } from "./model/tran-actions";
-import {DialogController} from 'aurelia-dialog';
+import { DialogController } from 'aurelia-dialog';
 
 @autoinject()
 @connectTo()
@@ -22,6 +20,9 @@ export class ScheduleWizardCustomElement {
   @bindable tran: TranTemplate = new TranTemplate();
   scheduleForm: HTMLFormElement;
   htmlModal: HTMLDivElement;
+  holidayRuleNames: string[] = Object.keys(HolidayRule).filter(
+    key => typeof HolidayRule[key] === "number"
+  );
   public state: State;
   private tranActions: TranStateActions;
 
@@ -33,19 +34,22 @@ export class ScheduleWizardCustomElement {
 
   activate(tran: TranTemplate) {
     this.tran = tran;
+    this.flow.initialStage = ScheduleStage.Date;
     this.flow.advanceIfValid(this.tran);
   }
 
   formChange() {
+    console.log(this.tran);
     this.flow.advanceIfValid(this.tran);
   }
 
   addNewTran() {
     if (this.canSave) {
-      this.tranActions.addTran(this.tran);
+      this.tranActions.addSchedule(this.tran);
       this.tran = new TranTemplate();
       this.flow.reset();
       this.scheduleForm.reset();
+      this.dialogController.ok();
     }
   }
 
@@ -57,8 +61,7 @@ export class ScheduleWizardCustomElement {
   get showHolidayRule(): boolean {
     return (
       this.tran &&
-      this.tran.selectedSchedule &&
-      this.tran.selectedSchedule.allowsHolidayRule
+      Schedule.allowsHolidayRule(this.tran.selectedSchedule)
     );
   }
 
@@ -66,14 +69,14 @@ export class ScheduleWizardCustomElement {
   get showDateRange(): boolean {
     return (
       this.tran &&
-      this.tran.selectedSchedule &&
-      this.tran.selectedSchedule.allowsDateRange
+      Schedule.allowsDateRange(this.tran.selectedSchedule)
     );
   }
 
   @computedFrom("tran.date")
   get allOptions(): Schedule[] {
     const date = moment(this.tran.date);
+    console.log('allOptions', moment(date).format("MMM Do YYYY"));
     const options: Schedule[] = [];
 
     if (this.tran.date == null || this.tran.date == "") {
@@ -106,6 +109,7 @@ export class ScheduleWizardCustomElement {
         year: date.year()
       })
     );
+    console.log(options);
 
     return options;
   }
@@ -127,7 +131,7 @@ export class ScheduleWizardCustomElement {
   get scheduleLabel(): string {
     const sched = this.tran.selectedSchedule;
     let label = cronstr(sched.cron);
-    if (sched.allowsHolidayRule) {
+    if (Schedule.allowsHolidayRule(sched)) {
       label += ", " + HolidayRule[sched.holidayRule] + " holidays";
     }
     if (sched.dateSince && sched.dateTill) {
@@ -157,10 +161,11 @@ export enum ScheduleStage {
 
 class AddTransactionWorkflow {
   public stage: ScheduleStage = ScheduleStage.Initial;
+  public initialStage: ScheduleStage = ScheduleStage.Initial;
   public complete: () => {} = null;
 
   get isInitial(): boolean {
-    return this.stage == ScheduleStage.Initial;
+    return this.stage <= this.initialStage;
   }
   get isDate(): boolean {
     return this.stage == ScheduleStage.Date;
@@ -185,7 +190,7 @@ class AddTransactionWorkflow {
         this.stage == ScheduleStage.HolidayRule &&
         tran &&
         tran.selectedSchedule &&
-        !tran.selectedSchedule.allowsHolidayRule
+        !Schedule.allowsHolidayRule(tran.selectedSchedule)
       ) {
         this.advance(tran);
       }
@@ -193,7 +198,7 @@ class AddTransactionWorkflow {
         this.stage == ScheduleStage.DateRange &&
         tran &&
         tran.selectedSchedule &&
-        !tran.selectedSchedule.allowsDateRange
+        !Schedule.allowsDateRange(tran.selectedSchedule)
       ) {
         this.advance(tran);
       }
@@ -211,10 +216,10 @@ class AddTransactionWorkflow {
         ScheduleStage[this.stage + 1]
       }`, tran
     );
-    if (this.isInitial) {
+    if (this.stage == ScheduleStage.Initial) {
       tran.date = "";
       this.advance(tran);
-    } else if (this.isDate) {
+    } else if (this.stage == ScheduleStage.Date) {
       if (
         tran.date != null &&
         tran.date.trim() != "" &&
@@ -227,7 +232,7 @@ class AddTransactionWorkflow {
           tran.date
         );
       }
-    } else if (this.isSchedule) {
+    } else if (this.stage == ScheduleStage.Schedule) {
       if (
         tran.selectedSchedule != null &&
         tran.selectedSchedule.cron != null &&
@@ -242,7 +247,7 @@ class AddTransactionWorkflow {
           tran.selectedSchedule
         );
       }
-    } else if (this.isHolidayRule) {
+    } else if (this.stage == ScheduleStage.HolidayRule) {
       if (
         tran.selectedSchedule != null &&
         tran.selectedSchedule.holidayRule != null &&
@@ -258,7 +263,7 @@ class AddTransactionWorkflow {
           tran.selectedSchedule
         );
       }
-    } else if (this.isDateRange) {
+    } else if (this.stage == ScheduleStage.DateRange) {
       if (tran.selectedSchedule != null) {
         if (
           (tran.selectedSchedule.dateSince == null ||
@@ -299,7 +304,7 @@ class AddTransactionWorkflow {
           tran.selectedSchedule
         );
       }
-    } else if (this.isParameters) {
+    } else if (this.stage == ScheduleStage.Parameters) {
       if (
         tran.account != null &&
         tran.account.trim() != "" &&
@@ -319,29 +324,12 @@ class AddTransactionWorkflow {
   }
 
   back() {
-    if (this.stage != ScheduleStage.Initial) {
+    if (this.stage > this.initialStage) {
       this.stage -= 1;
     }
   }
 
   reset() {
-    this.stage = ScheduleStage.Initial;
-  }
-}
-
-// By convention, Aurelia will look for any classes of the form
-// {name}ViewEngineHooks and load them as a ViewEngineHooks resource. We can
-// use the @viewEngineHooks decorator instead if we want to give the class a
-// different name.
-export class TranScheduleViewEngineHooks implements ViewEngineHooks {
-  // The `beforeBind` method is called before the ViewModel is bound to
-  // the view. We want to expose the enum to the binding context so that
-  // when Aurelia binds the data it will find our MediaType enum.
-  beforeBind(view: View) {
-    view.overrideContext["HolidayRule"] = HolidayRule;
-    view.overrideContext["HolidayRules"] = Object.keys(HolidayRule).filter(
-      key => typeof HolidayRule[key] === "number"
-    );
-    view.overrideContext["ScheduleStage"] = ScheduleStage;
+    this.stage = this.initialStage;
   }
 }

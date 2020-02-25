@@ -56,6 +56,8 @@ app-header {
         height: 100%;
         margin-left: $spacer/2;
         margin-right: $spacer;
+        z-index: 1001;
+        position: sticky;
     }
 }
 
@@ -88,4 +90,31 @@ button#addTransaction {
 schedule-wizard {
     width: 100%;
     position: absolute;
+}
+
+ux-dialog-overlay {
+    background-color: rgba($body-bg, .85);
+}
+
+.money {
+    text-align: right;
+}
+
+flow-stage {
+    display: block;
+    @extend .form-group;
+
+    stage-title {
+        display: block;
+        margin: $spacer 0;
+    }
+    // input, select {
+    //     @extend .form-control;
+    // }
+    .flowButtons {
+        display: flex;
+        flex-direction: row;
+        flex-wrap: nowrap;
+        justify-content: space-between;
+    }
 }

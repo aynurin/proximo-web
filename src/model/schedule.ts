@@ -16,14 +16,6 @@ export class Schedule {
   dateSince: string;
   dateTill: string;
 
-  get allowsHolidayRule(): boolean {
-    return this.cron && isCronAny(this.cron[2]);
-  }
-
-  get allowsDateRange(): boolean {
-    return this.cron && !(!isCronAny(this.cron[0]) && !isCronAny(this.cron[1]) && !isCronAny(this.cron[3]))
-  }
-
   constructor(label: string, cron: CronParts) {
     this.cron = [
       cron.day == null || cron.day === NaN ? "*" : cron.day.toString(),
@@ -39,10 +31,28 @@ export class Schedule {
     // this.allowHolidayRule = allowHolidayRule;
   }
 
-  compareTo(other: Schedule) {
+  compareTo(other: Schedule): number {
     const thisExpr = this.cron.join(' ');
     const otherExpr = other.cron.join(' ');
     return thisExpr.localeCompare(otherExpr);
+  }
+
+  static allowsHolidayRule(s: Schedule): boolean {
+    return s && s.cron && isCronAny(s.cron[2]);
+  }
+
+  static allowsDateRange(s: Schedule): boolean {
+    return s && s.cron && !(!isCronAny(s.cron[0]) && !isCronAny(s.cron[1]) && !isCronAny(s.cron[3]))
+  }
+
+  static equals(one: Schedule, other: Schedule): boolean {
+    const equals =
+      one.cron[0] == other.cron[0] &&
+      one.cron[1] == other.cron[1] &&
+      one.cron[2] == other.cron[2] &&
+      one.cron[3] == other.cron[3];
+    console.log('equals', equals, this, other);
+    return equals;
   }
 }
 

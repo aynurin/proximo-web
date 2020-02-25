@@ -7,22 +7,47 @@ export class TranStateActions {
   public constructor(public store: Store<State>) {}
 
   public register() {
-    this.store.registerAction('addTran', addTranAction);
-    this.store.registerAction('removeTran', removeTranAction);
+    this.store.registerAction('replaceSchedule', replaceScheduleAction);
+    this.store.registerAction('addSchedule', addTranAction);
+    this.store.registerAction('removeSchedule', removeTranAction);
     this.store.registerAction('saveAccount', saveAccountAction);
   }
 
-  public addTran(tran: TranTemplate) {
-    this.store.dispatch('addTran', tran);
+  public replaceSchedule(original: TranTemplate, replacement: TranTemplate) {
+    this.store.dispatch('replaceSchedule', original, replacement);
   }
 
-  public removeTran(tran: TranTemplate) {
-    this.store.dispatch('removeTran', tran);
+  public addSchedule(tran: TranTemplate) {
+    this.store.dispatch('addSchedule', tran);
+  }
+
+  public removeSchedule(tran: TranTemplate) {
+    this.store.dispatch('removeSchedule', tran);
   }
 
   public saveAccount(account: AccountBalance) {
     this.store.dispatch('saveAccount', account);
   }
+}
+
+const replaceScheduleAction = (state: State, original: TranTemplate, replacement: TranTemplate) => {
+  const newState = Object.assign({}, state);
+  newState.schedule = [...newState.schedule];
+  const position = newState.schedule.findIndex((tran) => tran === original);
+  if (position >= 0) {
+    newState.schedule[position] = replacement;
+  }
+  
+  if (typeof newState.accounts2 == 'undefined') {
+    newState.accounts2 = [];
+  }
+  if (newState.accounts2.find(acc => acc.account == replacement.account) == null) {
+    let newAccounts = [...newState.accounts2, { account: replacement.account, date: new Date(), balance: 0 }];
+    newAccounts.sort((a, b) => a.account.localeCompare(b.account));
+    newState.accounts2 = newAccounts;
+  }
+
+  return newState;
 }
 
 const addTranAction = (state: State, tran: TranTemplate) => {

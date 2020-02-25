@@ -1,21 +1,23 @@
 import {
     autoinject,
+    containerless,
+    bindable
 } from "aurelia-framework";
 import { DialogService } from 'aurelia-dialog';
-import { ScheduleWizardCustomElement, ScheduleStage } from 'schedule-wizard';
 import { TranTemplate } from "./model/tran-template";
+import { EditScheduleCustomElement } from "edit-schedule";
 
 @autoinject()
-export class ScheduleWizardDialogueCustomElement {
+@containerless()
+export class EditScheduleButtonCustomElement {
     public isDialogUp: boolean = false;
-    public tran: TranTemplate = null;
+    @bindable public tran: TranTemplate = null;
 
     public constructor(private dialogService: DialogService) { }
 
-    openScheduleWizard() {
+    openEditor() {
         this.isDialogUp = true;
-        this.tran = new TranTemplate();
-        this.dialogService.open({ viewModel: ScheduleWizardCustomElement, model: this.tran, lock: false }).whenClosed(response => {
+        this.dialogService.open({ viewModel: EditScheduleCustomElement, model: this.tran, lock: false }).whenClosed(response => {
             this.isDialogUp = false;
             if (!response.wasCancelled) {
                 console.log('good');

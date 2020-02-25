@@ -34,7 +34,7 @@ export function configure(aurelia: Aurelia) {
           loadPath: './locales/{{lng}}/{{ns}}.json', // <-- XHR settings for where to get the files from
         },
         attributes: aliases,
-        lng : 'de',
+        lng : 'en',
         fallbackLng : 'en',
         debug : false
       });

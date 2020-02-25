@@ -1,10 +1,12 @@
 <template>
+  <require from="./edit-schedule-button"></require>
+  <require from="./delete-schedule-button"></require>
   <table class="table table-sm table-hover">
     <thead>
       <tr>
         <th>Schedule</th>
         <th>Account</th>
-        <th>Amount</th>
+        <th class="money">Amount</th>
         <th>Description</th>
         <th></th>
       </tr>
@@ -13,12 +15,12 @@
       <tr repeat.for="tran of state.schedule">
         <td>${tran.selectedSchedule | scheduleLabel}</td>
         <td>${tran.account}</td>
-        <td>${tran.amount | textToMoney}</td>
+        <td class="money">${tran.amount | textToMoney}</td>
         <td>${tran.description}</td>
         <td>
           <div class="btn-group" role="group" aria-label="Transaction controls">
-            <button type="button" click.delegate="editTran(tran)" class="btn btn-outline-dark border-0 btn-sm"><i class="fa fa-edit"></i></button>
-            <button type="button" click.delegate="removeTran(tran)" class="btn btn-outline-dark border-0 btn-sm"><i class="fa fa-trash"></i></button>
+            <edit-schedule-button tran.bind="tran"></edit-schedule-button>
+            <delete-schedule-button tran.bind="tran"></delete-schedule-button>
           </div>
         </td>
       </tr>

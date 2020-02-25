@@ -4,18 +4,18 @@
       <tr>
         <th>Date</th>
         <th>Account</th>
-        <th>Amount</th>
+        <th class="money">Amount</th>
         <th>Description</th>
-        <th repeat.for="acc of state.accounts2">${acc.account}</th>
+        <th class="money" repeat.for="acc of state.accounts2">${acc.account}</th>
       </tr>
     </thead>
     <tbody>
       <tr repeat.for="tran of generatedLedger" class="${getRowStyleForTran(tran)}">
         <td><span title.bind="tran.schedule">${tran.date | dateFormat}</span></td>
         <td>${tran.account}</td>
-        <td>${tran.amount | textToMoney}</td>
+        <td class="money">${tran.amount | textToMoney}</td>
         <td>${tran.description}</td>
-        <td repeat.for="balance of objectValues(tran.balances)">${balance | textToMoney}</td>
+        <td class="money" repeat.for="balance of objectValues(tran.balances)">${balance | textToMoney}</td>
       </tr>
     </tbody>
   </table>

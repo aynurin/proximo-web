@@ -11,7 +11,7 @@ export class ScheduleLabelValueConverter {
   toView(sched: Schedule, format?: string) {
     if (!sched) return null;
     let label = cronstr(sched.cron);
-    if (sched.allowsHolidayRule) {
+    if (Schedule.allowsHolidayRule(sched)) {
       label += ", " + HolidayRule[sched.holidayRule] + " holidays";
     }
     if (sched.dateSince && sched.dateTill) {

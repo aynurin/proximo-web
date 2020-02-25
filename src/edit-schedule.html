@@ -1,0 +1,82 @@
+<!--
+  Option to add your own schedule (dynamically rendered using cronstrue).
+  Try moving allOptions into CustomElement
+-->
+<template bindable="displayStartButton">
+    <require from="./model/schedule-view-engine-hooks"></require>
+    <!-- Modal -->
+    <form ref="scheduleForm" submit.trigger="saveSchedule()">
+        <flow-stage>
+            <div class="form-group">
+                <div class="row">
+                    <div class="col-auto">
+                        <label for="editScheduleDate">Reference date:</label></div>
+                    <div class="col-auto"><input type="date" id="editScheduleDate" name="date" value.bind="tran.date"
+                            class="form-control" />
+                    </div>
+                </div>
+            </div>
+            <div class="form-group">
+                <label>Schedule for this transaction:</label>
+                <div class="form-check" repeat.for="schedule of allOptions">
+                    <label class="form-check-label">
+                        <input if.bind="scheduleMatcher(schedule, tran.selectedSchedule)" class="form-check-input"
+                            type="radio" name="schedule-option" model.bind="schedule" checked>
+                        <input if.bind="!scheduleMatcher(schedule, tran.selectedSchedule)" class="form-check-input"
+                            type="radio" name="schedule-option" model.bind="schedule">${schedule.label}</label>
+                </div>
+            </div>
+            <div class="form-group" if.bind="showHolidayRule">
+                <label>If ${tran.selectedSchedule.label} falls on holiday,
+                    execute
+                    <select id="editScheduleHolidayRule" value.bind="tran.selectedSchedule.holidayRule"
+                        disabled.bind="!showHolidayRule">
+                        <option model.bind="HolidayRule[holidayRule]" repeat.for="holidayRule of HolidayRules">
+                            ${holidayRule}
+                        </option>
+                    </select> the holiday</label>
+            </div>
+            <div class="form-group" if.bind="showDateRange">
+                <label for="editScheduleDateRangeSince">Optionally, repeat only between</label>
+                <div class="form-row align-items-center">
+                    <div class="col-auto"><input type="date" class="form-control" id="editScheduleDateRangeSince"
+                            name="dateRangeSince" value.bind="tran.selectedSchedule.dateSince" /></div>
+                    <div class="col-auto">and</div>
+                    <div class="col-auto"><input type="date" class="form-control" id="editScheduleDateRangeTill"
+                            name="dateRangeTill" value.bind="tran.selectedSchedule.dateTill" min.bind="minDateTill" />
+                    </div>
+                </div>
+            </div>
+            <div class="form-group">
+                <div class="form-row">
+                    <div class="col"><label for="editScheduleAmount">Amount</label>
+                        <div class="input-group mb-2">
+                            <div class="input-group-prepend">
+                                <div class="input-group-text">$</div>
+                            </div><input id="editScheduleAmount" placeholder="Amount" type="text" class="form-control money"
+                                required pattern="^(:?\+|-|\()?\d*\.?\d*(:?\))?$" title="Transaction amount"
+                                value.bind="tran.amount | textToFloat" />
+                        </div>
+                    </div>
+                    <div class="col"><label for="editScheduleAccount">Account</label><input id="editScheduleAccount"
+                            placeholder="Account" type="text" class="form-control" required pattern=".+"
+                            title="Account on which this transaction was made" value.bind="tran.account | trimSpace" />
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="col">
+                        <label for="editScheduleDescription">Description</label>
+                        <input id="editScheduleDescription" placeholder="Description" type="text" class="form-control"
+                            required pattern=".+" title="Transaction description"
+                            value.bind="tran.description | trimSpace" />
+                    </div>
+                </div>
+            </div>
+            <div class="form-group flowButtons">
+                <button class="btn btn-light" type="button" click.delegate="cancelForm()">cancel</button>
+                <button class="btn btn-light" type="submit" disabled.bind="!canSave">save schedule&nbsp;<i
+                        class="fa fa-save"></i></button>
+            </div>
+        </flow-stage>
+    </form>
+</template>
