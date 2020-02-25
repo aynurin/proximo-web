@@ -4,8 +4,8 @@ import {
     bindable
 } from "aurelia-framework";
 import { DialogService } from 'aurelia-dialog';
-import { TranTemplate } from "./model/tran-template";
-import { EditScheduleCustomElement } from "edit-schedule";
+import { TranTemplate } from "../model/tran-template";
+import { EditScheduleCustomElement } from "schedule/edit-schedule";
 
 @autoinject()
 @containerless()

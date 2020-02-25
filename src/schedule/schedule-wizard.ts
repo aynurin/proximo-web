@@ -3,15 +3,15 @@ import {
   autoinject,
   computedFrom
 } from "aurelia-framework";
-import cronstr from "./components/cronstr";
+import cronstr from "../components/cronstr";
 import * as moment from "moment";
 
 import { Store, connectTo } from "aurelia-store";
-import { State } from "./state";
+import { State } from "../state";
 
-import { Schedule, HolidayRule } from "./model/schedule";
-import { TranTemplate } from "./model/tran-template";
-import { TranStateActions } from "./model/tran-actions";
+import { Schedule, HolidayRule } from "../model/schedule";
+import { TranTemplate } from "../model/tran-template";
+import { TranStateActions } from "../model/tran-actions";
 import { DialogController } from 'aurelia-dialog';
 
 @autoinject()
@@ -119,6 +119,7 @@ export class ScheduleWizardCustomElement {
       this.tran &&
       this.tran.selectedSchedule != null &&
       this.tran.amount !== null &&
+      this.tran.amount.toString() !== "" &&
       !isNaN(this.tran.amount) &&
       this.tran.account !== null &&
       this.tran.account.length > 0 &&

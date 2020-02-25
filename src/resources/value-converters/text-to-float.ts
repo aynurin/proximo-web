@@ -9,6 +9,10 @@ export class TextToFloatValueConverter {
   fromView(val: string) {
     if (!val) return null;
     if (val.trim() == '-') return val;
-    return parseFloat(val);
+    try {
+      return parseFloat(val);
+    } catch {
+      return null;
+    }
   }
 }

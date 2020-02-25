@@ -118,3 +118,13 @@ flow-stage {
         justify-content: space-between;
     }
 }
+
+ux-dialog-container {
+    @extend .container-fluid, .justify-content-center;
+    display: flex;
+    align-items: center;
+
+    &>div {
+        @extend .col, .col-lg-6, .col-md-8;
+    }
+}

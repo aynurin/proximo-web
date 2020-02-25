@@ -9,7 +9,7 @@ import * as State from "./state";
 import { TranStateActions } from "./model/tran-actions";
 import { TranGenerated } from "model/tran-generated";
 import { EventAggregator } from "aurelia-event-aggregator";
-import { ScheduleWizardCustomElement } from "schedule-wizard";
+import { ScheduleWizardCustomElement } from "schedule/schedule-wizard";
 
 @connectTo()
 export class App {

@@ -3,7 +3,7 @@
   Try moving allOptions into CustomElement
 -->
 <template bindable="displayStartButton">
-  <require from="./model/schedule-view-engine-hooks"></require>
+  <require from="../model/schedule-view-engine-hooks"></require>
   <!-- Modal -->
   <form ref="scheduleForm" submit.trigger="addNewTran()">
     <flow-stage if.bind="flow.isInitial && displayStartButton">
@@ -32,16 +32,21 @@
         </select> the holiday</label>
     </flow-stage>
     <flow-stage if.bind="flow.isDateRange">
-      <label for="dateRange" if.bind="showDateRange">Optionally, repeat only between
-        <input type="date" class="form-control" id="dateRangeSince" name="dateRangeSince" value.bind="tran.selectedSchedule.dateSince" /> and
-        <input type="date" class="form-control" id="dateRangeTill" name="dateRangeTill" value.bind="tran.selectedSchedule.dateTill"
-          min.bind="minDateTill" /></label>
+        <label for="createScheduleDateRangeSince">Optionally, repeat only between</label>
+        <div class="form-row align-items-center">
+            <div class="col-auto"><input type="date" class="form-control" id="createScheduleDateRangeSince"
+                    name="dateRangeSince" value.bind="tran.selectedSchedule.dateSince" /></div>
+            <div class="col-auto">and</div>
+            <div class="col-auto"><input type="date" class="form-control" id="createScheduleDateRangeTill"
+                    name="dateRangeTill" value.bind="tran.selectedSchedule.dateTill" min.bind="minDateTill" />
+            </div>
+        </div>
     </flow-stage>
     <flow-stage if.bind="flow.isParameters">
       <p>We will simulate the following transaction ${tran.selectedSchedule | scheduleLabel}:</p>
       <label for="amount">Amount</label>
       <input id="amount" type="text" class="form-control" required pattern="^(:?\+|-|\()?\d*\.?\d*(:?\))?$" title="Transaction amount"
-        value.bind="tran.amount | textToFloat" />
+        value.bind="tran.amount" numbers />
 
       <label for="account">Account</label>
       <input id="account" type="text" class="form-control" required pattern=".+" title="Account on which this transaction was made"
@@ -54,7 +59,7 @@
     <flow-stage if.bind="flow.isParameters">
       <div class="flowButtons">
         <button class="btn btn-light" type="button" click.delegate="flow.reset()"><i class="fa fa-undo"></i>&nbsp;start over</button>
-        <button class="btn btn-light" type="submit" disabled.bind="!canSave">schedule transaction&nbsp;<i class="fa fa-save"></i></button>
+        <button class="btn btn-primary" type="submit" disabled.bind="!canSave">schedule transaction&nbsp;<i class="fa fa-save"></i></button>
       </div>
     </flow-stage>
     <flow-stage if.bind="!flow.isInitial && !flow.isDate && !flow.isParameters">
