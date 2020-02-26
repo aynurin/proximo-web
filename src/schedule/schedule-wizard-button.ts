@@ -6,7 +6,7 @@ import { ScheduleWizardCustomElement } from 'schedule/schedule-wizard';
 import { TranTemplate } from "../model/tran-template";
 
 @autoinject()
-export class ScheduleWizardDialogueCustomElement {
+export class ScheduleWizardButtonCustomElement {
     public isDialogUp: boolean = false;
     public tran: TranTemplate = null;
 
