@@ -3,7 +3,7 @@
   Try moving allOptions into CustomElement
 -->
 <template bindable="displayStartButton">
-  <require from="../model/schedule-view-engine-hooks"></require>
+  <require from="../../model/schedule-view-engine-hooks"></require>
   <!-- Modal -->
   <form ref="scheduleForm" submit.trigger="addNewTran()">
     <flow-stage if.bind="flow.isInitial && displayStartButton">

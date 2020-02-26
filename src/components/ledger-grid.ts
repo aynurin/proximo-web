@@ -2,15 +2,15 @@ import { autoinject, computedFrom, inject } from "aurelia-framework";
 import { EventAggregator } from "aurelia-event-aggregator";
 
 import { Store, connectTo } from "aurelia-store";
-import { State } from "./state";
+import { State } from "../state";
 
-import { TranGenerated } from "./model/tran-generated";
-import { Schedule } from "./model/schedule";
+import { TranGenerated } from "../model/tran-generated";
+import { Schedule } from "../model/schedule";
 
 import * as CronParser from "cron-parser";
 import * as moment from "moment";
 
-import { TranStateActions } from "./model/tran-actions";
+import { TranStateActions } from "../model/tran-actions";
 import { LogManager } from 'aurelia-framework';
 
 const log = LogManager.getLogger('ledger');
@@ -18,7 +18,7 @@ const log = LogManager.getLogger('ledger');
 const __cacheSec: number = 10;
 @autoinject()
 @connectTo()
-export class LedgerCustomElement {
+export class LedgerGridCustomElement {
   public state: State;
   private ledger: TranGenerated[] = null;
   private lastGenerated: number = null;

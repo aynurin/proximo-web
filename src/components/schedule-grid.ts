@@ -1,19 +1,19 @@
 import {
   autoinject,
 } from "aurelia-framework";
-import cronstr from "./components/cronstr";
+import cronstr from "../components/cronstr";
 import * as moment from "moment";
 
 import { Store, connectTo } from "aurelia-store";
-import { State } from "./state";
+import { State } from "../state";
 
-import { HolidayRule, Schedule } from "./model/schedule";
-import { TranTemplate } from "./model/tran-template";
-import { TranStateActions } from "./model/tran-actions";
+import { HolidayRule, Schedule } from "../model/schedule";
+import { TranTemplate } from "../model/tran-template";
+import { TranStateActions } from "../model/tran-actions";
 
 @autoinject()
 @connectTo()
-export class TranScheduleCustomElement {
+export class ScheduleGridCustomElement {
   public state: State;
   private tranActions: TranStateActions;
 

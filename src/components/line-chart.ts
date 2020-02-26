@@ -1,18 +1,30 @@
-import { TranGenerated } from "./model/tran-generated";
+import { TranGenerated } from "../model/tran-generated";
 
 import { Chart } from "chart.js";
 
 import * as moment from "moment";
 import numeral from 'numeral';
-import { LogManager } from 'aurelia-framework';
+import { LogManager, autoinject } from 'aurelia-framework';
+import { EventAggregator } from "aurelia-event-aggregator";
 
-const log = LogManager.getLogger('tran-chart');
+const log = LogManager.getLogger('line-chart');
 
-export class TranChartCustomElement {
+@autoinject()
+export class LineChartCustomElement {
   chartArea: HTMLCanvasElement;
   isAttached: boolean = false;
   ledger: TranGenerated[];
   delay: number;
+
+  public constructor(
+    private ea: EventAggregator) { }
+
+  created() {
+    this.ea.subscribe("ledgerGenerated", (ledger: TranGenerated[]) => {
+      log.debug('Receiving new ledger');
+      this.ledgerChanged(ledger);
+    });
+  }
 
   attached() {
     log.debug('Attached');

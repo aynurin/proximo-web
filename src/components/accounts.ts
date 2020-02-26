@@ -5,14 +5,14 @@ import {
   } from "aurelia-framework";
   
   import { Store, connectTo } from 'aurelia-store';
-  import { State } from './state';
+  import { State } from '../state';
   
-  import { AccountBalance } from './model/account-balance';
-  import { TranStateActions } from './model/tran-actions';
+  import { AccountBalance } from '../model/account-balance';
+  import { TranStateActions } from '../model/tran-actions';
   
   @autoinject()
   @connectTo()
-  export class AccountBalanceCustomElement {
+  export class AccountsCustomElement {
     newAccForm: HTMLFormElement;
     @bindable newAccount: AccountBalance;
     public state: State;

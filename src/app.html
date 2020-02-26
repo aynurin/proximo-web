@@ -1,10 +1,9 @@
 <template>
   <require from="./style.scss"></require>
-  <require from="./schedule/schedule-wizard-button"></require>
-  <require from="./tran-schedule"></require>
-  <require from="./account-balance"></require>
-  <require from="./ledger"></require>
-  <require from="./tran-chart"></require>
+  <require from="./components/schedule/schedule-wizard-button"></require>
+  <require from="./pages/schedule.html"></require>
+  <require from="./pages/ledger.html"></require>
+  <require from="./pages/dashboard.html"></require>
   <require from="./app-header.html"></require>
 
   <page>
@@ -16,11 +15,10 @@
     <lane>
       <aup-tab-content>
         <aup-tab-pane tab="tab1">
-          <tran-chart view-model.ref="tranChartViewModel"></tran-chart>
+          <dashboard></dashboard>
         </aup-tab-pane>
         <aup-tab-pane tab="tab2">
-          <tran-schedule></tran-schedule>
-          <account-balance></account-balance>
+          <schedule></schedule>
         </aup-tab-pane>
         <aup-tab-pane tab="tab3">
           <ledger></ledger>

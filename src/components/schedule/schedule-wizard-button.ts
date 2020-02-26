@@ -2,8 +2,8 @@ import {
     autoinject,
 } from "aurelia-framework";
 import { DialogService } from 'aurelia-dialog';
-import { ScheduleWizardCustomElement } from 'schedule/schedule-wizard';
-import { TranTemplate } from "../model/tran-template";
+import { ScheduleWizardCustomElement } from './schedule-wizard';
+import { TranTemplate } from "../../model/tran-template";
 
 @autoinject()
 export class ScheduleWizardButtonCustomElement {
