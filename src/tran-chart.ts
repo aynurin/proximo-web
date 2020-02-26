@@ -1,9 +1,3 @@
-import { autoinject } from "aurelia-framework";
-import { EventAggregator } from "aurelia-event-aggregator";
-
-import { Store, connectTo } from "aurelia-store";
-import { State } from "./state";
-
 import { TranGenerated } from "./model/tran-generated";
 
 import { Chart } from "chart.js";
@@ -11,30 +5,48 @@ import { Chart } from "chart.js";
 import * as moment from "moment";
 import numeral from 'numeral';
 
-@autoinject()
-@connectTo()
 export class TranChartCustomElement {
-  public state: State;
   chartArea: HTMLCanvasElement;
+  isAttached: boolean = false;
+  ledger: TranGenerated[];
+  delay: number;
 
-  public constructor(
-    private store: Store<State>,
-    private ea: EventAggregator
-  ) {}
+  attached() {
+    console.log('tran-chart Attached');
+    this.isAttached = true;
+    if (this.ledger != null) {
+      this.ledgerChanged(this.ledger);
+    }
+  }
 
-  ledgerChanged(ledger: TranGenerated[]) {
+  detached() {
+    this.isAttached = false;
+  }
+
+  public ledgerChanged(ledger: TranGenerated[]) {
+    this.ledger = ledger;
+    if (!this.isAttached) {
+      return;
+    }
+    if (this.delay != null) {
+      window.clearTimeout(this.delay);
+      this.delay = null;
+    }
+    if (this.delay == null) {
+      this.delay = window.setTimeout(() => this.makeChart(ledger), 1000);
+    }
+  }
+
+  makeChart(ledger: TranGenerated[]) {
+    this.delay = null;
     let datasets = generateDatasets(ledger);
-    console.log("ledgerChanged", datasets.length);
+    console.log('tran-chart Ledger Changed', datasets.length);
     var ctx = this.chartArea.getContext("2d");
     var myChart = new Chart(ctx, {
       type: "line",
       data: { datasets },
       options: {
         responsive: true,
-        title: {
-          display: true,
-          text: "Chart.js Line Chart"
-        },
         tooltips: {
 					// intersect: false,
 					// mode: 'index',
@@ -98,13 +110,7 @@ export class TranChartCustomElement {
         }
       }
     });
-  }
-
-  attached() {
-    console.log("subscribing to ledgerGenerated");
-    this.ea.subscribe("ledgerGenerated", (ledger: TranGenerated[]) => {
-      this.ledgerChanged(ledger);
-    });
+    console.log(ctx, myChart);
   }
 }
 

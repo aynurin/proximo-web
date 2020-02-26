@@ -6,11 +6,14 @@ For more information, go to https://aurelia.io/docs/cli/webpack
 
 ## Todo
 
-Perf optimization
-Loader
 Make chart generated on launch
-Responsive
 Routing
+Production build
+Configure GitHub action to deploy in blue/green way
+Ads
+Searchable tables (lots of fun!)
+Chart adjustments
+Responsive
 
 ## Run dev app
 
