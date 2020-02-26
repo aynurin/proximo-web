@@ -16,7 +16,7 @@ import { TranChartCustomElement } from "tran-chart";
 export class App {
   message = "FinForecast";
   myTabs = [
-    { id: 'tab1', label: 'Dashboard', tooltip: 'Your forecast summary' },
+    { id: 'tab1', label: 'Dashboard', tooltip: 'Your forecast summary', active: true },
     { id: 'tab2', label: 'Schedule', tooltip: 'Schedule of the transactions' },
     { id: 'tab3', label: 'Ledger', tooltip: 'Your ledger generated based on the schedule' }
   ];
