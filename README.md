@@ -6,8 +6,6 @@ For more information, go to https://aurelia.io/docs/cli/webpack
 
 ## Todo
 
-Make chart generated on launch
-Routing
 Production build
 Configure GitHub action to deploy in blue/green way
 Ads

@@ -4,6 +4,9 @@ import { Chart } from "chart.js";
 
 import * as moment from "moment";
 import numeral from 'numeral';
+import { LogManager } from 'aurelia-framework';
+
+const log = LogManager.getLogger('tran-chart');
 
 export class TranChartCustomElement {
   chartArea: HTMLCanvasElement;
@@ -12,7 +15,7 @@ export class TranChartCustomElement {
   delay: number;
 
   attached() {
-    console.log('tran-chart Attached');
+    log.debug('Attached');
     this.isAttached = true;
     if (this.ledger != null) {
       this.ledgerChanged(this.ledger);
@@ -40,7 +43,7 @@ export class TranChartCustomElement {
   makeChart(ledger: TranGenerated[]) {
     this.delay = null;
     let datasets = generateDatasets(ledger);
-    console.log('tran-chart Ledger Changed', datasets.length);
+    log.debug('Ledger Changed', datasets.length);
     var ctx = this.chartArea.getContext("2d");
     var myChart = new Chart(ctx, {
       type: "line",
@@ -56,7 +59,6 @@ export class TranChartCustomElement {
 							if (label) {
 								label += ': ';
 							}
-              // console.log(tooltipItem.label, label);
 							label += numeral(tooltipItem.value).format('0,0.00');
 							return label;
             },
@@ -110,7 +112,6 @@ export class TranChartCustomElement {
         }
       }
     });
-    console.log(ctx, myChart);
   }
 }
 

@@ -1,4 +1,7 @@
-import { computedFrom } from "aurelia-framework";
+
+import { LogManager } from 'aurelia-framework';
+
+const log = LogManager.getLogger('schedule');
 
 export interface CronParts {
   day?: number;
@@ -51,7 +54,7 @@ export class Schedule {
       one.cron[1] == other.cron[1] &&
       one.cron[2] == other.cron[2] &&
       one.cron[3] == other.cron[3];
-    console.log('equals', equals, this, other);
+      log.debug('equals', equals, this, other);
     return equals;
   }
 }

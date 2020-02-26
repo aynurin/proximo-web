@@ -11,6 +11,9 @@ import { TranGenerated } from "model/tran-generated";
 import { EventAggregator } from "aurelia-event-aggregator";
 import { ScheduleWizardCustomElement } from "schedule/schedule-wizard";
 import { TranChartCustomElement } from "tran-chart";
+import { LogManager } from 'aurelia-framework';
+
+const log = LogManager.getLogger('app');
 
 @connectTo()
 export class App {
@@ -41,7 +44,7 @@ export class App {
 
   created() {
     this.ea.subscribe("ledgerGenerated", (ledger: TranGenerated[]) => {
-      console.log('APP receiving new ledger');
+      log.debug('Receiving new ledger');
       this.tranChartViewModel.ledgerChanged(ledger);
     });
   }

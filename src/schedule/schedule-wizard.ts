@@ -13,6 +13,9 @@ import { Schedule, HolidayRule } from "../model/schedule";
 import { TranTemplate } from "../model/tran-template";
 import { TranStateActions } from "../model/tran-actions";
 import { DialogController } from 'aurelia-dialog';
+import { LogManager } from 'aurelia-framework';
+
+const log = LogManager.getLogger('schedule-wizard');
 
 @autoinject()
 @connectTo()
@@ -39,7 +42,7 @@ export class ScheduleWizardCustomElement {
   }
 
   formChange() {
-    console.log(this.tran);
+    log.debug('formChange', this.tran);
     this.flow.advanceIfValid(this.tran);
   }
 
@@ -76,7 +79,7 @@ export class ScheduleWizardCustomElement {
   @computedFrom("tran.date")
   get allOptions(): Schedule[] {
     const date = moment(this.tran.date);
-    console.log('allOptions', moment(date).format("MMM Do YYYY"));
+    log.debug('allOptions', moment(date).format("MMM Do YYYY"));
     const options: Schedule[] = [];
 
     if (this.tran.date == null || this.tran.date == "") {
@@ -109,7 +112,6 @@ export class ScheduleWizardCustomElement {
         year: date.year()
       })
     );
-    console.log(options);
 
     return options;
   }
@@ -212,7 +214,7 @@ class AddTransactionWorkflow {
   }
 
   advanceIfValid(tran: TranTemplate) {
-    console.log(
+    log.debug(
       `Request to advance from ${ScheduleStage[this.stage]} to ${
         ScheduleStage[this.stage + 1]
       }`, tran
@@ -228,7 +230,7 @@ class AddTransactionWorkflow {
       ) {
         this.advance(tran);
       } else {
-        console.log(
+        log.debug(
           "Cannot advance from " + this.stage + " stage with tran.date =",
           tran.date
         );
@@ -241,7 +243,7 @@ class AddTransactionWorkflow {
       ) {
         this.advance(tran);
       } else {
-        console.log(
+        log.debug(
           "Cannot advance from " +
             this.stage +
             " stage with tran.selectedSchedule =",
@@ -257,7 +259,7 @@ class AddTransactionWorkflow {
       ) {
         this.advance(tran);
       } else {
-        console.log(
+        log.debug(
           "Cannot advance from " +
             this.stage +
             " stage with tran.selectedSchedule =",
@@ -289,7 +291,7 @@ class AddTransactionWorkflow {
           if (since == null || till == null || since < till) {
             this.advance(tran);
           } else {
-            console.log(
+            log.debug(
               "Cannot advance from " +
                 this.stage +
                 " stage with tran.selectedSchedule =",
@@ -298,7 +300,7 @@ class AddTransactionWorkflow {
           }
         }
       } else {
-        console.log(
+        log.debug(
           "Cannot advance from " +
             this.stage +
             " stage with tran.selectedSchedule =",
@@ -316,7 +318,7 @@ class AddTransactionWorkflow {
       ) {
         this.advance(tran);
       } else {
-        console.log(
+        log.debug(
           "Cannot advance from " + this.stage + " stage with tran =",
           tran
         );

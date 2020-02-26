@@ -13,6 +13,10 @@ import { Schedule, HolidayRule } from "../model/schedule";
 import { TranTemplate } from "../model/tran-template";
 import { TranStateActions } from "../model/tran-actions";
 import { DialogController } from 'aurelia-dialog';
+import { LogManager } from 'aurelia-framework';
+
+const log = LogManager.getLogger('edit-schedule');
+
 
 @autoinject()
 @connectTo()
@@ -34,12 +38,12 @@ export class EditScheduleCustomElement {
   }
 
   cancelForm() {
-    console.log('cancel dialog');
+    log.debug('cancel dialog');
     this.dialogController.cancel();
   }
 
   saveSchedule() {
-    console.log('save schedule');
+    log.debug('save schedule');
     if (this.canSave) {
       this.tranActions.replaceSchedule(this.originalTran, this.tran);
       this.tran = new TranTemplate();
@@ -49,7 +53,7 @@ export class EditScheduleCustomElement {
   }
 
   scheduleMatcher(a: Schedule, b: Schedule) {
-    console.log('scheduleMatcher', a, b);
+    log.debug('scheduleMatcher', a, b);
     return Schedule.equals(a, b);
   }
 

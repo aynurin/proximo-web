@@ -11,6 +11,9 @@ import * as CronParser from "cron-parser";
 import * as moment from "moment";
 
 import { TranStateActions } from "./model/tran-actions";
+import { LogManager } from 'aurelia-framework';
+
+const log = LogManager.getLogger('ledger');
 
 const __cacheSec: number = 10;
 @autoinject()
@@ -45,14 +48,14 @@ export class LedgerCustomElement {
     const returnCached = generatingTime - this.lastGenerated <= __cacheSec;
     if (returnCached) {
       this.cachedCount++;
-      console.log(
+      log.debug(
         "Returning cached ledger.",
         "Cache-hit ratio:",
         this.cachedCount / this.calculatedCount
       );
     } else {
       this.calculatedCount++;
-      console.log(
+      log.debug(
         "Recalculating ledger. Last calculated:",
         generatingTime - this.lastGenerated,
         "Cache-hit ratio:",
@@ -129,7 +132,7 @@ export class LedgerCustomElement {
     }
 
     this.ea.publish("ledgerGenerated", ledger);
-    console.log("published ledger", ledger.length);
+    log.debug("published ledger", ledger.length);
     this.ledger = ledger;
     this.lastGenerated = generatingTime;
     return this.ledger;

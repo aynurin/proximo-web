@@ -19,9 +19,6 @@ export class EditScheduleButtonCustomElement {
         this.isDialogUp = true;
         this.dialogService.open({ viewModel: EditScheduleCustomElement, model: this.tran, lock: false }).whenClosed(response => {
             this.isDialogUp = false;
-            if (!response.wasCancelled) {
-                console.log('good');
-            }
         });
     }
 }

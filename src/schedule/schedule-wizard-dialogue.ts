@@ -17,9 +17,6 @@ export class ScheduleWizardDialogueCustomElement {
         this.tran = new TranTemplate();
         this.dialogService.open({ viewModel: ScheduleWizardCustomElement, model: this.tran, lock: false }).whenClosed(response => {
             this.isDialogUp = false;
-            if (!response.wasCancelled) {
-                console.log('good');
-            }
         });
     }
 }
