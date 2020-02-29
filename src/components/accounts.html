@@ -1,69 +1,11 @@
 <template>
-  <form id="newAccForm" ref="newAccForm" submit.trigger="saveNewAccount()"></form>
-  <table>
-    <thead>
-      <tr>
-        <th colspan="2">Current account balances:</th>
-      </tr>
-    </thead>
-    <tbody>
-      <tr repeat.for="account of state.accounts2">
-        <td>${account.account}</td>
-        <td>
-          <input
-            type="text"
-            value.bind="account.balance"
-            pattern="^(:?\+|-|\()?\d*\.?\d*(:?\))?$"
-            title="Current balance on this account"
-            change.delegate="saveAccount(account)"
-          />
-        </td>
-      </tr>
-    </tbody>
-    <thead>
-      <tr>
-        <th colspan="2">Create a new account:</th>
-      </tr>
-    </thead>
-    <tbody>
-      <tr>
-        <td><label for="newAccName">Account name:</label></td>
-        <td>
-          <input
-            type="text"
-            form="newAccForm"
-            name="newAccName"
-            value.bind="newAccount.account"
-            required
-          />
-        </td>
-      </tr>
-      <tr>
-        <td><label for="newAccBalance">Account balance:</label></td>
-        <td>
-          <input
-            type="text"
-            form="newAccForm"
-            name="newAccBalance"
-            pattern="^(:?\+|-|\()?\d*\.?\d*(:?\))?$"
-            title="Current balance on this account"
-            value.bind="newAccount.balance"
-            required
-          />
-        </td>
-      </tr>
-      <tr>
-        <td>&nbsp;</td>
-        <td>
-          <button
-            type="submit"
-            form="newAccForm"
-            disabled.bind="!canSaveNewAccount"
-          >
-            Save
-          </button>
-        </td>
-      </tr>
-    </tbody>
-  </table>
+  <div class="form-group row"><div class="col">Current account balances:</div></div>
+
+  <div class="form-group row" repeat.for="account of state.accounts2">
+    <label for="acc_${$index}" class="col-4 col-form-label col-form-label-sm">${account.account}</label>
+    <div class="col-8">
+      <input type="text" id="acc_${$index}" class="form-control form-control-sm money py-1" value.bind="account.balance" pattern="^(:?\+|-|\()?\d*\.?\d*(:?\))?$"
+        title="Current balance on this account" change.delegate="saveAccount(account)" />
+    </div>
+  </div>
 </template>

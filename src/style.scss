@@ -1,19 +1,19 @@
 $body-bg: #f6f6f6;
 $body-color: #495057;
 $nav-tabs-link-active-bg: #fff;
-$box-shadow-sm: 0 .2rem .25rem rgba(#000, .075);
+$box-shadow-sm: 0 0.2rem 0.25rem rgba(#000, 0.075);
 
-$blue:    #113348;
-$red:     #FE5350;
-$yellow:  #FFDB3A;
-$green:   #59CF44;
-$cyan:    #27A8A6;
+$blue: #113348;
+$red: #fe5350;
+$yellow: #ffdb3a;
+$green: #59cf44;
+$cyan: #27a8a6;
 
-$primary:       $blue;
-$success:       $green;
-$info:          $cyan;
-$warning:       $yellow;
-$danger:        $red;
+$primary: $blue;
+$success: $green;
+$info: $cyan;
+$warning: $yellow;
+$danger: $red;
 // $secondary:     $gray-600 !default;
 // $light:         $gray-100 !default;
 // $dark:          $gray-800 !default;
@@ -23,108 +23,137 @@ $danger:        $red;
 $content-bg: $white;
 
 $header-lane-height: $spacer * 2;
-$shadow-width: .125rem;
+$shadow-width: 0.125rem;
 
 page {
-    margin: 0 80px;
-    display: block;
+  margin: 0 80px;
+  display: block;
 }
 
 header {
-    display: flex;
-    flex-direction: row;
-    align-items: flex-end;
-    justify-content: flex-start;
-    width: 100%;
-    border-bottom: $nav-tabs-border-width solid $nav-tabs-border-color;
+  display: flex;
+  flex-direction: row;
+  align-items: flex-end;
+  justify-content: flex-start;
+  width: 100%;
+  border-bottom: $nav-tabs-border-width solid $nav-tabs-border-color;
 }
 
 lane {
-    width: 100%;
-    display:flex;
-    flex-direction: column;
-    margin-left: -$shadow-width;
-    margin-right: -$shadow-width;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  margin-left: -$shadow-width;
+  margin-right: -$shadow-width;
 }
 
 app-header {
-    height: $header-lane-height;
+  height: $header-lane-height;
 
-    @extend .my-3;
+  @extend .my-3;
 
-    img {
-        height: 100%;
-        margin-left: $spacer/2;
-        margin-right: $spacer;
-        z-index: 1001;
-        position: sticky;
-    }
+  img {
+    height: 100%;
+    margin-left: $spacer/2;
+    margin-right: $spacer;
+    z-index: 1001;
+    position: sticky;
+  }
 }
 
 aup-tabs {
-    margin-bottom: -1px;
+  margin-bottom: -1px;
 
-    .nav-item {
-        &>.nav-link {
-            color: $gray-700;
-        }
-        &>.active {
-            color: $gray-900;
-            @extend .shadow-sm, .bg-white;
-        }
+  .nav-item {
+    & > .nav-link {
+      color: $gray-700;
     }
+    & > .active {
+      color: $gray-900;
+      @extend .shadow-sm, .bg-white;
+    }
+  }
 }
 
 aup-tab-content {
-    .tab-content {
-        @extend .border, .border-top-0, .shadow-sm, .p-3, .mb-5, .bg-white, .rounded-bottom;
-        min-height: 80vh;
-    }
+  .tab-content {
+    @extend .border,
+      .border-top-0,
+      .shadow-sm,
+      .p-3,
+      .mb-5,
+      .bg-white,
+      .rounded-bottom;
+    min-height: 80vh;
+  }
 }
 
 button#addTransaction {
-    @extend .btn, .btn-primary, .btn-sm;
-    margin: $spacer/4+$spacer/8 $spacer/2;
+  @extend .btn, .btn-primary, .btn-sm;
+  margin: $spacer/4 + $spacer/8 $spacer/2;
 }
 
 schedule-wizard {
-    width: 100%;
-    position: absolute;
+  width: 100%;
+  position: absolute;
 }
 
 ux-dialog-overlay {
-    background-color: rgba($body-bg, .85);
+  background-color: rgba($body-bg, 0.85);
 }
 
 .money {
-    text-align: right;
+  text-align: right;
 }
 
 flow-stage {
-    display: block;
-    @extend .form-group;
+  display: block;
+  @extend .form-group;
 
-    stage-title {
-        display: block;
-        margin: $spacer 0;
-    }
-    // input, select {
-    //     @extend .form-control;
-    // }
-    .flowButtons {
-        display: flex;
-        flex-direction: row;
-        flex-wrap: nowrap;
-        justify-content: space-between;
-    }
+  stage-title {
+    display: block;
+    margin: $spacer 0;
+  }
+  // input, select {
+  //     @extend .form-control;
+  // }
+  .flowButtons {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: nowrap;
+    justify-content: space-between;
+  }
 }
 
 ux-dialog-container {
-    @extend .container-fluid, .justify-content-center;
-    display: flex;
-    align-items: center;
+  @extend .container-fluid, .justify-content-center;
+  display: flex;
+  align-items: center;
 
-    &>div {
-        @extend .col, .col-lg-6, .col-md-8;
+  & > div {
+    @extend .col, .col-lg-6, .col-md-8;
+  }
+}
+
+dashboard {
+  display: flex;
+  flex-wrap: wrap;
+
+  accounts {
+    width: 14rem;
+  }
+
+  @media (max-width: 999.99px) {
+    line-chart {
+      width: 100%;
     }
+  }
+
+  @media (min-width: 1000px) {
+    line-chart {
+      flex: 1;
+      min-width: 600px;
+      overflow-x: hidden;
+    }
+  }
 }
