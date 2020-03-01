@@ -6,20 +6,28 @@ on:
       - release
 
 jobs:
-  build:
-
+  test:
     runs-on: ubuntu-latest
-
     steps:
     - uses: actions/checkout@v2
-    - name: Install dependencies
+    - name: Install all dependencies
       run: |
-        yarn
+        yarn install
+        yarn global add aurelia-cli
     - name: Build
       run: |
         au test
-        npm run analyze
-        npm run build
+        yarn run analyze
+  build:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v2
+    - name: Install production dependencies
+      run: |
+        yarn install --production=true
+    - name: Build
+      run: |
+        yarn run build
     - name: Upload to S3
       run: |
         aws s3 sync ./dist s3://proximo-web-blue
