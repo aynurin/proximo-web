@@ -46,7 +46,6 @@ const replaceScheduleAction = (state: State, original: TranTemplate, replacement
     newAccounts.sort((a, b) => a.account.localeCompare(b.account));
     newState.accounts2 = newAccounts;
   }
-
   return newState;
 }
 
@@ -74,7 +73,7 @@ const removeTranAction = (state: State, tran: TranTemplate) => {
     newState.schedule.splice(index, 1);
     return newState;
   }
-  return state;
+  return false;
 }
 
 const saveAccountAction = (state: State, account: AccountBalance) => {

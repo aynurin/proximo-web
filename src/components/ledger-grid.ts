@@ -44,6 +44,11 @@ export class LedgerGridCustomElement {
 
   @computedFrom("state.schedule")
   get generatedLedger(): TranGenerated[] {
+    if (this.state == null ||
+      typeof this.state.schedule === 'undefined' ||
+      this.state.schedule == null) {
+      return [];
+    }
     const generatingTime = Math.floor(+new Date() / 1000);
     const returnCached = generatingTime - this.lastGenerated <= __cacheSec;
     if (returnCached) {

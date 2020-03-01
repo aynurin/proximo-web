@@ -16,11 +16,10 @@ describe('Stage App Component', () => {
   it('should render message', done => {
     component.create(bootstrap).then(() => {
       const view = component.element;
-      expect(view.textContent.trim().indexOf('FinForecast')).toBe(0);
+      expect(view.textContent.trim().indexOf('Schedule transaction')).toBe(0);
       done();
     }).catch(e => {
-      fail(e);
-      done();
+      done(e);
     });
   });
 });

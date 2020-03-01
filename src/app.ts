@@ -32,7 +32,17 @@ export class App {
       MiddlewarePlacement.After,
       { key: "tran-schedule-state" }
     );
-    store.registerAction("Rehydrate", rehydrateFromLocalStorage);
-    store.dispatch(rehydrateFromLocalStorage, "tran-schedule-state");
+    store.registerAction("RehydrateSate", restoreState);
+    store.dispatch("RehydrateSate", "tran-schedule-state");
+  }
+}
+
+
+function restoreState(state: State.State, key: string) {
+  const newState = rehydrateFromLocalStorage(state, key);
+  if (!newState) {
+    return false;
+  } else {
+    return newState;
   }
 }
