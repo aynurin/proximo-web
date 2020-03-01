@@ -6,27 +6,18 @@ on:
       - release
 
 jobs:
-  test:
-    runs-on: ubuntu-latest
-    steps:
-    - uses: actions/checkout@v2
-    - name: Install all dependencies
-      run: |
-        yarn install
-        yarn global add aurelia-cli
-    - name: Build
-      run: |
-        au test
-        yarn run analyze
   build:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v2
     - name: Install production dependencies
       run: |
-        yarn install --production=true
+        npm install -g aurelia-cli
+        yarn install
     - name: Build
       run: |
+        au test
+        yarn run analyze
         yarn run build
     - name: Upload to S3
       run: |
