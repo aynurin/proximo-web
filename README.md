@@ -12,6 +12,7 @@ Ads
 Searchable tables (lots of fun!)
 Chart adjustments
 Responsive
+Retry build
 
 ## Run dev app
 
