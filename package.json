@@ -77,7 +77,7 @@
     "start": "webpack-dev-server --extractCss",
     "build:dev": "webpack --extractCss",
     "analyze": "webpack --env.production --analyze",
-    "test": "au test"
+    "test": "jest"
   },
   "engines": {
     "node": ">=8.9.0"
