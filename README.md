@@ -6,7 +6,6 @@ For more information, go to https://aurelia.io/docs/cli/webpack
 
 ## Todo
 
-Production build
 Configure GitHub action to deploy in blue/green way
 Ads
 Searchable tables (lots of fun!)
