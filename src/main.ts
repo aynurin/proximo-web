@@ -40,8 +40,8 @@ export function configure(aurelia: Aurelia) {
       });
     });
 
-  if (!environment.debug) {
-    aurelia.use.plugin('aurelia-google-analytics', config => {
+  // if (!environment.debug) {
+    aurelia.use.plugin(PLATFORM.moduleName('aurelia-google-analytics'), config => {
       config.init('UA-159543803-1');
       config.attach({
         logging: {
@@ -86,7 +86,7 @@ export function configure(aurelia: Aurelia) {
         }
       });
     });
-  }
+  // }
 
   aurelia.start().then(() => aurelia.setRoot(PLATFORM.moduleName('app')));
 }
