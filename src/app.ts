@@ -5,6 +5,7 @@ import {
   MiddlewarePlacement,
   rehydrateFromLocalStorage
 } from "aurelia-store";
+import * as environment from '../config/environment.json';
 import * as State from "./state";
 import { TranStateActions } from "./model/tran-actions";
 import { EventAggregator } from "aurelia-event-aggregator";
@@ -18,6 +19,8 @@ export class App {
     { id: 'tab2', label: 'Schedule', tooltip: 'Schedule of the transactions' },
     { id: 'tab3', label: 'Ledger', tooltip: 'Your ledger generated based on the schedule' }
   ];
+
+  get isProduction(): boolean { return environment.debug === false; };
 
   public state: State.State;
   public tranBuilder: ScheduleWizardCustomElement;
