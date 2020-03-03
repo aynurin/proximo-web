@@ -2,8 +2,10 @@ import { Aurelia } from 'aurelia-framework'
 import * as environment from '../config/environment.json';
 import { PLATFORM } from 'aurelia-pal';
 import { initialState } from './state';
-import { I18N, Backend, TCustomAttribute } from 'aurelia-i18n';
+import { I18N, TCustomAttribute } from 'aurelia-i18n';
+import Backend from 'i18next-xhr-backend';
 import 'font-awesome/css/font-awesome.css';
+
 export function configure(aurelia: Aurelia) {
   aurelia.use
     .standardConfiguration()
@@ -25,22 +27,25 @@ export function configure(aurelia: Aurelia) {
       TCustomAttribute.configureAliases(aliases);
 
       // register backend plugin
-      instance.i18next.use(Backend.with(aurelia.loader));
+      instance.i18next.use(Backend);
 
       // adapt options to your needs (see http://i18next.com/docs/options/)
       // make sure to return the promise of the setup method, in order to guarantee proper loading
       return instance.setup({
         backend: {                                  // <-- configure backend settings
-          loadPath: './locales/{{lng}}/{{ns}}.json', // <-- XHR settings for where to get the files from
+          loadPath: './locale/{{lng}}/{{ns}}.json', // <-- XHR settings for where to get the files from
         },
         attributes: aliases,
         lng: 'en',
         fallbackLng: 'en',
-        debug: false
+        debug: true,
+        ns: ['main','intro'],
+        defaultNS: 'main',
+        skipTranslationOnMissingKey: true
       });
     });
 
-  // if (!environment.debug) {
+  if (!environment.debug) {
     aurelia.use.plugin(PLATFORM.moduleName('aurelia-google-analytics'), config => {
       config.init('UA-159543803-1');
       config.attach({
@@ -86,7 +91,7 @@ export function configure(aurelia: Aurelia) {
         }
       });
     });
-  // }
+  }
 
   aurelia.start().then(() => aurelia.setRoot(PLATFORM.moduleName('app')));
 }

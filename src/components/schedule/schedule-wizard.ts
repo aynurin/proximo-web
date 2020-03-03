@@ -21,7 +21,7 @@ const log = LogManager.getLogger('schedule-wizard');
 @connectTo()
 export class ScheduleWizardCustomElement {
   @bindable tran: TranTemplate = new TranTemplate();
-  scheduleForm: HTMLFormElement;
+  scheduleWizardForm: HTMLFormElement;
   htmlModal: HTMLDivElement;
   holidayRuleNames: string[] = Object.keys(HolidayRule).filter(
     key => typeof HolidayRule[key] === "number"
@@ -51,7 +51,7 @@ export class ScheduleWizardCustomElement {
       this.tranActions.addSchedule(this.tran);
       this.tran = new TranTemplate();
       this.flow.reset();
-      this.scheduleForm.reset();
+      this.scheduleWizardForm.reset();
       this.dialogController.ok();
     }
   }
@@ -216,7 +216,7 @@ class AddTransactionWorkflow {
   advanceIfValid(tran: TranTemplate) {
     log.debug(
       `Request to advance from ${ScheduleStage[this.stage]} to ${
-        ScheduleStage[this.stage + 1]
+      ScheduleStage[this.stage + 1]
       }`, tran
     );
     if (this.stage == ScheduleStage.Initial) {
@@ -245,8 +245,8 @@ class AddTransactionWorkflow {
       } else {
         log.debug(
           "Cannot advance from " +
-            this.stage +
-            " stage with tran.selectedSchedule =",
+          this.stage +
+          " stage with tran.selectedSchedule =",
           tran.selectedSchedule
         );
       }
@@ -261,8 +261,8 @@ class AddTransactionWorkflow {
       } else {
         log.debug(
           "Cannot advance from " +
-            this.stage +
-            " stage with tran.selectedSchedule =",
+          this.stage +
+          " stage with tran.selectedSchedule =",
           tran.selectedSchedule
         );
       }
@@ -278,14 +278,14 @@ class AddTransactionWorkflow {
         } else {
           let since =
             tran.selectedSchedule.dateSince != null &&
-            tran.selectedSchedule.dateSince.trim() != "" &&
-            moment(tran.selectedSchedule.dateSince).isValid
+              tran.selectedSchedule.dateSince.trim() != "" &&
+              moment(tran.selectedSchedule.dateSince).isValid
               ? moment(tran.selectedSchedule.dateSince)
               : null;
           let till =
             tran.selectedSchedule.dateTill != null &&
-            tran.selectedSchedule.dateTill.trim() != "" &&
-            moment(tran.selectedSchedule.dateTill).isValid
+              tran.selectedSchedule.dateTill.trim() != "" &&
+              moment(tran.selectedSchedule.dateTill).isValid
               ? moment(tran.selectedSchedule.dateTill)
               : null;
           if (since == null || till == null || since < till) {
@@ -293,8 +293,8 @@ class AddTransactionWorkflow {
           } else {
             log.debug(
               "Cannot advance from " +
-                this.stage +
-                " stage with tran.selectedSchedule =",
+              this.stage +
+              " stage with tran.selectedSchedule =",
               tran.selectedSchedule
             );
           }
@@ -302,8 +302,8 @@ class AddTransactionWorkflow {
       } else {
         log.debug(
           "Cannot advance from " +
-            this.stage +
-            " stage with tran.selectedSchedule =",
+          this.stage +
+          " stage with tran.selectedSchedule =",
           tran.selectedSchedule
         );
       }

@@ -222,6 +222,13 @@
     pirates "^4.0.0"
     source-map-support "^0.5.16"
 
+"@babel/runtime@^7.3.1", "@babel/runtime@^7.5.5":
+  version "7.8.4"
+  resolved "https://registry.yarnpkg.com/@babel/runtime/-/runtime-7.8.4.tgz#d79f5a2040f7caa24d53e563aad49cbc05581308"
+  integrity sha512-neAp3zt80trRVBI1x0azq6c57aNBqYZH8KhMm3TaB7wEI5Q4A2SHfBHE8w9gOhI/lrqxtEbXZgQIrHP+wvSGwQ==
+  dependencies:
+    regenerator-runtime "^0.13.2"
+
 "@babel/template@^7.4.0", "@babel/template@^7.7.4", "@babel/template@^7.8.3":
   version "7.8.3"
   resolved "https://registry.yarnpkg.com/@babel/template/-/template-7.8.3.tgz#e02ad04fe262a657809327f578056ca15fd4d1b8"
@@ -679,6 +686,20 @@
     "@types/events" "*"
     "@types/minimatch" "*"
     "@types/node" "*"
+
+"@types/i18next-xhr-backend@^1.4.2":
+  version "1.4.2"
+  resolved "https://registry.yarnpkg.com/@types/i18next-xhr-backend/-/i18next-xhr-backend-1.4.2.tgz#e3849b77e77daa1504f02269b1c192dc0e86e507"
+  integrity sha512-uykS5BvdSoN+G7j7D19xzR12pEVkWmUrIEIxMsj2brVVzjc3gIthWCQKYqbe/b1q87SLbWb/ZHN9bR4qxi1H6A==
+  dependencies:
+    i18next-xhr-backend "*"
+
+"@types/i18next@^13.0.0":
+  version "13.0.0"
+  resolved "https://registry.yarnpkg.com/@types/i18next/-/i18next-13.0.0.tgz#403ef338add0104e74d9759f1b39217e7c5d4084"
+  integrity sha512-gp/SIShAuf4WOqi8ey0nuI7qfWaVpMNCcs/xLygrh/QTQIXmlDC1E0TtVejweNW+7SGDY7g0lyxyKZIJuCKIJw==
+  dependencies:
+    i18next "*"
 
 "@types/istanbul-lib-coverage@*", "@types/istanbul-lib-coverage@^2.0.0", "@types/istanbul-lib-coverage@^2.0.1":
   version "2.0.1"
@@ -4773,6 +4794,20 @@ human-signals@^1.1.1:
   resolved "https://registry.yarnpkg.com/human-signals/-/human-signals-1.1.1.tgz#c5b1cd14f50aeae09ab6c59fe63ba3395fe4dfa3"
   integrity sha512-SEQu7vl8KjNL2eoGBLF3+wAjpsNfA9XMlXAYj/3EdaNfAlxKthD1xjEQfGOUhllCGGJVNY34bRr6lPINhNjyZw==
 
+i18next-xhr-backend@*, i18next-xhr-backend@^3.2.2:
+  version "3.2.2"
+  resolved "https://registry.yarnpkg.com/i18next-xhr-backend/-/i18next-xhr-backend-3.2.2.tgz#769124441461b085291f539d91864e3691199178"
+  integrity sha512-OtRf2Vo3IqAxsttQbpjYnmMML12IMB5e0fc5B7qKJFLScitYaXa1OhMX0n0X/3vrfFlpHL9Ro/H+ps4Ej2j7QQ==
+  dependencies:
+    "@babel/runtime" "^7.5.5"
+
+i18next@*:
+  version "19.3.2"
+  resolved "https://registry.yarnpkg.com/i18next/-/i18next-19.3.2.tgz#a17c3c8bb0dd2d8c4a8963429df99730275b3282"
+  integrity sha512-QDBQ8MqFWi4+L9OQjjZEKVyg9uSTy3NTU3Ri53QHe7nxtV+KD4PyLB8Kxu58gr6b9y5l8cU3mCiNHVeoxPMzAQ==
+  dependencies:
+    "@babel/runtime" "^7.3.1"
+
 i18next@^14.0.1:
   version "14.1.1"
   resolved "https://registry.yarnpkg.com/i18next/-/i18next-14.1.1.tgz#d569aff68c088151f09fcb0cb6f44b36d62731d3"
@@ -8108,6 +8143,11 @@ regenerator-runtime@^0.11.0:
   version "0.11.1"
   resolved "https://registry.yarnpkg.com/regenerator-runtime/-/regenerator-runtime-0.11.1.tgz#be05ad7f9bf7d22e056f9726cee5017fbf19e2e9"
   integrity sha512-MguG95oij0fC3QV3URf4V2SDYGJhJnJGqvIIgdECeODCT98wSWDAJ94SSuVpYQUoTcGUIL6L4yNB7j1DFFHSBg==
+
+regenerator-runtime@^0.13.2:
+  version "0.13.3"
+  resolved "https://registry.yarnpkg.com/regenerator-runtime/-/regenerator-runtime-0.13.3.tgz#7cf6a77d8f5c6f60eb73c5fc1955b2ceb01e6bf5"
+  integrity sha512-naKIZz2GQ8JWh///G7L3X6LaQUAMp2lvb1rvwwsURe/VXwD6VMfr+/1NuNw3ag8v2kY1aQ/go5SNn79O9JU7yw==
 
 regex-not@^1.0.0, regex-not@^1.0.2:
   version "1.0.2"

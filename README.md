@@ -6,12 +6,12 @@ For more information, go to https://aurelia.io/docs/cli/webpack
 
 ## Todo
 
-Ads
+Ads - on review, check again on March 9th
 Intro
+Take accounts from schedule instead of storing a separate collection
 Searchable tables (lots of fun!)
 Chart adjustments
 Responsive
-Take accounts from schedule instead of storing a separate collection
 
 ## Run dev app
 

@@ -6,7 +6,7 @@
     <dialogue-frame>
         <require from="../../model/schedule-view-engine-hooks"></require>
         <!-- Modal -->
-        <form ref="scheduleForm" submit.trigger="addNewTran()">
+        <form ref="scheduleWizardForm" id="scheduleWizardForm" submit.trigger="addNewTran()">
             <flow-stage if.bind="flow.isInitial && displayStartButton">
                 <button type="button" id="addTransaction" name="addTransaction" click.delegate="formChange()">Add
                     transaction</button>
@@ -15,6 +15,7 @@
                 <stage-title>When is this transaction going to happen?</stage-title>
                 <input type="date" id="date" name="date" value.bind="tran.date" class="form-control"
                     change.delegate="formChange()" />
+                <small>This date is only for reference, you will set up a schedule on the next steps.</small>
             </flow-stage>
             <flow-stage if.bind="flow.isSchedule" class="form-check">
                 <stage-title>Choose a schedule for the transaction happening on ${tran.date | dateFormat:'MMMM Do
@@ -46,6 +47,9 @@
                             name="dateRangeTill" value.bind="tran.selectedSchedule.dateTill" min.bind="minDateTill" />
                     </div>
                 </div>
+                <small>If set, this schedule will be active only between these dates. You can set only the first date to
+                    make the schedule active since that date, or only the second date to make it active from now and
+                    till that date. Leave as is to make the schedule always active.</small>
             </flow-stage>
             <flow-stage if.bind="flow.isParameters">
                 <p>We will simulate the following transaction ${tran.selectedSchedule | scheduleLabel}:</p>
@@ -73,7 +77,7 @@
                 <div class="flowButtons">
                     <button class="btn btn-light" type="button" id="backButton" click.delegate="flow.back()"><i
                             class="fa fa-undo"></i>&nbsp;back</button>
-                    <button class="btn btn-primary" type="button" id="backButton"
+                    <button class="btn btn-primary" type="button" id="nextButton"
                         click.delegate="formChange()">next&nbsp;<i class="fa fa-chevron-right"></i></button>
                 </div>
             </flow-stage>
