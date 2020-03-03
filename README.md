@@ -8,7 +8,6 @@ For more information, go to https://aurelia.io/docs/cli/webpack
 
 Ads
 Intro
-Fix the closing dialog problem when clicking on the backdrop
 Searchable tables (lots of fun!)
 Chart adjustments
 Responsive
