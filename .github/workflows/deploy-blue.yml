@@ -20,7 +20,7 @@ jobs:
     - name: Upload to S3
       run: |
         aws s3 sync ./dist s3://proximo-web-prod/production
-        aws cloudfront create-invalidation --distribution-id E37E94QEJZM9N6
+        aws cloudfront create-invalidation --distribution-id E37E94QEJZM9N6 --invalidation-batch "Paths={Quantity=1,Items=[/*]},CallerReference=$GITHUB_SHA"
       env:
         AWS_ACCESS_KEY_ID: ${{ secrets.CD_AWS_ACCESS_KEY_ID }}
         AWS_SECRET_ACCESS_KEY: ${{ secrets.CD_AWS_SECRET_ACCESS_KEY }}
