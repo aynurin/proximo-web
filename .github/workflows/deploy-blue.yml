@@ -21,6 +21,12 @@ jobs:
       run: |
         aws s3 sync ./dist s3://proximo-web-prod/production
         echo "Paths={Quantity=1,Items=[/*]},CallerReference=$GITHUB_SHA"
+        echo ${#AWS_ACCESS_KEY_ID}
+        echo ${#AWS_SECRET_ACCESS_KEY}
+        AWS_ACCESS_KEY_ID="$(echo -e "${AWS_ACCESS_KEY_ID}" | sed -e 's/^[[:space:]]*//' -e 's/[[:space:]]*$//')"
+        AWS_SECRET_ACCESS_KEY="$(echo -e "${AWS_SECRET_ACCESS_KEY}" | sed -e 's/^[[:space:]]*//' -e 's/[[:space:]]*$//')"
+        echo ${#AWS_ACCESS_KEY_ID}
+        echo ${#AWS_SECRET_ACCESS_KEY}
         aws cloudfront create-invalidation --distribution-id E37E94QEJZM9N6  --paths "/*"
       env:
         AWS_ACCESS_KEY_ID: ${{ secrets.CD_AWS_ACCESS_KEY_ID }}
