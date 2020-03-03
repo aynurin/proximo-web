@@ -5,7 +5,7 @@ import {
 } from "aurelia-framework";
 import { DialogService } from 'aurelia-dialog';
 import { TranTemplate } from "../../model/tran-template";
-import { DeleteScheduleCustomElement } from "./delete-schedule";
+import { PLATFORM } from 'aurelia-pal';
 
 @autoinject()
 @containerless()
@@ -17,7 +17,7 @@ export class DeleteScheduleButtonCustomElement {
 
     openDeleter() {
         this.isDialogUp = true;
-        this.dialogService.open({ viewModel: DeleteScheduleCustomElement, model: this.tran, lock: false }).whenClosed(response => {
+        this.dialogService.open({ viewModel: PLATFORM.moduleName('components/schedule/delete-schedule'), model: this.tran, lock: false }).whenClosed(response => {
             this.isDialogUp = false;
         });
     }

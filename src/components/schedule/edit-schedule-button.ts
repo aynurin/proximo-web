@@ -5,7 +5,7 @@ import {
 } from "aurelia-framework";
 import { DialogService } from 'aurelia-dialog';
 import { TranTemplate } from "../../model/tran-template";
-import { EditScheduleCustomElement } from "./edit-schedule";
+import { PLATFORM } from 'aurelia-pal';
 
 @autoinject()
 @containerless()
@@ -17,7 +17,7 @@ export class EditScheduleButtonCustomElement {
 
     openEditor() {
         this.isDialogUp = true;
-        this.dialogService.open({ viewModel: EditScheduleCustomElement, model: this.tran, lock: false }).whenClosed(response => {
+        this.dialogService.open({ viewModel: PLATFORM.moduleName('components/schedule/edit-schedule'), model: this.tran, lock: false }).whenClosed(response => {
             this.isDialogUp = false;
         });
     }

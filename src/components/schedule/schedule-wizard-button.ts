@@ -2,7 +2,7 @@ import {
     autoinject,
 } from "aurelia-framework";
 import { DialogService } from 'aurelia-dialog';
-import { ScheduleWizardCustomElement } from './schedule-wizard';
+import { PLATFORM } from 'aurelia-pal';
 import { TranTemplate } from "../../model/tran-template";
 
 @autoinject()
@@ -15,7 +15,7 @@ export class ScheduleWizardButtonCustomElement {
     openScheduleWizard() {
         this.isDialogUp = true;
         this.tran = new TranTemplate();
-        this.dialogService.open({ viewModel: ScheduleWizardCustomElement, model: this.tran, lock: false }).whenClosed(response => {
+        this.dialogService.open({ viewModel: PLATFORM.moduleName('components/schedule/schedule-wizard'), model: this.tran, lock: false }).whenClosed(response => {
             this.isDialogUp = false;
         });
     }
