@@ -10,7 +10,7 @@
       </tr>
     </thead>
     <tbody>
-      <tr repeat.for="tran of ledger" class="${getRowStyleForTran(tran)}">
+      <tr repeat.for="tran of state.ledger" class="${getRowStyleForTran(tran)}">
         <td><span title.bind="tran.schedule">${tran.date | dateFormat}</span></td>
         <td>${tran.account}</td>
         <td class="money">${tran.amount | textToMoney}</td>

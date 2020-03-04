@@ -61,7 +61,7 @@ app-header {
   }
 }
 
-aup-tabs {
+.main-menu {
   margin-bottom: -1px;
 
   .nav-item {
@@ -75,17 +75,15 @@ aup-tabs {
   }
 }
 
-aup-tab-content {
-  .tab-content {
-    @extend .border,
-      .border-top-0,
-      .shadow-sm,
-      .p-3,
-      .mb-5,
-      .bg-white,
-      .rounded-bottom;
-    min-height: 80vh;
-  }
+router-view {
+  @extend .border,
+    .border-top-0,
+    .shadow-sm,
+    .p-3,
+    .mb-5,
+    .bg-white,
+    .rounded-bottom;
+  min-height: 80vh;
 }
 
 button#addTransaction {
@@ -149,7 +147,7 @@ ux-dialog-container {
   }
 }
 
-dashboard {
+board {
   display: flex;
   flex-wrap: wrap;
 

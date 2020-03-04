@@ -4,6 +4,7 @@ import { EventAggregator } from "aurelia-event-aggregator";
 import { State } from '../state';
 import { TranTemplate } from './tran-template';
 import { AccountBalance } from './account-balance';
+import { TranGenerated } from "./tran-generated";
 
 @autoinject
 export class TranStateActions {
@@ -14,6 +15,7 @@ export class TranStateActions {
     this.store.registerAction('addSchedule', addTranAction);
     this.store.registerAction('removeSchedule', removeTranAction);
     this.store.registerAction('saveAccount', saveAccountAction);
+    this.store.registerAction('replaceLedger', replaceLedgerAction);
   }
 
   public replaceSchedule(original: TranTemplate, replacement: TranTemplate) {
@@ -30,6 +32,10 @@ export class TranStateActions {
 
   public saveAccount(account: AccountBalance) {
     this.store.dispatch('saveAccount', account);
+  }
+
+  public replaceLedger(ledger: TranGenerated[]) {
+    this.store.dispatch('replaceLedger', ledger);
   }
 }
 
@@ -111,5 +117,11 @@ const saveAccountAction = (state: State, account: AccountBalance) => {
     console.log("new schedule version: ", newState.scheduleVersion);
   }
 
+  return newState;
+}
+
+const replaceLedgerAction = (state: State, ledger: TranGenerated[]) => {
+  const newState = Object.assign({}, state);
+  newState.ledger = ledger;
   return newState;
 }

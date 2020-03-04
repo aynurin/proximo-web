@@ -13,21 +13,13 @@
   <page>
     <header>
       <app-header></app-header>
-      <aup-tabs tabs.bind="myTabs" translate="true"></aup-tabs>
+      <ul class="main-menu nav nav-tabs">
+        <li class="nav-item" repeat.for="nav of router.navigation"><a class="nav-link ${nav.isActive ? 'active' : ''}" href.bind="nav.href">${nav.title}</a></li>
+      </ul>
       <schedule-wizard-button></schedule-wizard-button>
     </header>
     <lane>
-      <aup-tab-content>
-        <aup-tab-pane tab="tab1">
-          <dashboard></dashboard>
-        </aup-tab-pane>
-        <aup-tab-pane tab="tab2">
-          <schedule></schedule>
-        </aup-tab-pane>
-        <aup-tab-pane tab="tab3">
-          <ledger></ledger>
-        </aup-tab-pane>
-      </aup-tab-content>
+      <router-view></router-view>
     </lane>
-  </paper>
+    </paper>
 </template>

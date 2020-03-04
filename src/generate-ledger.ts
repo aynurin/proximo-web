@@ -8,6 +8,7 @@ import * as CronParser from "cron-parser";
 import * as moment from "moment";
 import { Schedule } from "model/schedule";
 import { Subscription } from "rxjs";
+import { TranStateActions } from "model/tran-actions";
 
 const log = LogManager.getLogger('generate-ledger');
 
@@ -29,7 +30,8 @@ export class GenerateLedger {
     unbind() {
       this.subscription.unsubscribe();
     }
-    public constructor(public store: Store<State>, private ea: EventAggregator) {
+    public constructor(public store: Store<State>, private ea: EventAggregator,
+        private tranActions: TranStateActions) {
     }
 
     stateChanged(stateName: string, newState: State, oldState: State) {
@@ -114,6 +116,7 @@ export class GenerateLedger {
         }
 
         log.debug("ledger-changed", ledger.length, ledger[2]);
+        this.tranActions.replaceLedger(ledger);
         this.ea.publish("ledger-changed", ledger);
         this.ledger = ledger;
         this.ledgerVersion = this.state.scheduleVersion;

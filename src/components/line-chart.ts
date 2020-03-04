@@ -1,56 +1,38 @@
 import { TranGenerated } from "../model/tran-generated";
 
+import { connectTo } from 'aurelia-store';
+import { State } from '../state';
 import { Chart } from "chart.js";
 
 import * as moment from "moment";
 import numeral from 'numeral';
-import { LogManager, autoinject } from 'aurelia-framework';
-import { EventAggregator } from "aurelia-event-aggregator";
-
-const log = LogManager.getLogger('line-chart');
+import { autoinject, observable } from 'aurelia-framework';
 
 @autoinject()
+@connectTo()
 export class LineChartCustomElement {
   chartArea: HTMLCanvasElement;
   isAttached: boolean = false;
   ledger: TranGenerated[];
   delay: number;
-
-  public constructor(
-    ea: EventAggregator) {
-      log.debug('subscribe to ledger');
-      ea.subscribe("ledger-changed", (ledger: TranGenerated[]) => {
-        log.debug('receiving new ledger');
-        this.ledgerChanged(ledger);
-      });
-  }
+  @observable public state: State;
 
   attached() {
     this.isAttached = true;
-    if (this.ledger != null) {
-      this.ledgerChanged(this.ledger);
-    }
+    this.makeChart(this.state.ledger);
   }
 
   detached() {
     this.isAttached = false;
   }
 
-  public ledgerChanged(ledger: TranGenerated[]) {
-    this.ledger = ledger;
-    if (!this.isAttached) {
-      return;
-    }
-    if (this.delay != null) {
-      window.clearTimeout(this.delay);
-      this.delay = null;
-    }
-    if (this.delay == null) {
-      this.delay = window.setTimeout(() => this.makeChart(ledger), 1000);
+  stateChanged = () => {
+    if (this.state && this.state.ledger) {
+      this.makeChart(this.state.ledger);
     }
   }
 
-  makeChart(ledger: TranGenerated[]) {
+  makeChart = (ledger: TranGenerated[]) => {
     this.delay = null;
     let datasets = generateDatasets(ledger);
     var ctx = this.chartArea.getContext("2d");

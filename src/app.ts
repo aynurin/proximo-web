@@ -5,6 +5,7 @@ import {
   MiddlewarePlacement,
   rehydrateFromLocalStorage
 } from "aurelia-store";
+import { PLATFORM } from 'aurelia-pal';
 import { autoinject } from "aurelia-framework";
 import * as environment from '../config/environment.json';
 import * as State from "./state";
@@ -12,12 +13,14 @@ import { TranStateActions } from "./model/tran-actions";
 import { ScheduleWizardCustomElement } from "components/schedule/schedule-wizard";
 import { GenerateLedger } from "./generate-ledger";
 import { LogManager } from 'aurelia-framework';
+import { RouterConfiguration, Router } from 'aurelia-router';
 
 const log = LogManager.getLogger('app');
 
 @connectTo()
 @autoinject()
 export class App {
+  router: Router;
   message = "FinForecast";
   myTabs = [
     { id: 'tab1', label: 'Dashboard', tooltip: 'Your forecast summary', active: true },
@@ -50,5 +53,15 @@ export class App {
       }
     });
     store.dispatch("RehydrateSate", "tran-schedule-state");
+  }
+
+  configureRouter(config: RouterConfiguration, router: Router): void {
+    this.router = router;
+    config.title = 'Aurelia';
+    config.map([
+      { route: ['', 'dashboard'], name: 'dashboard', moduleId: PLATFORM.moduleName('./pages/dashboard.html'), nav: true, title: 'Dashboard' },
+      { route: 'schedule', name: 'schedule', moduleId: PLATFORM.moduleName('./pages/schedule.html'), nav: true, title: 'Schedule' },
+      { route: 'ledger', name: 'ledger', moduleId: PLATFORM.moduleName('./pages/ledger.html'), nav: true, title: 'Ledger' },
+    ]);
   }
 }
