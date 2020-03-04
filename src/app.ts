@@ -45,7 +45,7 @@ export class App {
   stateChanged() {
     if (this.state != null && this.state.schedule != null && this.state.schedule.length === 0) {
       this.router.navigateToRoute("welcome");
-    } else if (this.router.currentInstruction.config.name === "welcome") {
+    } else if (this.router.currentInstruction && this.router.currentInstruction.config.name === "welcome") {
       this.router.navigateToRoute("dashboard");
     }
   }

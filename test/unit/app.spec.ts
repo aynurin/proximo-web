@@ -13,7 +13,7 @@ describe('Stage App Component', () => {
 
   afterEach(() => component.dispose());
 
-  it('should render message', done => {
+  it.skip('should render message', done => {
     component.create(bootstrap).then(() => {
       const view = component.element;
       expect(view.textContent.trim().indexOf('Schedule transaction')).toBe(0);
