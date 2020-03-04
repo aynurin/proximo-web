@@ -38,7 +38,7 @@ export function configure(aurelia: Aurelia) {
         attributes: aliases,
         lng: 'en',
         fallbackLng: 'en',
-        debug: true,
+        debug: environment.debug,
         ns: ['main','intro'],
         defaultNS: 'main',
         skipTranslationOnMissingKey: true
