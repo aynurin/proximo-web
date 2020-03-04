@@ -1,5 +1,5 @@
 import { TranGenerated } from "../model/tran-generated";
-
+import { pluck } from 'rxjs/operators';
 import { connectTo } from 'aurelia-store';
 import { State } from '../state';
 import { Chart } from "chart.js";
@@ -9,17 +9,17 @@ import numeral from 'numeral';
 import { autoinject, observable } from 'aurelia-framework';
 
 @autoinject()
-@connectTo()
+@connectTo<State>((store) => store.state.pipe(pluck('ledger')))
 export class LineChartCustomElement {
   chartArea: HTMLCanvasElement;
   isAttached: boolean = false;
   ledger: TranGenerated[];
   delay: number;
-  @observable public state: State;
+  @observable public state: TranGenerated[];
 
   attached() {
     this.isAttached = true;
-    this.makeChart(this.state.ledger);
+    this.stateChanged();
   }
 
   detached() {
@@ -27,8 +27,8 @@ export class LineChartCustomElement {
   }
 
   stateChanged = () => {
-    if (this.state && this.state.ledger) {
-      this.makeChart(this.state.ledger);
+    if (this.state) {
+      this.makeChart(this.state);
     }
   }
 
