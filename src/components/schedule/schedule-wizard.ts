@@ -6,7 +6,7 @@ import {
 import cronstr from "../cronstr";
 import * as moment from "moment";
 
-import { Store, connectTo } from "aurelia-store";
+import { connectTo } from "aurelia-store";
 import { State } from "../../state";
 
 import { Schedule, HolidayRule } from "../../model/schedule";
@@ -27,13 +27,12 @@ export class ScheduleWizardCustomElement {
     key => typeof HolidayRule[key] === "number"
   );
   public state: State;
-  private tranActions: TranStateActions;
 
   public flow: AddTransactionWorkflow = new AddTransactionWorkflow();
 
-  public constructor(private store: Store<State>, private dialogController: DialogController) {
-    this.tranActions = new TranStateActions(this.store);
-  }
+  public constructor(
+    private dialogController: DialogController,
+    private tranActions: TranStateActions) { }
 
   activate(tran: TranTemplate) {
     this.tran = tran;

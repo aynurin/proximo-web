@@ -15,11 +15,12 @@
                 <stage-title>When is this transaction going to happen?</stage-title>
                 <input type="date" id="date" name="date" value.bind="tran.date" class="form-control"
                     change.delegate="formChange()" />
-                <small>This date is only for reference, you will set up a schedule on the next steps.</small>
+                <endnote>Date of the next occurance of this transaction. You will set up a recurring schedule if
+                    necessary on the next steps.</endnote>
             </flow-stage>
             <flow-stage if.bind="flow.isSchedule" class="form-check">
-                <stage-title>Choose a schedule for the transaction happening on ${tran.date | dateFormat:'MMMM Do
-                    YYYY'}:
+                <stage-title>Choose a schedule for the transaction happening on 
+                    <nobr>${tran.date | dateFormat:'MMMM Do YYYY'}:</nobr>
                 </stage-title>
                 <div class="form-check" repeat.for="schedule of allOptions">
                     <label class="form-check-label">
@@ -28,7 +29,7 @@
                 </div>
             </flow-stage>
             <flow-stage if.bind="flow.isHolidayRule">
-                <label for="holidayRule" if.bind="showHolidayRule">If ${tran.selectedSchedule.label} falls on holiday,
+                <label for="holidayRule" if.bind="showHolidayRule"><nobr>If ${tran.selectedSchedule.label}</nobr> falls on holiday,
                     execute
                     <select id="holidayRule" value.bind="tran.selectedSchedule.holidayRule"
                         disabled.bind="!showHolidayRule">
@@ -47,23 +48,25 @@
                             name="dateRangeTill" value.bind="tran.selectedSchedule.dateTill" min.bind="minDateTill" />
                     </div>
                 </div>
-                <small>If set, this schedule will be active only between these dates. You can set only the first date to
-                    make the schedule active since that date, or only the second date to make it active from now and
-                    till that date. Leave as is to make the schedule always active.</small>
+                <endnote>If set, this schedule will be active only between these dates. You can set just the first date
+                    to make the schedule active since that date, or only the second date to make it active from now and
+                    till that date. Leave as is to make the schedule always active.</endnote>
             </flow-stage>
             <flow-stage if.bind="flow.isParameters">
                 <p>We will simulate the following transaction ${tran.selectedSchedule | scheduleLabel}:</p>
                 <label for="amount">Amount</label>
-                <input id="amount" type="text" class="form-control" required pattern="^(:?\+|-|\()?\d*\.?\d*(:?\))?$"
-                    title="Transaction amount" value.bind="tran.amount" numbers />
+                <input id="amount" type="text" class="form-control money" required pattern="^(:?\+|-|\()?\d*\.?\d*(:?\))?$"
+                    title="Transaction amount" value.bind="tran.amount" numbers placeholder="-9.99" />
 
                 <label for="account">Account</label>
                 <input id="account" type="text" class="form-control" required pattern=".+"
-                    title="Account on which this transaction was made" value.bind="tran.account | trimSpace" />
+                    title="Account on which this transaction is simulated" value.bind="tran.account | trimSpace"
+                    placeholder="My banking account *1234" />
 
                 <label for="description">Description</label>
                 <input id="description" type="text" class="form-control" required pattern=".+"
-                    title="Transaction description" value.bind="tran.description | trimSpace" />
+                    title="Transaction description" value.bind="tran.description | trimSpace"
+                    placeholder="E.g., COMCAST CABLE COMM 800-COMCAST WA" />
             </flow-stage>
             <flow-stage if.bind="flow.isParameters">
                 <div class="flowButtons">

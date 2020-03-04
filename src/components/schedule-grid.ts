@@ -15,11 +15,8 @@ import { TranStateActions } from "../model/tran-actions";
 @connectTo()
 export class ScheduleGridCustomElement {
   public state: State;
-  private tranActions: TranStateActions;
 
-  public constructor(private store: Store<State>) {
-    this.tranActions = new TranStateActions(this.store);
-  }
+  public constructor(private tranActions: TranStateActions) { }
 
   removeSchedule(tran: TranTemplate) {
     this.tranActions.removeSchedule(tran);

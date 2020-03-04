@@ -14,6 +14,7 @@ $success: $green;
 $info: $cyan;
 $warning: $yellow;
 $danger: $red;
+$input-placeholder-color: #adb5bd;
 // $secondary:     $gray-600 !default;
 // $light:         $gray-100 !default;
 // $dark:          $gray-800 !default;
@@ -21,7 +22,6 @@ $danger: $red;
 @import "~bootstrap/scss/bootstrap";
 
 $content-bg: $white;
-
 $header-lane-height: $spacer * 2;
 $shadow-width: 0.125rem;
 
@@ -108,6 +108,7 @@ ux-dialog-overlay {
 
 flow-stage {
   display: block;
+  max-width: 450px;
   @extend .form-group;
 
   stage-title {
@@ -123,6 +124,19 @@ flow-stage {
     flex-wrap: nowrap;
     justify-content: space-between;
   }
+
+  endnote {
+    max-width: 400px;
+  }
+}
+
+endnote {
+  @extend .small;
+
+  display: block;
+  line-break: loose;
+  line-height: $line-height-sm;
+  margin-top: $spacer / 2;
 }
 
 ux-dialog-container {

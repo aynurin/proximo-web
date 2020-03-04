@@ -1,10 +1,13 @@
+import { autoinject } from "aurelia-framework";
 import { Store } from 'aurelia-store';
+import { EventAggregator } from "aurelia-event-aggregator";
 import { State } from '../state';
 import { TranTemplate } from './tran-template';
 import { AccountBalance } from './account-balance';
 
+@autoinject
 export class TranStateActions {
-  public constructor(public store: Store<State>) {}
+  public constructor(public store: Store<State>, private ea: EventAggregator) {}
 
   public register() {
     this.store.registerAction('replaceSchedule', replaceScheduleAction);
@@ -46,6 +49,12 @@ const replaceScheduleAction = (state: State, original: TranTemplate, replacement
     newAccounts.sort((a, b) => a.account.localeCompare(b.account));
     newState.accounts2 = newAccounts;
   }
+  if (newState.scheduleVersion == null) {
+    newState.scheduleVersion = 1;
+  } else {
+    newState.scheduleVersion += 1;
+    console.log("new schedule version: ", newState.scheduleVersion);
+  }
   return newState;
 }
 
@@ -61,6 +70,12 @@ const addTranAction = (state: State, tran: TranTemplate) => {
     newAccounts.sort((a, b) => a.account.localeCompare(b.account));
     newState.accounts2 = newAccounts;
   }
+  if (newState.scheduleVersion == null) {
+    newState.scheduleVersion = 1;
+  } else {
+    newState.scheduleVersion += 1;
+    console.log("new schedule version: ", newState.scheduleVersion);
+  }
 
   return newState;
 }
@@ -71,6 +86,12 @@ const removeTranAction = (state: State, tran: TranTemplate) => {
     const newState = Object.assign({}, state);
     newState.schedule = [...newState.schedule];
     newState.schedule.splice(index, 1);
+    if (newState.scheduleVersion == null) {
+      newState.scheduleVersion = 1;
+    } else {
+      newState.scheduleVersion += 1;
+      console.log("new schedule version: ", newState.scheduleVersion);
+    }
     return newState;
   }
   return false;

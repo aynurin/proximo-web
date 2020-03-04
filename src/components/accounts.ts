@@ -16,10 +16,9 @@ import {
     newAccForm: HTMLFormElement;
     @bindable newAccount: AccountBalance;
     public state: State;
-    private tranActions: TranStateActions;
   
-    public constructor(private store: Store<State>) {
-      this.tranActions = new TranStateActions(this.store);
+    public constructor(private store: Store<State>,
+      private tranActions: TranStateActions) {
       this.reset();
     }
   

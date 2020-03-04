@@ -20,10 +20,10 @@ export class DeleteScheduleCustomElement {
   @bindable tran: TranTemplate;
   scheduleForm: HTMLFormElement;
   public state: State;
-  private tranActions: TranStateActions;
 
-  public constructor(private store: Store<State>, private dialogController: DialogController) {
-    this.tranActions = new TranStateActions(this.store);
+  public constructor(
+    private dialogController: DialogController,
+    private tranActions: TranStateActions) {
   }
 
   activate(tran: TranTemplate) {

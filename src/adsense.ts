@@ -1,4 +1,4 @@
-import {customElement, noView} from "aurelia-framework";
+import { customElement, noView } from "aurelia-framework";
  
 @noView()
 @customElement('adsense')

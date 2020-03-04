@@ -17,13 +17,12 @@ export class LineChartCustomElement {
   delay: number;
 
   public constructor(
-    private ea: EventAggregator) { }
-
-  created() {
-    this.ea.subscribe("ledgerGenerated", (ledger: TranGenerated[]) => {
-      log.debug('Receiving new ledger');
-      this.ledgerChanged(ledger);
-    });
+    ea: EventAggregator) {
+      log.debug('subscribe to ledger');
+      ea.subscribe("ledger-changed", (ledger: TranGenerated[]) => {
+        log.debug('receiving new ledger');
+        this.ledgerChanged(ledger);
+      });
   }
 
   attached() {
@@ -55,7 +54,6 @@ export class LineChartCustomElement {
   makeChart(ledger: TranGenerated[]) {
     this.delay = null;
     let datasets = generateDatasets(ledger);
-    log.debug('Ledger Changed', datasets.length);
     var ctx = this.chartArea.getContext("2d");
     var myChart = new Chart(ctx, {
       type: "line",
