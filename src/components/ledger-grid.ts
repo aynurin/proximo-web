@@ -3,14 +3,18 @@ import { EventAggregator } from "aurelia-event-aggregator";
 
 import { TranGenerated } from "../model/tran-generated";
 
+import { connectTo } from 'aurelia-store';
+import { State } from '../state';
 import { LogManager } from 'aurelia-framework';
 
 const log = LogManager.getLogger('ledger-grid');
 
 const __cacheSec: number = 10;
 @autoinject()
+@connectTo()
 export class LedgerGridCustomElement {
   public ledger: TranGenerated[] = null;
+  public state: State;
 
   public constructor(
     ea: EventAggregator) {

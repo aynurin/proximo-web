@@ -21,6 +21,25 @@ import {
       private tranActions: TranStateActions) {
       this.reset();
     }
+
+    @computedFrom("state.schedule")
+    get accounts(): AccountBalance[] {
+      let existingAccounts = {};
+      for (let account of this.state.accounts2) {
+        existingAccounts[account.account] = account;
+      }
+      let accounts = {};
+      for (let schedule of this.state.schedule) {
+        if (!(schedule.account in accounts)) {
+          if (schedule.account in existingAccounts) {
+            accounts[schedule.account] = existingAccounts[schedule.account];
+          } else {
+            accounts[schedule.account] = { account: schedule.account, date: new Date(), balance: 0 };
+          }
+        }
+      }
+      return Object.values(accounts);
+    }
   
     saveAccount(account: AccountBalance) {
       if (this.canSave(account)) {

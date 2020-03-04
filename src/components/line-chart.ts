@@ -26,7 +26,6 @@ export class LineChartCustomElement {
   }
 
   attached() {
-    log.debug('Attached');
     this.isAttached = true;
     if (this.ledger != null) {
       this.ledgerChanged(this.ledger);

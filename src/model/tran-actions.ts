@@ -100,10 +100,16 @@ const removeTranAction = (state: State, tran: TranTemplate) => {
 const saveAccountAction = (state: State, account: AccountBalance) => {
   const newState = Object.assign({}, state);
 
-  let newAccounts = [...newState.accounts2.filter(f => f.account != account.account), 
+  let newAccounts = [...newState.accounts2.filter(f => f.account != account.account && f.account), 
       Object.assign({}, account)];
   newAccounts.sort((a, b) => a.account.localeCompare(b.account));
   newState.accounts2 = newAccounts;
+  if (newState.scheduleVersion == null) {
+    newState.scheduleVersion = 1;
+  } else {
+    newState.scheduleVersion += 1;
+    console.log("new schedule version: ", newState.scheduleVersion);
+  }
 
   return newState;
 }
