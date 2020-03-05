@@ -6,8 +6,6 @@ For more information, go to https://aurelia.io/docs/cli/webpack
 
 ## Todo
 
-Edit schedule - change week day is not working
-Once tabs became disabled for no reason
 Monthly balances: low, ending, average spend, average income
 Hide transaction edit window earlier
 Ads - on review, check again on March 9th

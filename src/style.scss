@@ -79,7 +79,7 @@ router-view {
   @extend .border,
     .border-top-0,
     .shadow-sm,
-    .p-3,
+    .p-2,
     .mb-5,
     .bg-white,
     .rounded-bottom;
@@ -151,21 +151,25 @@ board {
   display: flex;
   flex-wrap: wrap;
 
-  accounts {
-    width: 14rem;
+  &>div {
+    @extend .p-2;
   }
 
   @media (max-width: 999.99px) {
-    line-chart {
+    .line-chart-container {
       width: 100%;
     }
+    
   }
 
   @media (min-width: 1000px) {
-    line-chart {
+    .line-chart-container {
       flex: 1;
       min-width: 600px;
       overflow-x: hidden;
+    }
+    .tables-container {
+      width: 16rem;
     }
   }
 }
