@@ -52,10 +52,12 @@ export class AccountsSummaryCustomElement {
         acc.months[month] = new AccountMonth(item.account, month);
       }
       acc.months[month].add(item.account, month, item.amount, balance);
+      acc.endingBalance = balance;
       if (!(month in l_totals.months)) {
         l_totals.months[month] = new AccountMonth(l_totals.account, month);
       }
       l_totals.months[month].add(l_totals.account, month, item.amount, balance);
+      l_totals.endingBalance = balance;
       return x;
     }, {});
     
@@ -110,7 +112,7 @@ class AccountMonth {
   get status(): string {
     if (this.low < 0 || this.ending < 0) {
       return "danger";
-    } else if (this.spend > this.income) {
+    } else if (this.spend + this.income < 0) {
       return "warning";
     }
   }
