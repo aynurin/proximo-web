@@ -49,11 +49,12 @@ export class App {
       this.disableTabs = true;
     } else {
       this.disableTabs = false;
+      if (this.router.currentInstruction && this.router.currentInstruction.config.name === "welcome") {
+        this.router.navigateToRoute("dashboard");
+      }
     }
-    if (this.router.currentInstruction && this.router.currentInstruction.config.name === "welcome") {
-      this.router.navigateToRoute("dashboard");
-      this.disableTabs = false;
-    }
+    log.debug('stateChanged', this.disableTabs, this.state, 
+      (this.state && this.state.schedule ? this.state.schedule.length : "null"));
   }
 
   configureRouter(config: RouterConfiguration, router: Router): void {
