@@ -53,13 +53,16 @@ export class AccountsSummaryCustomElement {
       }
       acc.months[month].add(item.account, month, item.amount, balance);
       acc.endingBalance = balance;
-      if (!(month in l_totals.months)) {
-        l_totals.months[month] = new AccountMonth(l_totals.account, month);
-      }
-      l_totals.months[month].add(l_totals.account, month, item.amount, balance);
-      l_totals.endingBalance = balance;
       return x;
     }, {});
+
+    for (let month of l_months) {
+      l_totals.months[month] = new AccountMonth(l_totals.account, month);
+      for (let acc of Object.values(l_byMonth)) {
+        l_totals.months[month].sum(acc.months[month]);
+      }
+      l_totals.endingBalance = l_totals.months[month].ending;
+    }
     
     this.byMonths = Object.values(l_byMonth);
     this.months = l_months;
@@ -107,6 +110,13 @@ class AccountMonth {
     } else {
       this.income += +amount;
     }
+  }
+
+  sum(other: AccountMonth) {
+    this.low = isNaN(this.low) ? +other.low : +this.low + +other.low;
+    this.ending = isNaN(this.ending) ? +other.ending : +this.ending + +other.ending;
+    this.spend = isNaN(this.spend) ? +other.spend : +this.spend + +other.spend;
+    this.income = isNaN(this.income) ? +other.income : +this.income + +other.income;
   }
 
   get status(): string {
