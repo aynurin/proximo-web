@@ -1,4 +1,5 @@
 import { TranGenerated } from "../model/tran-generated";
+import { EventAggregator } from "aurelia-event-aggregator";
 import { pluck } from 'rxjs/operators';
 import { connectTo } from 'aurelia-store';
 import { State } from '../state';
@@ -7,38 +8,71 @@ import { Chart } from "chart.js";
 import * as moment from "moment";
 import numeral from 'numeral';
 import { autoinject, observable } from 'aurelia-framework';
+import { LogManager } from 'aurelia-framework';
+
+const log = LogManager.getLogger('line-chart');
 
 @autoinject()
 @connectTo<State>((store) => store.state.pipe(pluck('ledger')))
 export class LineChartCustomElement {
   chartArea: HTMLCanvasElement;
+  lineChart: Chart;
+  canvas: CanvasRenderingContext2D;
+  datasets: any[] = [];
   isAttached: boolean = false;
   ledger: TranGenerated[];
-  delay: number;
   @observable public state: TranGenerated[];
 
+  constructor(ea: EventAggregator) {
+    ea.subscribe("screen-changed", () => this.screenChanged());
+  }
+
+  // when data is changed - need to update datasets
+  stateChanged = () => {
+    let newDataSets = [];
+    if (this.state) {
+      newDataSets = generateDatasets(this.state);
+    } else {
+      newDataSets = [];
+    }
+    this.datasets.length = 0;
+    for (let d of newDataSets) {
+      this.datasets.push(d);
+    }
+    if (this.datasets && this.lineChart) {
+      this.lineChart.update();
+    }
+  }
+
+  // when screen size is changed - need to update the chart drawing area
+  screenChanged() {
+    log.debug('screenChanged');
+    this.resetChartContext();
+  }
+
+  // when control is attached to dom - need to initialize the chart drawoing area
   attached() {
+    log.debug('attached');
     this.isAttached = true;
-    this.stateChanged();
+    this.resetChartContext();
   }
 
   detached() {
     this.isAttached = false;
   }
 
-  stateChanged = () => {
-    if (this.state) {
-      this.makeChart(this.state);
-    }
+  resetChartContextCounter: number = 0;
+  resetChartContext() {
+    this.resetChartContextCounter += 1;
+    log.debug('resetChartContext', this.resetChartContextCounter);
+    this.canvas = this.chartArea.getContext("2d");
+    this.makeChart();
   }
 
-  makeChart = (ledger: TranGenerated[]) => {
-    this.delay = null;
-    let datasets = generateDatasets(ledger);
-    var ctx = this.chartArea.getContext("2d");
-    var myChart = new Chart(ctx, {
+  makeChart() {
+    this.lineChart = new Chart(this.canvas, {
       type: "line",
-      data: { datasets },
+      data: { datasets: this.datasets },
       options: {
         responsive: true,
         tooltips: {
@@ -148,8 +182,8 @@ function addDatapoint(dataset: any, tran: TranGenerated) {
   dataset.data.push({ x: moment(tran.date).format("YYYY-MM-DD"), y: tran.balances[tran.account] });
 }
 
-function generateDatasets(ledger: TranGenerated[]) {
-  let datasets = {};
+function generateDatasets(ledger: TranGenerated[]): any[] {
+  let datasets: { [account: string]: any } = {};
   for (let tran of ledger) {
     if (!(tran.account in datasets)) {
       datasets[tran.account] = newDataset(tran.account);

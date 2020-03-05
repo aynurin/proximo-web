@@ -49,6 +49,8 @@ export class GenerateLedger {
         if (this.ledgerVersion != null && this.ledgerVersion === this.state.scheduleVersion) {
             log.debug("ledger is already generated for", this.state.scheduleVersion);
             return this.ledger;
+        } else {
+            log.debug("generating ledger for", this.state.scheduleVersion);
         }
 
         let start = new Date();

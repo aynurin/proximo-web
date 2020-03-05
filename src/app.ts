@@ -5,6 +5,7 @@ import {
   MiddlewarePlacement,
   rehydrateFromLocalStorage
 } from "aurelia-store";
+import { EventAggregator } from "aurelia-event-aggregator";
 import { PLATFORM } from 'aurelia-pal';
 import { autoinject, observable } from "aurelia-framework";
 import * as environment from '../config/environment.json';
@@ -24,14 +25,17 @@ export class App {
   router: Router;
   disableTabs: boolean = true;
 
-  get isProduction(): boolean { return environment.debug === false; };
-
   @observable public state: State;
   public tranBuilder: ScheduleWizardCustomElement;
 
+  resizeTimer = null;
+
+  get isProduction(): boolean { return environment.debug === false; };
+
   public constructor(
     store: Store<State>,
-    tranActions: TranStateActions) {
+    tranActions: TranStateActions,
+    private ea: EventAggregator) {
     tranActions.register();
     const storeKey = "tran-schedule-state";
     store.registerMiddleware(
@@ -41,6 +45,24 @@ export class App {
     );
     store.registerAction("RehydrateSate", (state: State, key: string) => rehydrateFromLocalStorage(state, key) || false);
     store.dispatch("RehydrateSate", storeKey);
+  }
+
+  attached() {
+    this.resized();
+
+    PLATFORM.global.addEventListener("resize", () => this.resized());
+  }
+
+  detached() {
+    PLATFORM.global.removeEventListener("resize", () => this.resized());
+  }
+
+  resized() {
+    clearTimeout(this.resizeTimer);
+
+    this.resizeTimer = setTimeout(() => {
+      this.ea.publish("screen-changed");
+    }, 300);
   }
 
   stateChanged() {

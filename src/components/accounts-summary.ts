@@ -11,6 +11,9 @@ import { AccountBalance } from '../model/account-balance';
 import { pluck } from "rxjs/operators";
 import { TranGenerated } from "model/tran-generated";
 import * as moment from "moment";
+import { LogManager } from 'aurelia-framework';
+
+const log = LogManager.getLogger('accounts-summary');
 
 @autoinject()
 @connectTo<State>((store) => store.state.pipe(pluck('ledger')))
@@ -24,8 +27,8 @@ export class AccountsSummaryCustomElement {
   public totals: AccountByMonths;
 
   attached() {
+    log.debug('attached');
     this.stateChanged();
-    console.log('account-summary attached');
   }
   
   stateChanged = () => {
@@ -55,8 +58,6 @@ export class AccountsSummaryCustomElement {
       l_totals.months[month].add(l_totals.account, month, item.amount, balance);
       return x;
     }, {});
-
-    console.log('locals', l_byMonth, l_months, l_totals);
     
     this.byMonths = Object.values(l_byMonth);
     this.months = l_months;
@@ -64,9 +65,7 @@ export class AccountsSummaryCustomElement {
   }
 
   monthName(month: string) {
-    const m = moment(month).format("MMMM");
-    console.log('monthName', month, m);
-    return m;
+    return moment(month).format("MMMM");
   }
 }
 

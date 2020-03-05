@@ -5,6 +5,9 @@ import { State } from '../state';
 import { TranTemplate } from './tran-template';
 import { AccountBalance } from './account-balance';
 import { TranGenerated } from "./tran-generated";
+import { LogManager } from 'aurelia-framework';
+
+const log = LogManager.getLogger('tran-actions');
 
 @autoinject
 export class TranStateActions {
@@ -59,7 +62,7 @@ const replaceScheduleAction = (state: State, original: TranTemplate, replacement
     newState.scheduleVersion = 1;
   } else {
     newState.scheduleVersion += 1;
-    console.log("new schedule version: ", newState.scheduleVersion);
+    log.debug("replaceSchedule, new version:", newState.scheduleVersion);
   }
   return newState;
 }
@@ -80,7 +83,7 @@ const addTranAction = (state: State, tran: TranTemplate) => {
     newState.scheduleVersion = 1;
   } else {
     newState.scheduleVersion += 1;
-    console.log("new schedule version: ", newState.scheduleVersion);
+    log.debug("addTran, new version:", newState.scheduleVersion);
   }
 
   return newState;
@@ -96,7 +99,7 @@ const removeTranAction = (state: State, tran: TranTemplate) => {
       newState.scheduleVersion = 1;
     } else {
       newState.scheduleVersion += 1;
-      console.log("new schedule version: ", newState.scheduleVersion);
+      log.debug("removeTran, new version:", newState.scheduleVersion);
     }
     return newState;
   }
@@ -114,7 +117,7 @@ const saveAccountAction = (state: State, account: AccountBalance) => {
     newState.scheduleVersion = 1;
   } else {
     newState.scheduleVersion += 1;
-    console.log("new schedule version: ", newState.scheduleVersion);
+    log.debug("saveAccount, new version:", newState.scheduleVersion);
   }
 
   return newState;
