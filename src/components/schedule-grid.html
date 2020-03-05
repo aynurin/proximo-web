@@ -1,7 +1,7 @@
 <template>
   <require from="./schedule/edit-schedule-button"></require>
   <require from="./schedule/delete-schedule-button"></require>
-  <table class="table table-sm table-hover">
+  <table class="table table-sm table-hover" if.bind="state.schedule.length > 0">
     <thead>
       <tr>
         <th>Schedule</th>

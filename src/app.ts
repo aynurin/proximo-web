@@ -22,6 +22,7 @@ const log = LogManager.getLogger('app');
 @autoinject()
 export class App {
   router: Router;
+  disableTabs: boolean = true;
 
   get isProduction(): boolean { return environment.debug === false; };
 
@@ -45,8 +46,13 @@ export class App {
   stateChanged() {
     if (this.state != null && this.state.schedule != null && this.state.schedule.length === 0) {
       this.router.navigateToRoute("welcome");
-    } else if (this.router.currentInstruction && this.router.currentInstruction.config.name === "welcome") {
+      this.disableTabs = true;
+    } else {
+      this.disableTabs = false;
+    }
+    if (this.router.currentInstruction && this.router.currentInstruction.config.name === "welcome") {
       this.router.navigateToRoute("dashboard");
+      this.disableTabs = false;
     }
   }
 
