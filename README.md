@@ -6,14 +6,12 @@ For more information, go to https://aurelia.io/docs/cli/webpack
 
 ## Todo
 
-Monthly balances: low, ending, average spend, average income
-Hide transaction edit window earlier
-Ads - on review, check again on March 9th
-Really lacking transfers
 Chart is jumping
-S3 does not serve pushstate URLs
 Intro
 About
+S3 does not serve pushstate URLs
+Ads - on review, check again on March 9th
+Really lacking transfers
 Searchable tables (lots of fun!)
 Chart adjustments
 Responsive

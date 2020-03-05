@@ -30,13 +30,13 @@ export class DeleteScheduleCustomElement {
     this.tran = tran;
   }
 
-  cancelForm() {
-    this.dialogController.cancel();
+  async cancelForm() {
+    await this.dialogController.cancel();
   }
 
-  deleteSchedule() {
+  async deleteSchedule() {
     this.tranActions.removeSchedule(this.tran);
-    this.dialogController.ok();
+    await this.dialogController.ok();
   }
 
   @computedFrom("cron")

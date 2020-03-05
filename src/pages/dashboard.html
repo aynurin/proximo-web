@@ -1,12 +1,20 @@
 <template>
     <require from="../components/line-chart"></require>
     <require from="../components/accounts"></require>
+    <require from="../components/accounts-summary"></require>
     <board>
-        <div class="line-chart-container">
-            <line-chart></line-chart>
+        <div class="main-column">
+            <div class="line-chart">
+                <line-chart></line-chart>
+            </div>
+            <div class="accounts-summary">
+                <accounts-summary></accounts-summary>
+            </div>
         </div>
-        <div class="tables-container">
-            <accounts></accounts>
+        <div class="right-column">
+            <div class="accounts">
+                <accounts></accounts>
+            </div>
         </div>
     </board>
 </template>

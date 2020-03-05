@@ -154,23 +154,51 @@ board {
   &>div {
     @extend .p-2;
   }
-
+  
   @media (max-width: 999.99px) {
-    .line-chart-container {
+    .main-column, .right-column {
       width: 100%;
     }
-    
   }
-
   @media (min-width: 1000px) {
-    .line-chart-container {
+    .main-column {
       flex: 1;
       min-width: 600px;
-      overflow-x: hidden;
     }
-    .tables-container {
-      width: 16rem;
+    .accounts {
+      width: 400px;
     }
+  }
+
+  .accounts {
+    accounts {
+      display: block;
+      table {
+        width: 100%;
+      }
+    }
+  }
+}
+
+accounts-summary {
+  display: block;
+  overflow-x: auto;
+  table.accounts-summary {
+    width: 100%;
+
+    td.danger {
+      background-color: lighten($danger, 20%);
+    }
+
+    td.warning {
+      background-color: lighten($warning, 20%);
+    }
+  }
+  div.money {
+    font-size: $font-size-base * 0.75;
+  }
+  div.label, th {
+    font-size: $font-size-base * 0.75;
   }
 }
 

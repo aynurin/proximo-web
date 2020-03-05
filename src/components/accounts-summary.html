@@ -1,0 +1,68 @@
+<template>
+    <table class="accounts-summary table table-sm">
+        <thead>
+            <tr>
+                <th scope="col">Account</th>
+                <th scope="col">&nbsp;</th>
+                <th scope="col" repeat.for="month of months">${monthName(month)}</th>
+                <th scope="col">Ending</th>
+            </tr>
+        </thead>
+        <tbody repeat.for="acc of byMonths">
+            <tr>
+                <th scope="row" rowspan="4"><div class="label">${acc.account}</div></th>
+                <td><div class="label label-sm">min</div></td>
+                <td repeat.for="month of months" class="${acc.months[month].status}">
+                    <div class="money">${acc.months[month].low | textToMoney}</div>
+                </td>
+                <td rowspan="4"><div class="money">${acc.endingBalance | textToMoney}</div></td>
+            </tr>
+            <tr>
+                <td><div class="label label-sm">end</div></td>
+                <td repeat.for="month of months" class="${acc.months[month].status}">
+                    <div class="money">${acc.months[month].low | textToMoney}</div>
+                </td>
+            </tr>
+            <tr>
+                <td><div class="label label-sm">spent</div></td>
+                <td repeat.for="month of months" class="${acc.months[month].status}">
+                    <div class="money">${acc.months[month].spend | textToMoney}</div>
+                </td>
+            </tr>
+            <tr>
+                <td><div class="label label-sm">earned</div></td>
+                <td repeat.for="month of months" class="${acc.months[month].status}">
+                    <div class="money">${acc.months[month].income | textToMoney}</div>
+                </td>
+            </tr>
+        </tbody>
+        <tbody>
+            <tr>
+                <th scope="row" rowspan="4"><div class="label">Monthly totals:</div></th>
+                <td><div class="label label-sm">min</div></td>
+                <td repeat.for="month of months" class="${totals.months[month].status}">
+                    <div class="money">${totals.months[month].low | textToMoney}</div>
+                </td>
+                <td rowspan="4"><div class="money">${totals.endingBalance | textToMoney}</div></td>
+            </tr>
+            <tr>
+                <td><div class="label label-sm">end</div></td>
+                <td repeat.for="month of months" class="${totals.months[month].status}">
+                    <div class="money">${totals.months[month].low | textToMoney}</div>
+                </td>
+            </tr>
+            <tr>
+                <td><div class="label label-sm">spent</div></td>
+                <td repeat.for="month of months" class="${totals.months[month].status}">
+                    <div class="money">${totals.months[month].spend | textToMoney}</div>
+                </td>
+            </tr>
+            <tr>
+                <td><div class="label label-sm">earned</div></td>
+                <td repeat.for="month of months" class="${totals.months[month].status}">
+                    <div class="money">${totals.months[month].income | textToMoney}</div>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+</template>

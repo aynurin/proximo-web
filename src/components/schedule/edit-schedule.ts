@@ -36,18 +36,18 @@ export class EditScheduleCustomElement {
     this.tran.selectedSchedule = Object.assign({}, this.tran.selectedSchedule);
   }
 
-  cancelForm() {
+  async cancelForm() {
     log.debug('cancel dialog');
-    this.dialogController.cancel();
+    await this.dialogController.cancel();
   }
 
-  saveSchedule() {
+  async saveSchedule() {
     log.debug('save schedule');
     if (this.canSave) {
       this.tranActions.replaceSchedule(this.originalTran, this.tran);
+      await this.dialogController.ok();
       this.tran = new TranTemplate();
       this.scheduleForm.reset();
-      this.dialogController.ok();
     }
   }
 

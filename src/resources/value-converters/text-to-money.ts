@@ -2,8 +2,8 @@ import numeral from 'numeral';
 
 export class TextToMoneyValueConverter {
   toView(val: number) {
-    if (!val) return null;
-      return numeral(val).format('0,0.00');
+    if (val == null) return null;
+    return numeral(val).format('0,0.00');
   }
 
   fromView(val: string) {

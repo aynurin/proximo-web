@@ -45,13 +45,13 @@ export class ScheduleWizardCustomElement {
     this.flow.advanceIfValid(this.tran);
   }
 
-  addNewTran() {
+  async addNewTran() {
     if (this.canSave) {
       this.tranActions.addSchedule(this.tran);
+      await this.dialogController.ok();
       this.tran = new TranTemplate();
       this.flow.reset();
       this.scheduleWizardForm.reset();
-      this.dialogController.ok();
     }
   }
 
