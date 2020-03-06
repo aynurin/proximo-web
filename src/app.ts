@@ -88,7 +88,7 @@ export class App {
       { route: ['', 'dashboard'], name: 'dashboard', moduleId: PLATFORM.moduleName('./pages/dashboard.html'), nav: true, title: 'Dashboard' },
       { route: 'schedule', name: 'schedule', moduleId: PLATFORM.moduleName('./pages/schedule.html'), nav: true, title: 'Schedule' },
       { route: 'ledger', name: 'ledger', moduleId: PLATFORM.moduleName('./pages/ledger.html'), nav: true, title: 'Ledger' },
-      { route: 'welcome', name: 'welcome', moduleId: PLATFORM.moduleName('./pages/welcome.html'), nav: false, title: 'Welcome to Proximo!' },
+      { route: 'welcome', name: 'welcome', moduleId: PLATFORM.moduleName('./pages/welcome'), nav: false, title: 'Welcome to Proximo!' },
     ]);
     config.fallbackRoute('dashboard');
     config.mapUnknownRoutes('dashboard');

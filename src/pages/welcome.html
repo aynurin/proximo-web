@@ -1,31 +1,123 @@
 <template>
-    <div>
-        <h2>Grow your finances with confidence</h2>
-        <p>PROXIMO helps you visualise build your ledger for the next year as if 
-            it has already happened (as crazy as it sounds). </p>
-            <p>As a result, you can see what happens with your account when all is said and done.</p>
-    </div>
-    <div>
-        <h2>Visualize your future money movement</h2>
-        <p>See your accounts balances in the future on a chart to quickly find gaps and identify risks.</p>
-    </div>
-    <div>
-        <h2>Plan for hefty transactions</h2>
-        <p>Want to take a trip on another side of the earth and want to make sure you will have enough
-            at your accounts to make it? Add a gross estimate and date to your PROXIMO schedule and see 
-            how it shows up.</p>
-    </div>
-    <div>
-        <h2>Define schedules</h2>
-        <p>Paying for your cable and cellular? Add them as monthly payments and see how they mix with all 
-            other transactions.</p>
-    </div>
-    <div>
-        <h2>Start now, it's quick and easy (and free)</h2>
-        <p>Add some of your transactions that happen monthly to your schedule. Mobile phone payments, Netflix, 
-            loans, wages, and anything you can think of*.</p>
-        <p><small>PROXIMO stores your data locally in your web browser and does not send it to
-            our servers. Our servers don't store your data and don't have capability of storing your data. 
-            This is an early launch of PROXIMO and we are not yet ready to store data on our servers.</small></p>
+    <div class="welcome">
+        <div>
+            <div class="image"><img src="/ledger-frame.png" /></div>
+            <div class="text">
+                <div>
+                    <h2>Grow your finances with confidence</h2>
+                    <p>PROXIMO helps you build your ledger for the next year as if
+                        it has already happened&mdash;you can see what happens with your account
+                        when all is said and done. </p>
+                </div>
+            </div>
+        </div>
+        <div>
+            <div class="text">
+                <div>
+                    <h2>Visualize your future money movement</h2>
+                    <p>See your accounts balances in the future on a chart to quickly find
+                        gaps and identify risks.</p>
+                </div>
+            </div>
+            <div class="image"><img src="/dashboard-frame.png" /></div>
+        </div>
+        <div>
+            <div class="image"><img src="/totals-frame.png" /></div>
+            <div class="text">
+                <div>
+                    <h2>Plan for hefty transactions</h2>
+                    <p>Want to take a trip on another side of the earth and want to make sure you
+                        will have enough at your accounts to make it? Add a gross estimate and
+                        date to your PROXIMO schedule and see how it sums up.</p>
+                </div>
+            </div>
+        </div>
+        <div>
+            <div class="text">
+                <div>
+                    <h2>Define schedules</h2>
+                    <p>Paying for your cable and cellular? Add them as monthly payments and see how
+                        they mix with all other transactions.</p>
+                </div>
+            </div>
+            <div class="image"><img src="/schedule-frame.png" /></div>
+        </div>
+        <div>
+            <div class="col col-md-6">
+                <h2>Start now, it's quick and easy (and free)</h2>
+                <p>Add some of your transactions that happen monthly. Mobile phone
+                    payments, Netflix, loans, wages, and anything you can think of<sup>&dagger;</sup>.</p>
+                <form ref="welcomeForm" submit.trigger="saveSchedule()">
+                    <div class="row">
+                        <div class="col col-2">Date of month</div>
+                        <div class="col col-2">Amount</div>
+                        <div class="col col-8">Description</div>
+                    </div>
+                    <div class="form-row">
+                        <div class="col col-2"><input type="number" value.bind="tran1.monthDate" title="Enter the expected monthly transaction date" required.bind="tran1.isRequired" min="1" max="31" class="form-control"
+                                placeholder="31" /></div>
+                        <div class="col col-2"><input type="text" value.bind="tran1.amount" title="Enter the amount of the transaction" required.bind="tran1.isRequired"  pattern="^(:?\+|-|\()?\d*\.?\d*(:?\))?$"
+                                class="money form-control" placeholder="-69.29" /></div>
+                        <div class="col col-8"><input type="text" value.bind="tran1.description" title="Enter the description of the transaction" required.bind="tran1.isRequired"  class="form-control"
+                                placeholder="E.g., COMCAST CABLE COMM 800-COMCAST WA" /></div>
+                    </div>
+                    <div class="form-row">
+                        <div class="col col-2"><input type="number" value.bind="tran2.monthDate" title="Enter the expected monthly transaction date" required.bind="tran2.isRequired"  min="1" max="31" class="form-control"
+                                placeholder="1" /></div>
+                        <div class="col col-2"><input type="text" value.bind="tran2.amount" title="Enter the amount of the transaction" required.bind="tran2.isRequired"  pattern="^(:?\+|-|\()?\d*\.?\d*(:?\))?$"
+                                class="money form-control" placeholder="3950" /></div>
+                        <div class="col col-8"><input type="text" value.bind="tran2.description" title="Enter the description of the transaction" required.bind="tran2.isRequired"  class="form-control"
+                                placeholder="E.g., Salary" /></div>
+                    </div>
+                    <div class="form-row">
+                        <div class="col col-2"><input type="number" value.bind="tran3.monthDate" title="Enter the expected monthly transaction date" required.bind="tran3.isRequired"  min="1" max="31" class="form-control"
+                                placeholder="3" /></div>
+                        <div class="col col-2"><input type="text" value.bind="tran3.amount" title="Enter the amount of the transaction" required.bind="tran3.isRequired"  pattern="^(:?\+|-|\()?\d*\.?\d*(:?\))?$"
+                                class="money form-control" placeholder="-94.21" /></div>
+                        <div class="col col-8"><input type="text" value.bind="tran3.description" title="Enter the description of the transaction" required.bind="tran3.isRequired"  class="form-control"
+                                placeholder="E.g., VERIZON WRLS" /></div>
+                    </div>
+                    <div class="form-row">
+                        <div class="col col-2"><input type="number" value.bind="tran4.monthDate" title="Enter the expected monthly transaction date" required.bind="tran4.isRequired"  min="1" max="31" class="form-control"
+                                placeholder="11" /></div>
+                        <div class="col col-2"><input type="text" value.bind="tran4.amount" title="Enter the amount of the transaction" required.bind="tran4.isRequired"  pattern="^(:?\+|-|\()?\d*\.?\d*(:?\))?$"
+                                class="money form-control" placeholder="-12.99" /></div>
+                        <div class="col col-8"><input type="text" value.bind="tran4.description" title="Enter the description of the transaction" required.bind="tran4.isRequired"  class="form-control"
+                                placeholder="E.g., NETFLIX" /></div>
+                    </div>
+                    <div class="form-row">
+                        <div class="col col-2"><input type="number" value.bind="tran5.monthDate" title="Enter the expected monthly transaction date" required.bind="tran5.isRequired"  min="1" max="31" class="form-control"
+                                placeholder="21" /></div>
+                        <div class="col col-2"><input type="text" value.bind="tran5.amount" title="Enter the amount of the transaction" required.bind="tran5.isRequired"  pattern="^(:?\+|-|\()?\d*\.?\d*(:?\))?$"
+                                class="money form-control" placeholder="-99" /></div>
+                        <div class="col col-8"><input type="text" value.bind="tran5.description" title="Enter the description of the transaction" required.bind="tran5.isRequired"  class="form-control"
+                                placeholder="E.g., Gym family membership" /></div>
+                    </div>
+                    <div class="form-row" repeat.for="tran of addedTrans">
+                        <div class="col col-2"><input type="number" value.bind="tran.monthDate" title="Enter the expected monthly transaction date" required.bind="tran.isRequired"  min="1" max="31" class="form-control"
+                                placeholder="21" /></div>
+                        <div class="col col-2"><input type="text" value.bind="tran.amount" title="Enter the amount of the transaction" required.bind="tran.isRequired"  pattern="^(:?\+|-|\()?\d*\.?\d*(:?\))?$"
+                                class="money form-control" placeholder="-99" /></div>
+                        <div class="col col-8"><input type="text" value.bind="tran.description" title="Enter the description of the transaction" required.bind="tran.isRequired"  class="form-control"
+                                placeholder="E.g., Gym family membership" /></div>
+                    </div>
+                    <div class="form-group m-3 flowButtons">
+                        <div class="col-md-auto">
+                            <button class="btn btn-secondary" type="button" click.delegate="addMore()"><i
+                                class="fa fa-plus"></i>&nbsp;Add more</button>
+                        </div>
+                        <div class="col-md-auto">
+                            <button class="btn btn-primary" type="submit" disabled.bind="!canSave"><i
+                                class="fa fa-save"></i>&nbsp;Save schedule</button>
+                        </div>
+                    </div>
+                </form>
+                <p><small><sup>&dagger;</sup>PROXIMO stores your data locally in your web browser and does not send it
+                        to
+                        our servers. Our servers don't store your data and don't have capability of storing
+                        your data. This is an early launch of PROXIMO and we are not yet ready to store
+                        data on our servers.</small></p>
+            </div>
+        </div>
     </div>
 </template>

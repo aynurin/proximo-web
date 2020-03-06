@@ -7,14 +7,18 @@ For more information, go to https://aurelia.io/docs/cli/webpack
 ## Todo
 
 Intro
+1280 dash
 About
 S3 does not serve pushstate URLs
+chrome/edge
 Ads - on review, check again on March 9th
 Chart is jumping
 Really lacking transfers
 Searchable tables (lots of fun!)
 Chart adjustments
 Responsive
+Holidays
+Last day of month
 
 ## Run dev app
 

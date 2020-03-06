@@ -63,6 +63,9 @@ export class LineChartCustomElement {
 
   resetChartContextCounter: number = 0;
   resetChartContext() {
+    if (this.chartArea == null) {
+      return;
+    }
     this.resetChartContextCounter += 1;
     log.debug('resetChartContext', this.resetChartContextCounter);
     this.canvas = this.chartArea.getContext("2d");

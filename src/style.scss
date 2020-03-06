@@ -2,6 +2,8 @@ $body-bg: #f6f6f6;
 $body-color: #495057;
 $nav-tabs-link-active-bg: #fff;
 $box-shadow-sm: 0 0.2rem 0.25rem rgba(#000, 0.075);
+$headings-font-family: 'Playfair Display', serif;
+$font-family-sans-serif: 'Open Sans', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
 
 $blue: #113348;
 $red: #fe5350;
@@ -116,16 +118,17 @@ flow-stage {
   // input, select {
   //     @extend .form-control;
   // }
-  .flowButtons {
-    display: flex;
-    flex-direction: row;
-    flex-wrap: nowrap;
-    justify-content: space-between;
-  }
 
   endnote {
     max-width: 400px;
   }
+}
+
+.flowButtons {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: nowrap;
+  justify-content: space-between;
 }
 
 endnote {
@@ -208,4 +211,33 @@ dialogue-frame {
   background-color: lighten($body-bg, 3%);
 
   @extend .border, .rounded;
+}
+
+div.welcome {
+  @extend .container-fluid;
+
+  &>div {
+    @extend .row, .justify-content-center, .py-3;
+  }
+
+  .text {
+    display: flex;
+    @extend .col, .col-md-4, .mx-3;
+
+    &>div {
+      @extend .align-self-center;
+    }
+  }
+  .image {
+    width: 450px;
+    height: 300px;
+    overflow: hidden;
+    @extend .col, .col-md-4, .mx-3;
+
+    img {
+      width: 450px;
+      height: 300px;
+      vertical-align: middle;
+    }
+  }
 }
