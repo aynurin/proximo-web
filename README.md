@@ -18,6 +18,7 @@ Responsive
 Holidays
 Last day of month
 Intro
+Undo/Redo/Create new experiment
 
 ## Run dev app
 
