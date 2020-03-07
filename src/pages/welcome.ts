@@ -35,7 +35,8 @@ export class WelcomeCustomElement {
     private tranActions: TranStateActions) { }
 
   get canSave(): boolean {
-    return this.getTransactionsToSave() !== false;
+    const toSave = this.getTransactionsToSave();
+    return toSave !== false && toSave.length > 0;
   }
 
   getTransactionsToSave(): FormRowTranTemplate[] | false {
@@ -60,13 +61,32 @@ export class WelcomeCustomElement {
   saveSchedule() {
     const toSave = this.getTransactionsToSave();
     console.log('saving', toSave);
-    this.tran1 = new FormRowTranTemplate();
-    this.tran2 = new FormRowTranTemplate();
-    this.tran3 = new FormRowTranTemplate();
-    this.tran4 = new FormRowTranTemplate();
-    this.tran5 = new FormRowTranTemplate();
-    this.addedTrans = [];
-    this.welcomeForm.reset();
+    if (toSave !== false && toSave.length > 0) {
+      const trans = toSave.map(t => this.createSchedule(t));
+      for (let tran of trans) {
+        this.tranActions.addSchedule(tran);
+      }
+      this.tran1 = new FormRowTranTemplate();
+      this.tran2 = new FormRowTranTemplate();
+      this.tran3 = new FormRowTranTemplate();
+      this.tran4 = new FormRowTranTemplate();
+      this.tran5 = new FormRowTranTemplate();
+      this.addedTrans = [];
+      this.welcomeForm.reset();
+    }
+  }
+
+  createSchedule(tran: FormRowTranTemplate): TranTemplate {
+    const date = moment().date(parseInt(tran.monthDate));
+    const template = new TranTemplate();
+    template.account = "My account";
+    template.amount = parseInt(tran.amount);
+    template.date = date.format("YYYY-MM-DD");
+    template.description = tran.description;
+    template.selectedSchedule = new Schedule("Monthly, on the " + date.format("Do"), {
+        day: date.date()
+      });
+    return template;
   }
 }
 

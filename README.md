@@ -6,8 +6,6 @@ For more information, go to https://aurelia.io/docs/cli/webpack
 
 ## Todo
 
-Intro
-1280 dash
 About
 S3 does not serve pushstate URLs
 chrome/edge
@@ -19,6 +17,7 @@ Chart adjustments
 Responsive
 Holidays
 Last day of month
+Intro
 
 ## Run dev app
 
