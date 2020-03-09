@@ -77,6 +77,12 @@ app-header {
   }
 }
 
+proximo {
+  display: inline;
+  font-family: Comfortaa, $font-family-sans-serif;
+  text-transform: capitalize;
+}
+
 .secondary-menu {
   .nav-item {
     font-size: 0.8rem;
@@ -99,6 +105,8 @@ router-view {
     .bg-white,
     .rounded-bottom;
   min-height: 80vh;
+  display: flex;
+  flex-direction: column;
 }
 
 button#addTransaction {
@@ -182,7 +190,7 @@ board {
       min-width: 600px;
     }
     .accounts {
-      width: 400px;
+      width: 300px;
     }
   }
 
@@ -194,6 +202,11 @@ board {
       }
     }
   }
+}
+
+.about, .feedback {
+  max-width: 650px;
+  flex: 1;
 }
 
 accounts-summary {
