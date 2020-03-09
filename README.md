@@ -6,11 +6,7 @@ For more information, go to https://aurelia.io/docs/cli/webpack
 
 ## Todo
 
-S3 does not serve pushstate URLs
-chrome/edge
 Ads - on review, check again on March 9th
-Chart is jumping
-Annual totals
 Really lacking transfers
 Searchable tables (lots of fun!)
 Chart adjustments
