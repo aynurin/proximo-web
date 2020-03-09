@@ -54,13 +54,11 @@ export class WelcomeCustomElement {
   }
 
   addMore() {
-    console.log('addMore');
     this.addedTrans.push(new FormRowTranTemplate());
   }
 
   saveSchedule() {
     const toSave = this.getTransactionsToSave();
-    console.log('saving', toSave);
     if (toSave !== false && toSave.length > 0) {
       const trans = toSave.map(t => this.createSchedule(t));
       for (let tran of trans) {

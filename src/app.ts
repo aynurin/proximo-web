@@ -14,7 +14,7 @@ import { TranStateActions } from "./model/tran-actions";
 import { ScheduleWizardCustomElement } from "components/schedule/schedule-wizard";
 import { LogManager } from 'aurelia-framework';
 import {
-  RouterConfiguration, Router,
+  RouterConfiguration, Router, NavigationInstruction
 } from 'aurelia-router';
 
 const log = LogManager.getLogger('app');
@@ -24,6 +24,7 @@ const log = LogManager.getLogger('app');
 export class App {
   router: Router;
   disableTabs: boolean = true;
+  showWelcome: boolean = true;
 
   @observable public state: State;
   public tranBuilder: ScheduleWizardCustomElement;
@@ -66,17 +67,30 @@ export class App {
   }
 
   stateChanged() {
-    if (this.state != null && this.state.schedule != null && this.state.schedule.length === 0) {
-      this.router.navigateToRoute("welcome");
-      this.disableTabs = true;
+    if (this.state == null || this.state.schedule == null) {
+      return;
+    }
+    if (this.state.schedule.length === 0) {
+      this.setShowWelcome(true);
     } else {
-      this.disableTabs = false;
-      if (this.router.currentInstruction && this.router.currentInstruction.config.name === "welcome") {
-        this.router.navigateToRoute("dashboard");
-      }
+      this.setShowWelcome(false);
     }
     log.debug('stateChanged', this.disableTabs, this.state, 
       (this.state && this.state.schedule ? this.state.schedule.length : "null"));
+  }
+
+  setShowWelcome(showWelcome: boolean) {
+    if (this.router.currentInstruction) {
+      if (showWelcome) {
+        if (this.router.currentInstruction.config.name !== "welcome") {
+          this.router.navigateToRoute("welcome");
+        }
+      } else if (this.router.currentInstruction.config.name === "welcome") {
+        this.router.navigateToRoute("dashboard");
+      }
+    }
+    this.showWelcome = showWelcome;
+    this.disableTabs = showWelcome;
   }
 
   configureRouter(config: RouterConfiguration, router: Router): void {
@@ -85,7 +99,8 @@ export class App {
     config.options.pushState = true;
     config.options.root = '/';
     config.map([
-      { route: ['', 'dashboard'], name: 'dashboard', moduleId: PLATFORM.moduleName('./pages/dashboard.html'), nav: true, title: 'Dashboard', settings: {mainNav: true} },
+      { route: '', name: 'default', navigationStrategy: this.defaultNavigation },
+      { route: 'dashboard', name: 'dashboard', moduleId: PLATFORM.moduleName('./pages/dashboard.html'), nav: true, title: 'Dashboard', settings: {mainNav: true} },
       { route: 'schedule', name: 'schedule', moduleId: PLATFORM.moduleName('./pages/schedule.html'), nav: true, title: 'Schedule', settings: {mainNav: true} },
       { route: 'ledger', name: 'ledger', moduleId: PLATFORM.moduleName('./pages/ledger.html'), nav: true, title: 'Ledger', settings: {mainNav: true} },
       { route: 'welcome', name: 'welcome', moduleId: PLATFORM.moduleName('./pages/welcome'), nav: false, title: 'Welcome to Proximo!' },
@@ -94,8 +109,15 @@ export class App {
     ]);
     config.fallbackRoute('dashboard');
     config.mapUnknownRoutes('dashboard');
-    console.log(this.router.navigation);
   }
+
+  defaultNavigation = (instruction: NavigationInstruction) => {
+    if (this.showWelcome === true) {
+      instruction.config.redirect = 'welcome';
+    } else {
+      instruction.config.redirect = 'dashboard';
+    }
+  };
 
   get mainNav() {
     return this.router.navigation.filter(nav => nav.settings.mainNav);

@@ -6,6 +6,7 @@ import * as moment from "moment";
 
 import { Store, connectTo } from "aurelia-store";
 import { State } from "../state";
+import * as environment from '../../config/environment.json';
 
 import { HolidayRule, Schedule } from "../model/schedule";
 import { TranTemplate } from "../model/tran-template";
@@ -21,6 +22,8 @@ export class ScheduleGridCustomElement {
   removeSchedule(tran: TranTemplate) {
     this.tranActions.removeSchedule(tran);
   }
+  
+  get isProduction(): boolean { return environment.debug === false; };
 
   scheduleLabel(tran: TranTemplate): string {
     const sched = tran.selectedSchedule;
