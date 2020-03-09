@@ -22,6 +22,13 @@ describe("Cron String Converter", () => {
     expect(actual).toBe(expected);
     done();
   });
+  it("Every Sunday", done => {
+    const given = ['*', '*', '0', '*'];
+    const expected = 'Every Sunday';
+    const actual = cronstr(given);
+    expect(actual).toBe(expected);
+    done();
+  });
   it("Every Tuesday February through May", done => {
     const given = ['?', '2-5', '2', '*'];
     const expected = 'Every Tuesday, February through May';

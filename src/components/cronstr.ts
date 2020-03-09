@@ -149,9 +149,9 @@ function countable_of(num: number): string {
     return countables[num - 1];
 }
 
-const weekdays = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"];
+const weekdays = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"];
 function weekday_name_of(num) {
-    return weekdays[num-1];
+    return weekdays[num];
 }
 
 const monthNames = ["January", "February", "March", "April", "May", "June",
