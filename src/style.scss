@@ -267,3 +267,9 @@ div.welcome {
     }
   }
 }
+
+.inline-logo {
+  height: $spacer * 2;
+  vertical-align: baseline;
+  margin-right: $spacer / 2;
+}
