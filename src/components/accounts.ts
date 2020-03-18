@@ -34,7 +34,7 @@ import {
           if (schedule.account in existingAccounts) {
             accounts[schedule.account] = existingAccounts[schedule.account];
           } else {
-            accounts[schedule.account] = { account: schedule.account, date: new Date(), balance: 0 };
+            accounts[schedule.account] = { account: schedule.account, date: new Date(), balance: 0, inUse: true };
           }
         }
       }
@@ -51,7 +51,7 @@ import {
     }
 
     reset() {
-      this.newAccount = { account: null, date: null, balance: null };
+      this.newAccount = { account: null, date: null, balance: null, inUse: null };
     }
 
     saveNewAccount() {
