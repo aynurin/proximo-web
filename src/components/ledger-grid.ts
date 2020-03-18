@@ -4,6 +4,7 @@ import { TranGenerated } from "../model/tran-generated";
 
 import { connectTo } from 'aurelia-store';
 import { State } from '../state';
+import { AccountBalance } from "model/account-balance";
 
 @autoinject()
 @connectTo()
@@ -20,5 +21,9 @@ export class LedgerGridCustomElement {
 
   objectValues(o: any): any[] {
     return Object.values(o);
+  }
+
+  get accountsInUse(): AccountBalance[] {
+    return this.state.accounts2.filter(a => a.inUse);
   }
 }

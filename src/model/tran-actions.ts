@@ -19,6 +19,7 @@ export class TranStateActions {
     this.store.registerAction('removeSchedule', removeTranAction);
     this.store.registerAction('saveAccount', saveAccountAction);
     this.store.registerAction('replaceLedger', replaceLedgerAction);
+    this.store.registerAction('replaceAccounts', replaceAccountsAction);
   }
 
   public replaceSchedule(original: TranTemplate, replacement: TranTemplate) {
@@ -39,6 +40,10 @@ export class TranStateActions {
 
   public replaceLedger(ledger: TranGenerated[]) {
     this.store.dispatch('replaceLedger', ledger);
+  }
+
+  public replaceAccounts(accounts: AccountBalance[]) {
+    this.store.dispatch('replaceAccounts', accounts);
   }
 }
 
@@ -126,5 +131,11 @@ const saveAccountAction = (state: State, account: AccountBalance) => {
 const replaceLedgerAction = (state: State, ledger: TranGenerated[]) => {
   const newState = Object.assign({}, state);
   newState.ledger = ledger;
+  return newState;
+}
+
+const replaceAccountsAction = (state: State, accounts: AccountBalance[]) => {
+  const newState = Object.assign({}, state);
+  newState.accounts2 = accounts;
   return newState;
 }

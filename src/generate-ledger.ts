@@ -53,6 +53,7 @@ export class GenerateLedger {
             log.debug("generating ledger for", this.state.scheduleVersion);
         }
 
+        let accounts = this.state.accounts2.map(a => Object.assign({inUse: false}, a));
         let start = new Date();
         let end = new Date();
         end.setFullYear(end.getFullYear() + 1);
@@ -62,8 +63,21 @@ export class GenerateLedger {
             endDate: end
         };
 
+        let accountNames: string[] = [];
         let ledger: TranGenerated[] = [];
         for (const tran of this.state.schedule) {
+            let acc = accounts.find(a => a.account === tran.account);
+            if (acc == null) {
+                acc = {
+                    account: tran.account,
+                    date: new Date(),
+                    balance: 0,
+                    inUse: true
+                };
+                accounts.push(acc);
+            } else {
+                acc.inUse = true;
+            }
             const thisOptions = Object.assign({}, options);
             const since = getBestDate(start, tran.selectedSchedule.dateSince);
             const till = getBestDate(end, tran.selectedSchedule.dateTill);
@@ -94,8 +108,9 @@ export class GenerateLedger {
             }
         }
 
+        console.log(accountNames);
         let balances = {};
-        for (let acc of this.state.accounts2) {
+        for (let acc of accounts.filter(a => a.inUse)) {
             balances[acc.account] = +acc.balance;
         }
 
@@ -119,6 +134,7 @@ export class GenerateLedger {
 
         log.debug("ledger-changed", ledger.length, ledger[2]);
         this.tranActions.replaceLedger(ledger);
+        this.tranActions.replaceAccounts(accounts);
         this.ea.publish("ledger-changed", ledger);
         this.ledger = ledger;
         this.ledgerVersion = this.state.scheduleVersion;
@@ -137,4 +153,8 @@ function getBestDate(one: Date, another: Date | string) {
     } else {
         return moment(another);
     }
+}
+
+function cloneArray<T>(arr: Array<T>) {
+    return arr.map(i => Object.assign({}, i));
 }
