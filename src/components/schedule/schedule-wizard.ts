@@ -51,7 +51,6 @@ export class ScheduleWizardCustomElement {
       await this.dialogController.ok();
       this.tran = new TranTemplate();
       this.flow.reset();
-      this.scheduleWizardForm.reset();
     }
   }
 

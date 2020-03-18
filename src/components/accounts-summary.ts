@@ -59,7 +59,9 @@ export class AccountsSummaryCustomElement {
     for (let month of l_months) {
       l_totals.months[month] = new AccountMonth(l_totals.account, month);
       for (let acc of Object.values(l_byMonth)) {
-        l_totals.months[month].sum(acc.months[month]);
+        if (month in acc.months) {
+          l_totals.months[month].sum(acc.months[month]);
+        }
       }
       l_totals.endingBalance = l_totals.months[month].ending;
     }

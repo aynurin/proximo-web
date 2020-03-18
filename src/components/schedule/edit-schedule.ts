@@ -47,7 +47,6 @@ export class EditScheduleCustomElement {
       this.tranActions.replaceSchedule(this.originalTran, this.tran);
       await this.dialogController.ok();
       this.tran = new TranTemplate();
-      this.scheduleForm.reset();
     }
   }
 
