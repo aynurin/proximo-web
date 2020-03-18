@@ -63,7 +63,6 @@ export class GenerateLedger {
             endDate: end
         };
 
-        let accountNames: string[] = [];
         let ledger: TranGenerated[] = [];
         for (const tran of this.state.schedule) {
             let acc = accounts.find(a => a.account === tran.account);
@@ -108,7 +107,6 @@ export class GenerateLedger {
             }
         }
 
-        console.log(accountNames);
         let balances = {};
         for (let acc of accounts.filter(a => a.inUse)) {
             balances[acc.account] = +acc.balance;

@@ -59,7 +59,7 @@ const replaceScheduleAction = (state: State, original: TranTemplate, replacement
     newState.accounts2 = [];
   }
   if (newState.accounts2.find(acc => acc.account == replacement.account) == null) {
-    let newAccounts = [...newState.accounts2, { account: replacement.account, date: new Date(), balance: 0 }];
+    let newAccounts = [...newState.accounts2, { account: replacement.account, date: new Date(), balance: 0, inUse: true }];
     newAccounts.sort((a, b) => a.account.localeCompare(b.account));
     newState.accounts2 = newAccounts;
   }
@@ -80,7 +80,7 @@ const addTranAction = (state: State, tran: TranTemplate) => {
     newState.accounts2 = [];
   }
   if (newState.accounts2.find(acc => acc.account == tran.account) == null) {
-    let newAccounts = [...newState.accounts2, { account: tran.account, date: new Date(), balance: 0 }];
+    let newAccounts = [...newState.accounts2, { account: tran.account, date: new Date(), balance: 0, inUse: true }];
     newAccounts.sort((a, b) => a.account.localeCompare(b.account));
     newState.accounts2 = newAccounts;
   }

@@ -6,18 +6,16 @@ For more information, go to https://aurelia.io/docs/cli/webpack
 
 ## Todo
 
+Intro
+New day UX
 Mobile UX
-Cookie consent, Google Analytics etc.
-Ads - on review, check again on March 9th
 Really lacking transfers
+Cookie consent, Google Analytics etc.
 Searchable tables (lots of fun!)
 Chart adjustments
-Responsive
 Holidays
 Last day of month
-Intro
 Undo/Redo/Create new experiment
-Smart start a next day session
 Date Picker UX
 Focus mode - next month in details
 
