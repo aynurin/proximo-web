@@ -10,7 +10,7 @@ import { Store, connectTo } from "aurelia-store";
 import { State } from "../../state";
 
 import { Schedule, HolidayRule } from "../../model/schedule";
-import { TranTemplate } from "../../model/tran-template";
+import { TranTemplate, TranScheduleWrapper } from "../../model/tran-template";
 import { TranStateActions } from "../../model/tran-actions";
 import { DialogController } from 'aurelia-dialog';
 import { LogManager } from 'aurelia-framework';
@@ -21,7 +21,7 @@ const log = LogManager.getLogger('edit-schedule');
 @autoinject()
 @connectTo()
 export class EditScheduleCustomElement {
-  @bindable tran: TranTemplate = new TranTemplate();
+  @bindable tranwr: TranScheduleWrapper<TranTemplate> = new TranScheduleWrapper(new TranTemplate());
   originalTran: TranTemplate = null;
   scheduleForm: HTMLFormElement;
   public state: State;
@@ -32,8 +32,8 @@ export class EditScheduleCustomElement {
 
   activate(tran: TranTemplate) {
     this.originalTran = tran;
-    this.tran = Object.assign({}, tran);
-    this.tran.selectedSchedule = Object.assign({}, this.tran.selectedSchedule);
+    this.tranwr = new TranScheduleWrapper(Object.assign({}, tran));
+    this.tranwr.value.selectedSchedule = Object.assign({}, this.tranwr.value.selectedSchedule);
   }
 
   async cancelForm() {
@@ -44,9 +44,9 @@ export class EditScheduleCustomElement {
   async saveSchedule() {
     log.debug('save schedule');
     if (this.canSave) {
-      this.tranActions.replaceSchedule(this.originalTran, this.tran);
+      this.tranActions.replaceSchedule(this.originalTran, this.tranwr.value);
       await this.dialogController.ok();
-      this.tran = new TranTemplate();
+      this.tranwr = new TranScheduleWrapper(new TranTemplate());
     }
   }
 
@@ -55,32 +55,33 @@ export class EditScheduleCustomElement {
     return Schedule.equals(a, b);
   }
 
+  @computedFrom("tranwr.value.selectedSchedule.dateSince")
   get minDateTill(): string {
-    return moment(this.tran.selectedSchedule.dateSince).format("YYYY-MM-DD");
+    return moment(this.tranwr.value.selectedSchedule.dateSince).format("YYYY-MM-DD");
   }
 
-  @computedFrom("tran.selectedSchedule")
+  @computedFrom("tranwr.value.selectedSchedule")
   get showHolidayRule(): boolean {
     return (
-      this.tran &&
-      Schedule.allowsHolidayRule(this.tran.selectedSchedule)
+      this.tranwr && this.tranwr.value &&
+      Schedule.allowsHolidayRule(this.tranwr.value.selectedSchedule)
     );
   }
 
-  @computedFrom("tran.selectedSchedule")
+  @computedFrom("tranwr.value.selectedSchedule")
   get showDateRange(): boolean {
     return (
-      this.tran &&
-      Schedule.allowsDateRange(this.tran.selectedSchedule)
+      this.tranwr && this.tranwr.value &&
+      Schedule.allowsDateRange(this.tranwr.value.selectedSchedule)
     );
   }
 
-  @computedFrom("tran.date")
+  @computedFrom("tranwr.value.date")
   get allOptions(): Schedule[] {
-    const date = moment(this.tran.date);
+    const date = moment(this.tranwr.value.date);
     const options: Schedule[] = [];
 
-    if (this.tran.date == null || this.tran.date == "") {
+    if (this.tranwr.value.date == null || this.tranwr.value.date == "") {
       return options;
     }
 
@@ -114,22 +115,14 @@ export class EditScheduleCustomElement {
     return options;
   }
 
+  @computedFrom("tranwr.isValid")
   get canSave(): boolean {
-    return (
-      this.tran &&
-      this.tran.selectedSchedule != null &&
-      this.tran.amount !== null &&
-      !isNaN(this.tran.amount) &&
-      this.tran.account !== null &&
-      this.tran.account.length > 0 &&
-      this.tran.description !== null &&
-      this.tran.description.length > 0
-    );
+    return this.tranwr && this.tranwr.isValid;
   }
 
-  @computedFrom("cron")
+  @computedFrom("tranwr.value.selectedSchedule")
   get scheduleLabel(): string {
-    const sched = this.tran.selectedSchedule;
+    const sched = this.tranwr.value.selectedSchedule;
     let label = cronstr(sched.cron);
     if (Schedule.allowsHolidayRule(sched)) {
       label += ", " + HolidayRule[sched.holidayRule] + " holidays";

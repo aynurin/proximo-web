@@ -9,7 +9,7 @@ import { State } from "../state";
 import * as environment from '../../config/environment.json';
 
 import { HolidayRule, Schedule } from "../model/schedule";
-import { TranTemplate } from "../model/tran-template";
+import { TranTemplate, TranScheduleWrapper } from "../model/tran-template";
 import { TranStateActions } from "../model/tran-actions";
 
 @autoinject()
@@ -44,5 +44,9 @@ export class ScheduleGridCustomElement {
       label += ", until " + moment(sched.dateTill).format("MMMM Do YYYY");
     }
     return label;
+  }
+
+  accountLabel(tran: TranTemplate): string {
+    return (new TranScheduleWrapper(tran).accountLabel);
   }
 }

@@ -2,9 +2,8 @@ import { autoinject } from "aurelia-framework";
 import { Store } from 'aurelia-store';
 import { EventAggregator } from "aurelia-event-aggregator";
 import { State } from '../state';
-import { TranTemplate } from './tran-template';
+import { TranTemplate, TranGenerated } from './tran-template';
 import { AccountBalance } from './account-balance';
-import { TranGenerated } from "./tran-generated";
 import { LogManager } from 'aurelia-framework';
 
 const log = LogManager.getLogger('tran-actions');

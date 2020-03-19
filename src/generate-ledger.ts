@@ -2,13 +2,13 @@ import { autoinject, noView, observable } from "aurelia-framework";
 import { EventAggregator } from "aurelia-event-aggregator";
 import { Store } from "aurelia-store";
 import { State } from "./state";
-import { TranGenerated } from "model/tran-generated";
 import { LogManager } from 'aurelia-framework';
 import * as CronParser from "cron-parser";
 import * as moment from "moment";
 import { Schedule } from "model/schedule";
 import { Subscription } from "rxjs";
 import { TranStateActions } from "model/tran-actions";
+import { TranGenerated } from "model/tran-template";
 
 const log = LogManager.getLogger('generate-ledger');
 
@@ -98,7 +98,9 @@ export class GenerateLedger {
                         amount: tran.amount,
                         balances: {},
                         description: tran.description,
-                        schedule: tran.selectedSchedule.label
+                        schedule: tran.selectedSchedule.label,
+                        isTransfer: tran.isTransfer,
+                        transferToAccount: tran.transferToAccount,
                     };
                     ledger.push(tr);
                 } catch (e) {
@@ -121,12 +123,15 @@ export class GenerateLedger {
         });
 
         for (let gtran of ledger) {
-            let acc = gtran.account;
             // if there is an inconsistency where the state does not have this transaction's account,
             // this code will break. May it break, so we can find a root cause.
-            let accBalance = balances[acc];
-            accBalance += +gtran.amount;
-            balances[acc] = accBalance;
+            if (gtran.isTransfer) {
+                let amount = Math.abs(+gtran.amount);
+                balances[gtran.account] -= amount;
+                balances[gtran.transferToAccount] += amount;
+            } else {
+                balances[gtran.account] += +gtran.amount;
+            }
             gtran.balances = Object.assign({}, balances);
         }
 

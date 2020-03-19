@@ -9,9 +9,9 @@ import { State } from '../state';
 
 import { AccountBalance } from '../model/account-balance';
 import { pluck } from "rxjs/operators";
-import { TranGenerated } from "model/tran-generated";
 import * as moment from "moment";
 import { LogManager } from 'aurelia-framework';
+import { TranGenerated } from "model/tran-template";
 
 const log = LogManager.getLogger('accounts-summary');
 

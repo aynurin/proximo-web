@@ -1,4 +1,3 @@
-import { TranGenerated } from "../model/tran-generated";
 import { EventAggregator } from "aurelia-event-aggregator";
 import { pluck } from 'rxjs/operators';
 import { connectTo } from 'aurelia-store';
@@ -9,6 +8,7 @@ import * as moment from "moment";
 import numeral from 'numeral';
 import { autoinject, observable } from 'aurelia-framework';
 import { LogManager } from 'aurelia-framework';
+import { TranGenerated } from "model/tran-template";
 
 const log = LogManager.getLogger('line-chart');
 
