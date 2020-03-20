@@ -88,7 +88,7 @@ export class GenerateLedger {
             const since = getBestDate(start, tran.selectedSchedule.dateSince);
             const till = getBestDate(end, tran.selectedSchedule.dateTill);
             if (since > moment(thisOptions.currentDate)) {
-                thisOptions.currentDate = since.toDate();
+                thisOptions.currentDate = since.add(-1, 'days').toDate();
             }
             if (till < moment(thisOptions.endDate)) {
                 thisOptions.endDate = till.toDate();

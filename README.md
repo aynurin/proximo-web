@@ -6,6 +6,8 @@ For more information, go to https://aurelia.io/docs/cli/webpack
 
 ## Todo
 
+
+Min and end in summaries are always the same
 Intro
 New day UX
 How to test everything? List all the scenarios at least?..
