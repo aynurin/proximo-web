@@ -7,7 +7,7 @@ import {
 } from "aurelia-store";
 import { EventAggregator } from "aurelia-event-aggregator";
 import { PLATFORM } from 'aurelia-pal';
-import { autoinject, observable } from "aurelia-framework";
+import { autoinject } from "aurelia-framework";
 import * as environment from '../config/environment.json';
 import { State } from './state';
 import { TranStateActions } from "./model/tran-actions";
@@ -26,7 +26,7 @@ export class App {
   disableTabs: boolean = true;
   showWelcome: boolean = true;
 
-  @observable public state: State;
+  public state: State;
   public tranBuilder: ScheduleWizardCustomElement;
 
   resizeTimer = null;

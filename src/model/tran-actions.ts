@@ -128,6 +128,7 @@ const saveAccountAction = (state: State, account: AccountBalance) => {
 }
 
 const replaceLedgerAction = (state: State, ledger: TranGenerated[]) => {
+  console.log('replaceLedgerAction')
   const newState = Object.assign({}, state);
   newState.ledger = ledger;
   return newState;

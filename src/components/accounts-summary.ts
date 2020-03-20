@@ -1,6 +1,5 @@
 import {
   bindable,
-  observable,
   autoinject,
 } from "aurelia-framework";
 
@@ -20,7 +19,7 @@ const log = LogManager.getLogger('accounts-summary');
 export class AccountsSummaryCustomElement {
   newAccForm: HTMLFormElement;
   @bindable newAccount: AccountBalance;
-  @observable public state: TranGenerated[];
+  public state: TranGenerated[];
 
   public byMonths: AccountByMonths[];
   public months: string[];
