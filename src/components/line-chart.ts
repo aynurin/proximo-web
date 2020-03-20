@@ -13,7 +13,7 @@ import { TranGenerated } from "model/tran-template";
 const log = LogManager.getLogger('line-chart');
 
 @autoinject()
-@connectTo<State>((store) => store.state.pipe(pluck('ledger')))
+@connectTo()
 export class LineChartCustomElement {
   chartArea: HTMLCanvasElement;
   lineChart: Chart;
@@ -21,20 +21,33 @@ export class LineChartCustomElement {
   datasets: any[] = [];
   isAttached: boolean = false;
   ledger: TranGenerated[];
-  state: TranGenerated[];
+  state: State;
+  lastVersion: number;
 
   constructor(ea: EventAggregator) {
+    log.debug('constructor');
     // ea.subscribe("ledger-changed", (l) => this.ledgerChanged(l));
     // ea.subscribe("screen-changed", () => this.screenChanged());
   }
 
   stateChanged = () => {
-    this.ledgerChanged(this.state);
+    log.debug('stateChanged', this.state);
+    if (!this.state) {
+      return;
+    }
+    this.ifLedgerIsChanged();
+  }
+
+  ifLedgerIsChanged() {
+    if (isNaN(this.lastVersion) || this.lastVersion < this.state.scheduleVersion) {
+      this.ledgerChanged(this.state.ledger);
+      this.lastVersion = this.state.scheduleVersion;
+    }
   }
 
   // when data is changed - need to update datasets
-  ledgerChanged = (l: TranGenerated[]) => {
-    const ledger = this.state;
+  ledgerChanged = (ledger: TranGenerated[]) => {
+    log.debug('ledgerChanged', ledger ? ledger.length : 'none');
     let newDataSets = [];
     if (ledger) {
       newDataSets = generateDatasets(ledger);
@@ -45,34 +58,35 @@ export class LineChartCustomElement {
     for (let d of newDataSets) {
       this.datasets.push(d);
     }
-    if (this.datasets && this.lineChart) {
+    if (this.lineChart) {
       this.lineChart.update();
     }
   }
 
-  // when control is attached to dom - need to initialize the chart drawoing area
+  // when control is attached to dom - need to initialize the chart drawing area
   attached() {
     log.debug('attached');
     this.isAttached = true;
     this.resetChartContext();
+    this.ifLedgerIsChanged();
   }
 
   detached() {
+    log.debug('detached');
     this.isAttached = false;
   }
 
-  resetChartContextCounter: number = 0;
   resetChartContext() {
+    log.debug('resetChartContext');
     if (this.chartArea == null) {
       return;
     }
-    this.resetChartContextCounter += 1;
-    log.debug('resetChartContext', this.resetChartContextCounter);
     this.canvas = this.chartArea.getContext("2d");
     this.makeChart();
   }
 
   makeChart() {
+    log.debug('makeChart', this.state && this.state.ledger ? this.state.ledger.length : 'none', this.datasets.length);
     this.lineChart = new Chart(this.canvas, {
       type: "lineAlt",
       data: { datasets: this.datasets },
