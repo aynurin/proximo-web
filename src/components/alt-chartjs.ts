@@ -6,6 +6,7 @@ import { Chart } from "chart.js";
 Chart.controllers.lineAlt = Chart.controllers.line.extend({
     draw: function () {
         // Call super method first
+        console.log(this);
         Chart.controllers.line.prototype.draw.call(this, arguments);
 
     //     // now draw the segments
