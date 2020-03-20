@@ -63,20 +63,27 @@ export class GenerateLedger {
             endDate: end
         };
 
-        let ledger: TranGenerated[] = [];
-        for (const tran of this.state.schedule) {
-            let acc = accounts.find(a => a.account === tran.account);
-            if (acc == null) {
-                acc = {
-                    account: tran.account,
+        const ensureAccount = (accountName: string) => {
+            let a = accounts.find(a => a.account === accountName);
+            if (a != null) {
+                a.inUse = true;
+            } else {
+                accounts.push({
+                    account: accountName,
                     date: new Date(),
                     balance: 0,
                     inUse: true
-                };
-                accounts.push(acc);
-            } else {
-                acc.inUse = true;
+                });
             }
+        }
+
+        let ledger: TranGenerated[] = [];
+        for (const tran of this.state.schedule) {
+            ensureAccount(tran.account);
+            if (tran.isTransfer) {
+                ensureAccount(tran.transferToAccount);
+            }
+
             const thisOptions = Object.assign({}, options);
             const since = getBestDate(start, tran.selectedSchedule.dateSince);
             const till = getBestDate(end, tran.selectedSchedule.dateTill);
