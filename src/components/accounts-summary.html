@@ -20,7 +20,7 @@
             <tr>
                 <td><div class="label label-sm">end</div></td>
                 <td repeat.for="month of months" class="${acc.months[month].status}">
-                    <div class="money">${acc.months[month].low | textToMoney}</div>
+                    <div class="money">${acc.months[month].ending | textToMoney}</div>
                 </td>
             </tr>
             <tr>
