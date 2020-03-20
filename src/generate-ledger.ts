@@ -30,6 +30,7 @@ export class GenerateLedger {
     unbind() {
       this.subscription.unsubscribe();
     }
+    
     public constructor(public store: Store<State>, private ea: EventAggregator,
         private tranActions: TranStateActions) {
     }

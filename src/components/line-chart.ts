@@ -6,7 +6,7 @@ import Chart from "./alt-chartjs";
 
 import * as moment from "moment";
 import numeral from 'numeral';
-import { autoinject, observable } from 'aurelia-framework';
+import { autoinject } from 'aurelia-framework';
 import { LogManager } from 'aurelia-framework';
 import { TranGenerated } from "model/tran-template";
 
@@ -21,19 +21,25 @@ export class LineChartCustomElement {
   datasets: any[] = [];
   isAttached: boolean = false;
   ledger: TranGenerated[];
-  @observable public state: TranGenerated[];
+  state: TranGenerated[];
 
   constructor(ea: EventAggregator) {
     console.log('LineChartCustomElement.constructor');
-    ea.subscribe("screen-changed", () => this.screenChanged());
+    // ea.subscribe("ledger-changed", (l) => this.ledgerChanged(l));
+    // ea.subscribe("screen-changed", () => this.screenChanged());
+  }
+
+  stateChanged = () => {
+    this.ledgerChanged(this.state);
   }
 
   // when data is changed - need to update datasets
-  stateChanged = () => {
-    console.log('LineChartCustomElement.stateChanged');
+  ledgerChanged = (l: TranGenerated[]) => {
+    const ledger = this.state;
+    console.log('LineChartCustomElement.ledgerChanged', ledger);
     let newDataSets = [];
-    if (this.state) {
-      newDataSets = generateDatasets(this.state);
+    if (ledger) {
+      newDataSets = generateDatasets(ledger);
     } else {
       newDataSets = [];
     }
@@ -44,13 +50,6 @@ export class LineChartCustomElement {
     if (this.datasets && this.lineChart) {
       this.lineChart.update();
     }
-  }
-
-  // when screen size is changed - need to update the chart drawing area
-  screenChanged() {
-    console.log('LineChartCustomElement.screenChanged');
-    log.debug('screenChanged');
-    this.resetChartContext();
   }
 
   // when control is attached to dom - need to initialize the chart drawoing area
