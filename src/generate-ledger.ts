@@ -2,13 +2,13 @@ import { autoinject, noView, observable } from "aurelia-framework";
 import { EventAggregator } from "aurelia-event-aggregator";
 import { Store } from "aurelia-store";
 import { State } from "./state";
-import { TranGenerated } from "model/tran-generated";
 import { LogManager } from 'aurelia-framework';
 import * as CronParser from "cron-parser";
 import * as moment from "moment";
 import { Schedule } from "model/schedule";
 import { Subscription } from "rxjs";
 import { TranStateActions } from "model/tran-actions";
+import { TranGenerated } from "model/tran-template";
 
 const log = LogManager.getLogger('generate-ledger');
 
@@ -53,7 +53,7 @@ export class GenerateLedger {
             log.debug("generating ledger for", this.state.scheduleVersion);
         }
 
-        let accounts = this.state.accounts2.map(a => Object.assign({inUse: false}, a));
+        let accounts = this.state.accounts2.map(a => Object.assign({}, a, {inUse: false}));
         let start = new Date();
         let end = new Date();
         end.setFullYear(end.getFullYear() + 1);
@@ -63,20 +63,27 @@ export class GenerateLedger {
             endDate: end
         };
 
-        let ledger: TranGenerated[] = [];
-        for (const tran of this.state.schedule) {
-            let acc = accounts.find(a => a.account === tran.account);
-            if (acc == null) {
-                acc = {
-                    account: tran.account,
+        const ensureAccount = (accountName: string) => {
+            let a = accounts.find(a => a.account === accountName);
+            if (a != null) {
+                a.inUse = true;
+            } else {
+                accounts.push({
+                    account: accountName,
                     date: new Date(),
                     balance: 0,
                     inUse: true
-                };
-                accounts.push(acc);
-            } else {
-                acc.inUse = true;
+                });
             }
+        }
+
+        let ledger: TranGenerated[] = [];
+        for (const tran of this.state.schedule) {
+            ensureAccount(tran.account);
+            if (tran.isTransfer) {
+                ensureAccount(tran.transferToAccount);
+            }
+
             const thisOptions = Object.assign({}, options);
             const since = getBestDate(start, tran.selectedSchedule.dateSince);
             const till = getBestDate(end, tran.selectedSchedule.dateTill);
@@ -98,7 +105,9 @@ export class GenerateLedger {
                         amount: tran.amount,
                         balances: {},
                         description: tran.description,
-                        schedule: tran.selectedSchedule.label
+                        schedule: tran.selectedSchedule.label,
+                        isTransfer: tran.isTransfer,
+                        transferToAccount: tran.transferToAccount,
                     };
                     ledger.push(tr);
                 } catch (e) {
@@ -121,16 +130,19 @@ export class GenerateLedger {
         });
 
         for (let gtran of ledger) {
-            let acc = gtran.account;
             // if there is an inconsistency where the state does not have this transaction's account,
             // this code will break. May it break, so we can find a root cause.
-            let accBalance = balances[acc];
-            accBalance += +gtran.amount;
-            balances[acc] = accBalance;
+            if (gtran.isTransfer) {
+                let amount = Math.abs(+gtran.amount);
+                balances[gtran.account] -= amount;
+                balances[gtran.transferToAccount] += amount;
+            } else {
+                balances[gtran.account] += +gtran.amount;
+            }
             gtran.balances = Object.assign({}, balances);
         }
 
-        log.debug("ledger-changed", ledger.length, ledger[2]);
+        log.debug("ledger-changed", ledger.length, accounts);
         this.tranActions.replaceLedger(ledger);
         this.tranActions.replaceAccounts(accounts);
         this.ea.publish("ledger-changed", ledger);

@@ -10,7 +10,7 @@ import { connectTo } from "aurelia-store";
 import { State } from "../../state";
 
 import { Schedule, HolidayRule } from "../../model/schedule";
-import { TranTemplate } from "../../model/tran-template";
+import { TranTemplate, TranScheduleWrapper } from "../../model/tran-template";
 import { TranStateActions } from "../../model/tran-actions";
 import { DialogController } from 'aurelia-dialog';
 import { LogManager } from 'aurelia-framework';
@@ -20,7 +20,7 @@ const log = LogManager.getLogger('schedule-wizard');
 @autoinject()
 @connectTo()
 export class ScheduleWizardCustomElement {
-  @bindable tran: TranTemplate = new TranTemplate();
+  @bindable tranwr: TranScheduleWrapper<TranTemplate> = new TranScheduleWrapper(new TranTemplate());
   scheduleWizardForm: HTMLFormElement;
   htmlModal: HTMLDivElement;
   holidayRuleNames: string[] = Object.keys(HolidayRule).filter(
@@ -35,52 +35,57 @@ export class ScheduleWizardCustomElement {
     private tranActions: TranStateActions) { }
 
   activate(tran: TranTemplate) {
-    this.tran = tran;
+    this.tranwr = new TranScheduleWrapper(tran);
     this.flow.initialStage = ScheduleStage.Date;
-    this.flow.advanceIfValid(this.tran);
+    this.flow.advanceIfValid(this.tranwr.value);
   }
 
   formChange() {
-    log.debug('formChange', this.tran);
-    this.flow.advanceIfValid(this.tran);
+    log.debug('formChange', this.tranwr);
+    this.flow.advanceIfValid(this.tranwr.value);
+  }
+
+  startOver() {
+    this.tranwr.value.date = "";
+    this.flow.reset();
   }
 
   async addNewTran() {
     if (this.canSave) {
-      this.tranActions.addSchedule(this.tran);
+      this.tranActions.addSchedule(this.tranwr.value);
       await this.dialogController.ok();
-      this.tran = new TranTemplate();
+      this.tranwr = new TranScheduleWrapper(new TranTemplate());
       this.flow.reset();
     }
   }
 
   get minDateTill(): string {
-    return moment(this.tran.selectedSchedule.dateSince).format("YYYY-MM-DD");
+    return moment(this.tranwr.value.selectedSchedule.dateSince).format("YYYY-MM-DD");
   }
 
-  @computedFrom("tran.selectedSchedule")
+  @computedFrom("tranwr.value.selectedSchedule")
   get showHolidayRule(): boolean {
     return (
-      this.tran &&
-      Schedule.allowsHolidayRule(this.tran.selectedSchedule)
+      this.tranwr && this.tranwr.value &&
+      Schedule.allowsHolidayRule(this.tranwr.value.selectedSchedule)
     );
   }
 
-  @computedFrom("tran.selectedSchedule")
+  @computedFrom("tranwr.value.selectedSchedule")
   get showDateRange(): boolean {
     return (
-      this.tran &&
-      Schedule.allowsDateRange(this.tran.selectedSchedule)
+      this.tranwr && this.tranwr.value &&
+      Schedule.allowsDateRange(this.tranwr.value.selectedSchedule)
     );
   }
 
-  @computedFrom("tran.date")
+  @computedFrom("tranwr.value.date")
   get allOptions(): Schedule[] {
-    const date = moment(this.tran.date);
+    const date = moment(this.tranwr.value.date);
     log.debug('allOptions', moment(date).format("MMM Do YYYY"));
     const options: Schedule[] = [];
 
-    if (this.tran.date == null || this.tran.date == "") {
+    if (this.tranwr.value.date == null || this.tranwr.value.date == "") {
       return options;
     }
 
@@ -114,23 +119,17 @@ export class ScheduleWizardCustomElement {
     return options;
   }
 
+  @computedFrom("tranwr.isValid")
   get canSave(): boolean {
-    return (
-      this.tran &&
-      this.tran.selectedSchedule != null &&
-      this.tran.amount !== null &&
-      this.tran.amount.toString() !== "" &&
-      !isNaN(this.tran.amount) &&
-      this.tran.account !== null &&
-      this.tran.account.length > 0 &&
-      this.tran.description !== null &&
-      this.tran.description.length > 0
-    );
+    if (!this.tranwr || !this.tranwr.value) {
+      return false;
+    }
+    return this.tranwr.isValid;
   }
 
-  @computedFrom("cron")
+  @computedFrom("tranwr.value.selectedSchedule")
   get scheduleLabel(): string {
-    const sched = this.tran.selectedSchedule;
+    const sched = this.tranwr.value.selectedSchedule;
     let label = cronstr(sched.cron);
     if (Schedule.allowsHolidayRule(sched)) {
       label += ", " + HolidayRule[sched.holidayRule] + " holidays";

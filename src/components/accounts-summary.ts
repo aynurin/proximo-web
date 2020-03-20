@@ -9,9 +9,9 @@ import { State } from '../state';
 
 import { AccountBalance } from '../model/account-balance';
 import { pluck } from "rxjs/operators";
-import { TranGenerated } from "model/tran-generated";
 import * as moment from "moment";
 import { LogManager } from 'aurelia-framework';
+import { TranGenerated } from "model/tran-template";
 
 const log = LogManager.getLogger('accounts-summary');
 
@@ -39,20 +39,35 @@ export class AccountsSummaryCustomElement {
     const l_totals: AccountByMonths = { account: "totals", months: {}, endingBalance: -1 };
 
     const l_byMonth = this.state.reduce((x: { [account: string]: AccountByMonths }, item) => {
-      if (!(item.account in x)) {
-        x[item.account] = { account: item.account, months: {}, endingBalance: -1 };
-      }
       let month = moment(item.date).format("YYYY-MM-02");
       if (l_months.length == 0 || l_months[l_months.length - 1] != month) {
         l_months.push(month);
+      }
+
+      if (!(item.account in x)) {
+        x[item.account] = { account: item.account, months: {}, endingBalance: -1 };
       }
       let balance = item.balances[item.account];
       let acc = x[item.account];
       if (!(month in acc.months)) {
         acc.months[month] = new AccountMonth(item.account, month);
       }
-      acc.months[month].add(item.account, month, item.amount, balance);
+      acc.months[month].add(item.account, month, (item.isTransfer ? -item.amount : item.amount), balance);
       acc.endingBalance = balance;
+
+      if (item.isTransfer) {
+        if (!(item.transferToAccount in x)) {
+          x[item.transferToAccount] = { account: item.transferToAccount, months: {}, endingBalance: -1 };
+        }
+        let balance = item.balances[item.transferToAccount];
+        let acc = x[item.transferToAccount];
+        if (!(month in acc.months)) {
+          acc.months[month] = new AccountMonth(item.transferToAccount, month);
+        }
+        acc.months[month].add(item.transferToAccount, month, item.amount, balance);
+        acc.endingBalance = balance;
+      }
+
       return x;
     }, {});
 

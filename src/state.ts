@@ -1,6 +1,5 @@
-import { TranTemplate } from './model/tran-template';
+import { TranTemplate, TranGenerated } from './model/tran-template';
 import { AccountBalance } from './model/account-balance';
-import { TranGenerated } from 'model/tran-generated';
 
 export interface State {
   schedule: TranTemplate[];

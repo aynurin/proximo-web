@@ -5,18 +5,18 @@
     <thead>
       <tr>
         <th>Schedule</th>
-        <th>Account</th>
-        <th class="money">Amount</th>
         <th>Description</th>
+        <th class="money">Amount</th>
+        <th>Account</th>
         <th></th>
       </tr>
     </thead>
     <tbody>
       <tr repeat.for="tran of state.schedule">
         <td>${tran.selectedSchedule | scheduleLabel}</td>
-        <td>${tran.account}</td>
-        <td class="money">${tran.amount | textToMoney}</td>
         <td>${tran.description}</td>
+        <td class="money">${tran.amount | textToMoney}</td>
+        <td innerhtml.bind="accountLabel(tran)"></td>
         <td>
           <div class="btn-group" role="group" aria-label="Transaction controls">
             <edit-schedule-button tran.bind="tran"></edit-schedule-button>

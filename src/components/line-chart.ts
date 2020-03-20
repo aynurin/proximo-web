@@ -1,4 +1,3 @@
-import { TranGenerated } from "../model/tran-generated";
 import { EventAggregator } from "aurelia-event-aggregator";
 import { pluck } from 'rxjs/operators';
 import { connectTo } from 'aurelia-store';
@@ -9,6 +8,7 @@ import * as moment from "moment";
 import numeral from 'numeral';
 import { autoinject, observable } from 'aurelia-framework';
 import { LogManager } from 'aurelia-framework';
+import { TranGenerated } from "model/tran-template";
 
 const log = LogManager.getLogger('line-chart');
 
@@ -187,11 +187,17 @@ function addDatapoint(dataset: any, tran: TranGenerated) {
 
 function generateDatasets(ledger: TranGenerated[]): any[] {
   let datasets: { [account: string]: any } = {};
-  for (let tran of ledger) {
-    if (!(tran.account in datasets)) {
-      datasets[tran.account] = newDataset(tran.account);
+  const addTran = (accountName: string, tran: TranGenerated) => {
+    if (!(accountName in datasets)) {
+      datasets[accountName] = newDataset(accountName);
     }
-    addDatapoint(datasets[tran.account], tran);
+    addDatapoint(datasets[accountName], tran);
+  }
+  for (let tran of ledger) {
+    addTran(tran.account, tran);
+    if (tran.isTransfer) {
+      addTran(tran.transferToAccount, Object.assign({}, tran, {account: tran.transferToAccount}));
+    }
   }
   return Object.values(datasets);
 }

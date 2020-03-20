@@ -1,10 +1,9 @@
 import { autoinject } from "aurelia-framework";
 
-import { TranGenerated } from "../model/tran-generated";
-
 import { connectTo } from 'aurelia-store';
 import { State } from '../state';
 import { AccountBalance } from "model/account-balance";
+import { TranScheduleWrapper, TranGenerated } from "model/tran-template";
 
 @autoinject()
 @connectTo()
@@ -17,6 +16,10 @@ export class LedgerGridCustomElement {
     } else if (tran.balances[tran.account] < 50) {
       return 'table-warning';
     }
+  }
+
+  accountLabel(tran: TranGenerated): string {
+    return (new TranScheduleWrapper(tran).accountLabel);
   }
 
   objectValues(o: any): any[] {

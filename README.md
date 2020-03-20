@@ -8,8 +8,8 @@ For more information, go to https://aurelia.io/docs/cli/webpack
 
 Intro
 New day UX
+How to test everything? List all the scenarios at least?..
 Mobile UX
-Really lacking transfers
 Cookie consent, Google Analytics etc.
 Searchable tables (lots of fun!)
 Chart adjustments

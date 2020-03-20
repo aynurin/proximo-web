@@ -3,6 +3,7 @@ import {
     View,
   } from "aurelia-framework";
   import { HolidayRule } from "./schedule";
+import { TranType } from "./tran-template";
 
 // By convention, Aurelia will look for any classes of the form
 // {name}ViewEngineHooks and load them as a ViewEngineHooks resource. We can
@@ -16,6 +17,10 @@ export class ScheduleViewEngineHooks implements ViewEngineHooks {
       view.overrideContext["HolidayRule"] = HolidayRule;
       view.overrideContext["HolidayRules"] = Object.keys(HolidayRule).filter(
         key => typeof HolidayRule[key] === "number"
+      );
+      view.overrideContext["TranType"] = TranType;
+      view.overrideContext["TranTypes"] = Object.keys(TranType).filter(
+        key => typeof TranType[key] === "number"
       );
     }
   }

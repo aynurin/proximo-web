@@ -2,8 +2,10 @@ $body-bg: #f6f6f6;
 $body-color: #495057;
 $nav-tabs-link-active-bg: #fff;
 $box-shadow-sm: 0 0.2rem 0.25rem rgba(#000, 0.075);
-$headings-font-family: 'Playfair Display', serif;
-$font-family-sans-serif: 'Open Sans', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
+$headings-font-family: "Playfair Display", serif;
+$font-family-sans-serif: "Open Sans", -apple-system, BlinkMacSystemFont,
+  "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", sans-serif,
+  "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
 
 $blue: #113348;
 $red: #fe5350;
@@ -175,12 +177,13 @@ board {
   display: flex;
   flex-wrap: wrap;
 
-  &>div {
+  & > div {
     @extend .p-2;
   }
-  
+
   @media (max-width: 999.99px) {
-    .main-column, .right-column {
+    .main-column,
+    .right-column {
       width: 100%;
     }
   }
@@ -204,7 +207,8 @@ board {
   }
 }
 
-.about, .feedback {
+.about,
+.feedback {
   max-width: 650px;
   flex: 1;
 }
@@ -226,7 +230,8 @@ accounts-summary {
   div.money {
     font-size: $font-size-base * 0.75;
   }
-  div.label, th {
+  div.label,
+  th {
     font-size: $font-size-base * 0.75;
   }
 }
@@ -242,7 +247,7 @@ dialogue-frame {
 div.welcome {
   @extend .container-fluid;
 
-  &>div {
+  & > div {
     @extend .row, .justify-content-center, .py-3;
   }
 
@@ -250,7 +255,7 @@ div.welcome {
     display: flex;
     @extend .col, .col-md-4, .mx-3;
 
-    &>div {
+    & > div {
       @extend .align-self-center;
     }
   }
@@ -272,4 +277,11 @@ div.welcome {
   height: $spacer * 2;
   vertical-align: baseline;
   margin-right: $spacer / 2;
+}
+
+.tranTypeSwitch {
+  margin-left: -$spacer/2;
+  & > div {
+    text-align: center;
+  }
 }
