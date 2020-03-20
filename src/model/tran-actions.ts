@@ -14,7 +14,7 @@ export class TranStateActions {
 
   public register() {
     this.store.registerAction('replaceSchedule', replaceScheduleAction);
-    this.store.registerAction('addSchedule', addTranAction);
+    this.store.registerAction('addSchedule', addScheduleAction);
     this.store.registerAction('removeSchedule', removeTranAction);
     this.store.registerAction('saveAccount', saveAccountAction);
     this.store.registerAction('replaceLedger', replaceLedgerAction);
@@ -71,7 +71,7 @@ const replaceScheduleAction = (state: State, original: TranTemplate, replacement
   return newState;
 }
 
-const addTranAction = (state: State, tran: TranTemplate) => {
+const addScheduleAction = (state: State, tran: TranTemplate) => {
   const newState = Object.assign({}, state);
   newState.schedule = [...newState.schedule, tran];
   
@@ -79,7 +79,7 @@ const addTranAction = (state: State, tran: TranTemplate) => {
     newState.accounts2 = [];
   }
   if (newState.accounts2.find(acc => acc.account == tran.account) == null) {
-    let newAccounts = [...newState.accounts2, { account: tran.account, date: new Date(), balance: 0, inUse: true }];
+    let newAccounts = [...newState.accounts2.filter(a => a.account), { account: tran.account, date: new Date(), balance: 0, inUse: true }];
     newAccounts.sort((a, b) => a.account.localeCompare(b.account));
     newState.accounts2 = newAccounts;
   }

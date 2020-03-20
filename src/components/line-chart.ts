@@ -2,7 +2,7 @@ import { EventAggregator } from "aurelia-event-aggregator";
 import { pluck } from 'rxjs/operators';
 import { connectTo } from 'aurelia-store';
 import { State } from '../state';
-import { Chart } from "chart.js";
+import Chart from "./alt-chartjs";
 
 import * as moment from "moment";
 import numeral from 'numeral';
@@ -74,7 +74,7 @@ export class LineChartCustomElement {
 
   makeChart() {
     this.lineChart = new Chart(this.canvas, {
-      type: "line",
+      type: "lineAlt",
       data: { datasets: this.datasets },
       options: {
         responsive: true,
@@ -181,17 +181,13 @@ function newDataset(acc: string): any {
   }
 }
 
-function addDatapoint(dataset: any, tran: TranGenerated) {
-  dataset.data.push({ x: moment(tran.date).format("YYYY-MM-DD"), y: tran.balances[tran.account] });
-}
-
 function generateDatasets(ledger: TranGenerated[]): any[] {
   let datasets: { [account: string]: any } = {};
   const addTran = (accountName: string, tran: TranGenerated) => {
     if (!(accountName in datasets)) {
       datasets[accountName] = newDataset(accountName);
     }
-    addDatapoint(datasets[accountName], tran);
+    datasets[accountName].data.push({ x: moment(tran.date).format("YYYY-MM-DD"), y: tran.balances[tran.account] });
   }
   for (let tran of ledger) {
     addTran(tran.account, tran);

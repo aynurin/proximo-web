@@ -52,6 +52,7 @@ export class ScheduleWizardCustomElement {
 
   async addNewTran() {
     if (this.canSave) {
+      log.debug("Add new schedule", this.tranwr.value);
       this.tranActions.addSchedule(this.tranwr.value);
       await this.dialogController.ok();
       this.tranwr = new TranScheduleWrapper(new TranTemplate());
