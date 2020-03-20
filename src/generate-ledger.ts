@@ -53,7 +53,7 @@ export class GenerateLedger {
             log.debug("generating ledger for", this.state.scheduleVersion);
         }
 
-        let accounts = this.state.accounts2.map(a => Object.assign({inUse: false}, a));
+        let accounts = this.state.accounts2.map(a => Object.assign({}, a, {inUse: false}));
         let start = new Date();
         let end = new Date();
         end.setFullYear(end.getFullYear() + 1);
@@ -142,7 +142,7 @@ export class GenerateLedger {
             gtran.balances = Object.assign({}, balances);
         }
 
-        log.debug("ledger-changed", ledger.length, ledger[2]);
+        log.debug("ledger-changed", ledger.length, accounts);
         this.tranActions.replaceLedger(ledger);
         this.tranActions.replaceAccounts(accounts);
         this.ea.publish("ledger-changed", ledger);
