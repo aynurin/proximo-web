@@ -24,7 +24,6 @@ export class LineChartCustomElement {
   state: TranGenerated[];
 
   constructor(ea: EventAggregator) {
-    console.log('LineChartCustomElement.constructor');
     // ea.subscribe("ledger-changed", (l) => this.ledgerChanged(l));
     // ea.subscribe("screen-changed", () => this.screenChanged());
   }
@@ -36,7 +35,6 @@ export class LineChartCustomElement {
   // when data is changed - need to update datasets
   ledgerChanged = (l: TranGenerated[]) => {
     const ledger = this.state;
-    console.log('LineChartCustomElement.ledgerChanged', ledger);
     let newDataSets = [];
     if (ledger) {
       newDataSets = generateDatasets(ledger);
@@ -54,21 +52,17 @@ export class LineChartCustomElement {
 
   // when control is attached to dom - need to initialize the chart drawoing area
   attached() {
-    console.log('LineChartCustomElement.attached');
     log.debug('attached');
     this.isAttached = true;
     this.resetChartContext();
   }
 
   detached() {
-    console.log('LineChartCustomElement.detached');
-    console.log('detached');
     this.isAttached = false;
   }
 
   resetChartContextCounter: number = 0;
   resetChartContext() {
-    console.log('LineChartCustomElement.resetChartContext');
     if (this.chartArea == null) {
       return;
     }
@@ -79,7 +73,6 @@ export class LineChartCustomElement {
   }
 
   makeChart() {
-    console.log('LineChartCustomElement.makeChart');
     this.lineChart = new Chart(this.canvas, {
       type: "lineAlt",
       data: { datasets: this.datasets },
@@ -189,7 +182,6 @@ function newDataset(acc: string): any {
 }
 
 function generateDatasets(ledger: TranGenerated[]): any[] {
-  console.log('LineChartCustomElement.generateDatasets');
   let datasets: { [account: string]: any } = {};
   const addTran = (accountName: string, tran: TranGenerated) => {
     if (!(accountName in datasets)) {
