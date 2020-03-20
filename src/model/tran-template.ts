@@ -35,8 +35,8 @@ export class TranGenerated implements ITransaction {
 }
 
 export enum TranType {
-  Debit = 1,
-  Credit,
+  Deposit = 1,
+  Withdrawal,
   Transfer
 }
 
@@ -58,9 +58,9 @@ export class TranScheduleWrapper<T extends ITransaction> {
     if (this.value.isTransfer) {
       ttype = TranType.Transfer;
     } else if (this.value.amount > 0) {
-      ttype = TranType.Debit;
+      ttype = TranType.Deposit;
     } else if (this.value.amount < 0) {
-      ttype = TranType.Credit;
+      ttype = TranType.Withdrawal;
     }
     return ttype;
   }
@@ -70,9 +70,9 @@ export class TranScheduleWrapper<T extends ITransaction> {
       throw Error("Invalid assignment to readonly data");
     }
     this.value.isTransfer = false;
-    if (type == TranType.Debit) {
+    if (type == TranType.Deposit) {
       this.value.amount = Math.abs(this.value.amount);
-    } else if (type == TranType.Credit) {
+    } else if (type == TranType.Withdrawal) {
       this.value.amount = -Math.abs(this.value.amount);
     } else if (type == TranType.Transfer) {
       this.value.isTransfer = true;
