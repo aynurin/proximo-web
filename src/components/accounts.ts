@@ -3,6 +3,7 @@ import {
     autoinject,
     computedFrom
   } from "aurelia-framework";
+  import { EventAggregator } from "aurelia-event-aggregator";
   
   import { Store, connectTo } from 'aurelia-store';
   import { State } from '../state';
@@ -18,7 +19,8 @@ import {
     public state: State;
   
     public constructor(private store: Store<State>,
-      private tranActions: TranStateActions) {
+      private tranActions: TranStateActions, 
+      private ea: EventAggregator) {
       this.reset();
     }
 
@@ -41,12 +43,13 @@ import {
       return Object.values(accounts);
     }
   
-    saveAccount(account: AccountBalance) {
+    async saveAccount(account: AccountBalance) {
       if (this.canSave(account)) {
         if (typeof account.balance === 'string') {
           account.balance = parseFloat(account.balance);
         }
-        this.tranActions.saveAccount(account);
+        await this.tranActions.saveAccount(account);
+        this.ea.publish('accounts-changed');
       }
     }
 
@@ -54,8 +57,8 @@ import {
       this.newAccount = { account: null, date: null, balance: null, inUse: null };
     }
 
-    saveNewAccount() {
-      this.saveAccount(this.newAccount);
+    async saveNewAccount() {
+      await this.saveAccount(this.newAccount);
       this.reset();
       this.newAccForm.reset();
     }

@@ -2,6 +2,7 @@ import {
   bindable,
   autoinject,
 } from "aurelia-framework";
+import { EventAggregator } from "aurelia-event-aggregator";
 
 import { connectTo } from 'aurelia-store';
 import { State } from '../state';
@@ -15,29 +16,47 @@ import { TranGenerated } from "model/tran-template";
 const log = LogManager.getLogger('accounts-summary');
 
 @autoinject()
-@connectTo<State>((store) => store.state.pipe(pluck('ledger')))
+@connectTo()
 export class AccountsSummaryCustomElement {
   newAccForm: HTMLFormElement;
   @bindable newAccount: AccountBalance;
-  public state: TranGenerated[];
+  public state: State;
 
   public byMonths: AccountByMonths[];
   public months: string[];
   public totals: AccountByMonths;
 
+  private lastVersion: number;
+
+  constructor(ea: EventAggregator) {
+    log.debug('constructor');
+    ea.subscribe("ledger-changed", () => this.ledgerChanged());
+  }
+
   attached() {
     log.debug('attached');
-    this.stateChanged();
+    this.generateTable(this.state);
   }
-  
-  stateChanged = () => {
-    if (!this.state) {
-      return;
+
+  ledgerChanged = () => {
+    log.debug('ledgerChanged');
+    this.generateTable(this.state);
+  }
+
+  ifLedgerChanged(action: (state: State) => void) {
+    if (this.state) {
+      action(this.state);
+      this.lastVersion = this.state.scheduleVersion;
     }
+  }
+
+  // when data is changed - need to update datasets
+  generateTable = (state: State) => {
+    log.debug('generateTable', state ? state.scheduleVersion : 'none');
     const l_months: string[] = [];
     const l_totals: AccountByMonths = { account: "totals", months: {}, endingBalance: -1 };
 
-    const l_byMonth = this.state.reduce((x: { [account: string]: AccountByMonths }, item) => {
+    const l_byMonth = state.ledger.reduce((x: { [account: string]: AccountByMonths }, item) => {
       let month = moment(item.date).format("YYYY-MM-02");
       if (l_months.length == 0 || l_months[l_months.length - 1] != month) {
         l_months.push(month);

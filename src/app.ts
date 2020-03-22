@@ -60,23 +60,18 @@ export class App {
 
   resized() {
     clearTimeout(this.resizeTimer);
-
     this.resizeTimer = setTimeout(() => {
       this.ea.publish("screen-changed");
     }, 300);
   }
 
-  stateChanged() {
-    if (this.state == null || this.state.schedule == null) {
-      return;
-    }
-    if (this.state.schedule.length === 0) {
-      this.setShowWelcome(true);
-    } else {
+  stateChanged(state: State) {
+    if (state && state.schedule && state.schedule.length > 0) {
       this.setShowWelcome(false);
+    } else {
+      this.setShowWelcome(true);
     }
-    log.debug('stateChanged', this.disableTabs, this.state, 
-      (this.state && this.state.schedule ? this.state.schedule.length : "null"));
+    log.debug('stateChanged', this.state ? this.state.scheduleVersion : 'none', this.disableTabs);
   }
 
   setShowWelcome(showWelcome: boolean) {

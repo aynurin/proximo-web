@@ -8,7 +8,8 @@ import * as moment from "moment";
 import { Schedule } from "model/schedule";
 import { Subscription } from "rxjs";
 import { TranStateActions } from "model/tran-actions";
-import { TranGenerated } from "model/tran-template";
+import { TranGenerated, TranTemplate } from "model/tran-template";
+import { AccountBalance } from "model/account-balance";
 
 const log = LogManager.getLogger('generate-ledger');
 
@@ -20,6 +21,7 @@ export class GenerateLedger {
 
     private ledger: TranGenerated[] = null;
     private ledgerVersion: number = null;
+    private lastVersion: number;
 
     bind() {
       this.subscription = this.store.state.subscribe(
@@ -33,28 +35,23 @@ export class GenerateLedger {
     
     public constructor(public store: Store<State>, private ea: EventAggregator,
         private tranActions: TranStateActions) {
+            ea.subscribe('schedule-changed', this.scheduleChanged);
+            ea.subscribe('accounts-changed', this.accountsChanged);
     }
 
-    stateChanged(stateName: string, newState: State, oldState: State) {
-        this.onScheduleChanged();
+    scheduleChanged = async () => {
+        log.debug('scheduleChanged');
+        await this.generateLedger(this.state);
     }
 
-    public onScheduleChanged = (): TranGenerated[] => {
-        log.debug("on-schedule-changed");
-        if (this.state == null ||
-            typeof this.state.schedule === 'undefined' ||
-            this.state.schedule == null) {
-            log.debug("state is empty", this.state);
-            return [];
-        }
-        if (this.ledgerVersion != null && this.ledgerVersion === this.state.scheduleVersion) {
-            log.debug("ledger is already generated for", this.state.scheduleVersion);
-            return this.ledger;
-        } else {
-            log.debug("generating ledger for", this.state.scheduleVersion);
-        }
+    accountsChanged = async () => {
+        log.debug('accountsChanged');
+        await this.generateLedger(this.state);
+    }
 
-        let accounts = this.state.accounts2.map(a => Object.assign({}, a, {inUse: false}));
+    public generateLedger = async (state: State): Promise<TranGenerated[]> => {
+        log.debug('generateLedger', state ? state.scheduleVersion : 'none');
+        let accounts = state.accounts2.map(a => Object.assign({}, a, {inUse: false}));
         let start = new Date();
         let end = new Date();
         end.setFullYear(end.getFullYear() + 1);
@@ -79,7 +76,7 @@ export class GenerateLedger {
         }
 
         let ledger: TranGenerated[] = [];
-        for (const tran of this.state.schedule) {
+        for (const tran of state.schedule) {
             ensureAccount(tran.account);
             if (tran.isTransfer) {
                 ensureAccount(tran.transferToAccount);
@@ -143,12 +140,10 @@ export class GenerateLedger {
             gtran.balances = Object.assign({}, balances);
         }
 
-        log.debug("ledger-changed", ledger.length, accounts);
-        this.tranActions.replaceLedger(ledger);
-        this.tranActions.replaceAccounts(accounts);
+        log.debug("ledger-changed", ledger.length, accounts.length);
+        await this.tranActions.replaceLedger(ledger);
+        await this.tranActions.replaceAccounts(accounts);
         this.ea.publish("ledger-changed", ledger);
-        this.ledger = ledger;
-        this.ledgerVersion = this.state.scheduleVersion;
         return this.ledger;
     }
 

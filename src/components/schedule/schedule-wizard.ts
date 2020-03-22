@@ -3,6 +3,7 @@ import {
   autoinject,
   computedFrom
 } from "aurelia-framework";
+import { EventAggregator } from "aurelia-event-aggregator";
 import cronstr from "../cronstr";
 import * as moment from "moment";
 
@@ -32,7 +33,8 @@ export class ScheduleWizardCustomElement {
 
   public constructor(
     private dialogController: DialogController,
-    private tranActions: TranStateActions) { }
+    private tranActions: TranStateActions, 
+    private ea: EventAggregator) { }
 
   activate(tran: TranTemplate) {
     this.tranwr = new TranScheduleWrapper(tran);
@@ -53,7 +55,8 @@ export class ScheduleWizardCustomElement {
   async addNewTran() {
     if (this.canSave) {
       log.debug("Add new schedule", this.tranwr.value);
-      this.tranActions.addSchedule(this.tranwr.value);
+      await this.tranActions.addSchedule(this.tranwr.value);
+      this.ea.publish('schedule-changed');
       await this.dialogController.ok();
       this.tranwr = new TranScheduleWrapper(new TranTemplate());
       this.flow.reset();

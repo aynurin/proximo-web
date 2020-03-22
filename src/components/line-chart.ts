@@ -26,31 +26,27 @@ export class LineChartCustomElement {
 
   constructor(ea: EventAggregator) {
     log.debug('constructor');
-    // ea.subscribe("ledger-changed", (l) => this.ledgerChanged(l));
-    // ea.subscribe("screen-changed", () => this.screenChanged());
+    ea.subscribe("ledger-changed", () => this.ledgerChanged());
   }
 
-  stateChanged = () => {
-    log.debug('stateChanged', this.state);
-    if (!this.state) {
-      return;
-    }
-    this.ifLedgerIsChanged();
+  ledgerChanged = () => {
+    log.debug('ledgerChanged');
+    this.generateChart(this.state);
   }
 
-  ifLedgerIsChanged() {
-    if (isNaN(this.lastVersion) || this.lastVersion < this.state.scheduleVersion) {
-      this.ledgerChanged(this.state.ledger);
+  ifLedgerChanged(action: (state: State) => void) {
+    if (this.state && (isNaN(this.lastVersion) || this.lastVersion < this.state.scheduleVersion)) {
+      action(this.state);
       this.lastVersion = this.state.scheduleVersion;
     }
   }
 
   // when data is changed - need to update datasets
-  ledgerChanged = (ledger: TranGenerated[]) => {
-    log.debug('ledgerChanged', ledger ? ledger.length : 'none');
+  generateChart = (state: State) => {
+    log.debug('generateChart', state ? state.scheduleVersion : 'none');
     let newDataSets = [];
-    if (ledger) {
-      newDataSets = generateDatasets(ledger);
+    if (state.ledger) {
+      newDataSets = generateDatasets(state.ledger);
     } else {
       newDataSets = [];
     }
@@ -68,7 +64,7 @@ export class LineChartCustomElement {
     log.debug('attached');
     this.isAttached = true;
     this.resetChartContext();
-    this.ifLedgerIsChanged();
+    this.ifLedgerChanged(this.generateChart);
   }
 
   detached() {
