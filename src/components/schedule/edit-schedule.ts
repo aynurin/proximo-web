@@ -3,6 +3,7 @@ import {
   autoinject,
   computedFrom
 } from "aurelia-framework";
+import { EventAggregator } from "aurelia-event-aggregator";
 import cronstr from "../cronstr";
 import * as moment from "moment";
 
@@ -28,7 +29,8 @@ export class EditScheduleCustomElement {
 
   public constructor(
     private dialogController: DialogController,
-    private tranActions: TranStateActions) { }
+    private tranActions: TranStateActions, 
+    private ea: EventAggregator) { }
 
   activate(tran: TranTemplate) {
     this.originalTran = tran;
@@ -44,7 +46,8 @@ export class EditScheduleCustomElement {
   async saveSchedule() {
     log.debug('save schedule');
     if (this.canSave) {
-      this.tranActions.replaceSchedule(this.originalTran, this.tranwr.value);
+      await this.tranActions.replaceSchedule(this.originalTran, this.tranwr.value);
+      this.ea.publish('schedule-changed');
       await this.dialogController.ok();
       this.tranwr = new TranScheduleWrapper(new TranTemplate());
     }

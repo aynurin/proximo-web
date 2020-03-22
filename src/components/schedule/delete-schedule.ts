@@ -3,6 +3,7 @@ import {
   autoinject,
   computedFrom
 } from "aurelia-framework";
+import { EventAggregator } from "aurelia-event-aggregator";
 import cronstr from "../cronstr";
 import * as moment from "moment";
 
@@ -23,7 +24,8 @@ export class DeleteScheduleCustomElement {
 
   public constructor(
     private dialogController: DialogController,
-    private tranActions: TranStateActions) {
+    private tranActions: TranStateActions, 
+    private ea: EventAggregator) {
   }
 
   activate(tran: TranTemplate) {
@@ -35,7 +37,8 @@ export class DeleteScheduleCustomElement {
   }
 
   async deleteSchedule() {
-    this.tranActions.removeSchedule(this.tran);
+    await this.tranActions.removeSchedule(this.tran);
+    this.ea.publish('schedule-changed');
     await this.dialogController.ok();
   }
 

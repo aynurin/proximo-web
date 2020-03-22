@@ -1,6 +1,7 @@
 import {
   autoinject,
 } from "aurelia-framework";
+import { EventAggregator } from "aurelia-event-aggregator";
 import cronstr from "../components/cronstr";
 import * as moment from "moment";
 
@@ -17,10 +18,12 @@ import { TranStateActions } from "../model/tran-actions";
 export class ScheduleGridCustomElement {
   public state: State;
 
-  public constructor(private tranActions: TranStateActions) { }
+  public constructor(private tranActions: TranStateActions, 
+    private ea: EventAggregator) { }
 
-  removeSchedule(tran: TranTemplate) {
-    this.tranActions.removeSchedule(tran);
+  async removeSchedule(tran: TranTemplate) {
+    await this.tranActions.removeSchedule(tran);
+    this.ea.publish('schedule-changed');
   }
   
   get isProduction(): boolean { return environment.debug === false; };

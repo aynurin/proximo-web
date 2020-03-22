@@ -1,6 +1,5 @@
 import { autoinject } from "aurelia-framework";
 import { Store } from 'aurelia-store';
-import { EventAggregator } from "aurelia-event-aggregator";
 import { State } from '../state';
 import { TranTemplate, TranGenerated } from './tran-template';
 import { AccountBalance } from './account-balance';
@@ -10,7 +9,7 @@ const log = LogManager.getLogger('tran-actions');
 
 @autoinject
 export class TranStateActions {
-  public constructor(public store: Store<State>, private ea: EventAggregator) {}
+  public constructor(public store: Store<State>) {}
 
   public register() {
     this.store.registerAction('replaceSchedule', replaceScheduleAction);
@@ -21,28 +20,28 @@ export class TranStateActions {
     this.store.registerAction('replaceAccounts', replaceAccountsAction);
   }
 
-  public replaceSchedule(original: TranTemplate, replacement: TranTemplate) {
-    this.store.dispatch('replaceSchedule', original, replacement);
+  public async replaceSchedule(original: TranTemplate, replacement: TranTemplate) {
+    await this.store.dispatch('replaceSchedule', original, replacement);
   }
 
-  public addSchedule(tran: TranTemplate) {
-    this.store.dispatch('addSchedule', tran);
+  public async addSchedule(tran: TranTemplate) {
+    await this.store.dispatch('addSchedule', tran);
   }
 
-  public removeSchedule(tran: TranTemplate) {
-    this.store.dispatch('removeSchedule', tran);
+  public async removeSchedule(tran: TranTemplate) {
+    await this.store.dispatch('removeSchedule', tran);
   }
 
-  public saveAccount(account: AccountBalance) {
-    this.store.dispatch('saveAccount', account);
+  public async saveAccount(account: AccountBalance) {
+    await this.store.dispatch('saveAccount', account);
   }
 
-  public replaceLedger(ledger: TranGenerated[]) {
-    this.store.dispatch('replaceLedger', ledger);
+  public async replaceLedger(ledger: TranGenerated[]) {
+    await this.store.dispatch('replaceLedger', ledger);
   }
 
-  public replaceAccounts(accounts: AccountBalance[]) {
-    this.store.dispatch('replaceAccounts', accounts);
+  public async replaceAccounts(accounts: AccountBalance[]) {
+    await this.store.dispatch('replaceAccounts', accounts);
   }
 }
 
@@ -128,7 +127,6 @@ const saveAccountAction = (state: State, account: AccountBalance) => {
 }
 
 const replaceLedgerAction = (state: State, ledger: TranGenerated[]) => {
-  console.log('replaceLedgerAction')
   const newState = Object.assign({}, state);
   newState.ledger = ledger;
   return newState;

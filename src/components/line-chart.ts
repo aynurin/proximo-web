@@ -13,7 +13,7 @@ import { TranGenerated } from "model/tran-template";
 const log = LogManager.getLogger('line-chart');
 
 @autoinject()
-@connectTo<State>((store) => store.state.pipe(pluck('ledger')))
+@connectTo()
 export class LineChartCustomElement {
   chartArea: HTMLCanvasElement;
   lineChart: Chart;
@@ -21,25 +21,32 @@ export class LineChartCustomElement {
   datasets: any[] = [];
   isAttached: boolean = false;
   ledger: TranGenerated[];
-  state: TranGenerated[];
+  state: State;
+  lastVersion: number;
 
   constructor(ea: EventAggregator) {
-    console.log('LineChartCustomElement.constructor');
-    // ea.subscribe("ledger-changed", (l) => this.ledgerChanged(l));
-    // ea.subscribe("screen-changed", () => this.screenChanged());
+    log.debug('constructor');
+    ea.subscribe("ledger-changed", () => this.ledgerChanged());
   }
 
-  stateChanged = () => {
-    this.ledgerChanged(this.state);
+  ledgerChanged = () => {
+    log.debug('ledgerChanged');
+    this.generateChart(this.state);
+  }
+
+  ifLedgerChanged(action: (state: State) => void) {
+    if (this.state && (isNaN(this.lastVersion) || this.lastVersion < this.state.scheduleVersion)) {
+      action(this.state);
+      this.lastVersion = this.state.scheduleVersion;
+    }
   }
 
   // when data is changed - need to update datasets
-  ledgerChanged = (l: TranGenerated[]) => {
-    const ledger = this.state;
-    console.log('LineChartCustomElement.ledgerChanged', ledger);
+  generateChart = (state: State) => {
+    log.debug('generateChart', state ? state.scheduleVersion : 'none');
     let newDataSets = [];
-    if (ledger) {
-      newDataSets = generateDatasets(ledger);
+    if (state.ledger) {
+      newDataSets = generateDatasets(state.ledger);
     } else {
       newDataSets = [];
     }
@@ -47,39 +54,35 @@ export class LineChartCustomElement {
     for (let d of newDataSets) {
       this.datasets.push(d);
     }
-    if (this.datasets && this.lineChart) {
+    if (this.lineChart) {
       this.lineChart.update();
     }
   }
 
-  // when control is attached to dom - need to initialize the chart drawoing area
+  // when control is attached to dom - need to initialize the chart drawing area
   attached() {
-    console.log('LineChartCustomElement.attached');
     log.debug('attached');
     this.isAttached = true;
     this.resetChartContext();
+    this.ifLedgerChanged(this.generateChart);
   }
 
   detached() {
-    console.log('LineChartCustomElement.detached');
-    console.log('detached');
+    log.debug('detached');
     this.isAttached = false;
   }
 
-  resetChartContextCounter: number = 0;
   resetChartContext() {
-    console.log('LineChartCustomElement.resetChartContext');
+    log.debug('resetChartContext');
     if (this.chartArea == null) {
       return;
     }
-    this.resetChartContextCounter += 1;
-    log.debug('resetChartContext', this.resetChartContextCounter);
     this.canvas = this.chartArea.getContext("2d");
     this.makeChart();
   }
 
   makeChart() {
-    console.log('LineChartCustomElement.makeChart');
+    log.debug('makeChart', this.state && this.state.ledger ? this.state.ledger.length : 'none', this.datasets.length);
     this.lineChart = new Chart(this.canvas, {
       type: "lineAlt",
       data: { datasets: this.datasets },
@@ -189,7 +192,6 @@ function newDataset(acc: string): any {
 }
 
 function generateDatasets(ledger: TranGenerated[]): any[] {
-  console.log('LineChartCustomElement.generateDatasets');
   let datasets: { [account: string]: any } = {};
   const addTran = (accountName: string, tran: TranGenerated) => {
     if (!(accountName in datasets)) {
