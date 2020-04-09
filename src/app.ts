@@ -30,25 +30,36 @@ export class App {
   public tranBuilder: ScheduleWizardCustomElement;
 
   resizeTimer = null;
+  private rehydrateCompleted: boolean = false;
+  
+  storeKey = "tran-schedule-state";
 
   get isProduction(): boolean { return environment.debug === false; };
 
   public constructor(
-    store: Store<State>,
+    private store: Store<State>,
     tranActions: TranStateActions,
     private ea: EventAggregator) {
     tranActions.register();
-    const storeKey = "tran-schedule-state";
-    store.registerMiddleware(
+    this.store.registerMiddleware(
       localStorageMiddleware,
       MiddlewarePlacement.After,
-      { key: storeKey }
+      { key: this.storeKey }
     );
-    store.registerAction("RehydrateSate", (state: State, key: string) => rehydrateFromLocalStorage(state, key) || false);
-    store.dispatch("RehydrateSate", storeKey);
+    log.debug("constructor");
+    this.store.registerAction("RehydrateSate", (state: State, key: string) => rehydrateFromLocalStorage(state, key) || false);
+  }
+
+  async created(/*owningView: View, myView: View*/) {
+    log.debug("created");
+    await this.store.dispatch("RehydrateSate", this.storeKey);
+    this.rehydrateCompleted = true;
+    this.ea.publish("state-hydrated");
+    this.stateChanged(this.state);
   }
 
   attached() {
+    log.debug("attached");
     this.resized();
 
     PLATFORM.global.addEventListener("resize", () => this.resized());
@@ -66,12 +77,16 @@ export class App {
   }
 
   stateChanged(state: State) {
-    if (state && state.schedule && state.schedule.length > 0) {
-      this.setShowWelcome(false);
+    if (this.rehydrateCompleted) {
+      if (state && state.schedule && state.schedule.length > 0) {
+        this.setShowWelcome(false);
+      } else {
+        this.setShowWelcome(true);
+      }
+      log.debug('stateChanged', this.state ? this.state.scheduleVersion : 'none', this.disableTabs);
     } else {
-      this.setShowWelcome(true);
+      log.debug("stateChanged skept");
     }
-    log.debug('stateChanged', this.state ? this.state.scheduleVersion : 'none', this.disableTabs);
   }
 
   setShowWelcome(showWelcome: boolean) {
@@ -89,6 +104,7 @@ export class App {
   }
 
   configureRouter(config: RouterConfiguration, router: Router): void {
+    log.debug("configureRouter");
     this.router = router;
     config.title = 'Proximo - A Personal Financial Forecast';
     config.options.pushState = true;
@@ -107,6 +123,7 @@ export class App {
   }
 
   defaultNavigation = (instruction: NavigationInstruction) => {
+    log.debug("defaultNavigation");
     if (this.showWelcome === true) {
       instruction.config.redirect = 'welcome';
     } else {

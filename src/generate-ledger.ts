@@ -37,6 +37,12 @@ export class GenerateLedger {
         private tranActions: TranStateActions) {
             ea.subscribe('schedule-changed', this.scheduleChanged);
             ea.subscribe('accounts-changed', this.accountsChanged);
+            ea.subscribe('state-hydrated', this.stateRehydrated);
+    }
+
+    stateRehydrated = async () => {
+        log.debug('stateRehydrated');
+        await this.generateLedger(this.state);
     }
 
     scheduleChanged = async () => {

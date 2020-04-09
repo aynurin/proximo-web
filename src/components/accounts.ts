@@ -6,10 +6,13 @@ import {
   import { EventAggregator } from "aurelia-event-aggregator";
   
   import { Store, connectTo } from 'aurelia-store';
+  import { LogManager } from 'aurelia-framework';
   import { State } from '../state';
   
   import { AccountBalance } from '../model/account-balance';
   import { TranStateActions } from '../model/tran-actions';
+
+  const log = LogManager.getLogger('accounts');
   
   @autoinject()
   @connectTo()
@@ -51,6 +54,10 @@ import {
         await this.tranActions.saveAccount(account);
         this.ea.publish('accounts-changed');
       }
+    }
+
+    attached() {
+      log.debug("attached");
     }
 
     reset() {

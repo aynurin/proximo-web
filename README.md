@@ -36,6 +36,10 @@ Undo/Redo/Create new experiment
 Date Picker UX
 Focus mode - next month in details
 Daily notifications
+Loading
+
+
+BLOG idea: Hugo with theme: 
 
 ## Run dev app
 
