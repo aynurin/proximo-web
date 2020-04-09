@@ -39,7 +39,7 @@ export function configure(aurelia: Aurelia) {
         lng: 'en',
         fallbackLng: 'en',
         debug: environment.debug,
-        ns: ['main','intro'],
+        ns: ['main','intro', 'pages\\dashboard'],
         defaultNS: 'main',
         skipTranslationOnMissingKey: true
       });
