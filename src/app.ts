@@ -1,3 +1,8 @@
+import { autoinject } from "aurelia-framework";
+import { LogManager } from 'aurelia-framework';
+import { EventAggregator } from "aurelia-event-aggregator";
+import { PLATFORM } from 'aurelia-pal';
+
 import {
   Store,
   connectTo,
@@ -5,17 +10,21 @@ import {
   MiddlewarePlacement,
   rehydrateFromLocalStorage
 } from "aurelia-store";
-import { EventAggregator } from "aurelia-event-aggregator";
-import { PLATFORM } from 'aurelia-pal';
-import { autoinject } from "aurelia-framework";
+import {
+  RouterConfiguration, 
+  Router, 
+  NavigationInstruction, 
+  RouterEvent, 
+  PipelineResult
+} from 'aurelia-router';
+
 import * as environment from '../config/environment.json';
+
 import { State } from './state';
 import { TranStateActions } from "./model/tran-actions";
+
 import { ScheduleWizardCustomElement } from "components/schedule/schedule-wizard";
-import { LogManager } from 'aurelia-framework';
-import {
-  RouterConfiguration, Router, NavigationInstruction
-} from 'aurelia-router';
+import { IntroBuildingContext } from "components/intro-building-context";
 
 const log = LogManager.getLogger('app');
 
@@ -38,33 +47,62 @@ export class App {
 
   public constructor(
     private store: Store<State>,
-    tranActions: TranStateActions,
-    private ea: EventAggregator) {
-    tranActions.register();
+    private tranActions: TranStateActions,
+    private ea: EventAggregator,
+    private introContext: IntroBuildingContext) { }
+
+  /**
+   * Invoked after constructor. At this point in time, the view has also been created and both the view-model and the view are 
+   * connected to their controller. The created callback will receive the instance of the "owningView". This is the view that 
+   * the component is declared inside of. If the component itself has a view, this will be passed second.
+   */
+  async created(/*owningView: View, myView: View*/) {
+    log.debug("created");
+    this.tranActions.register();
     this.store.registerMiddleware(
       localStorageMiddleware,
       MiddlewarePlacement.After,
       { key: this.storeKey }
     );
-    log.debug("constructor");
     this.store.registerAction("RehydrateSate", (state: State, key: string) => rehydrateFromLocalStorage(state, key) || false);
-  }
-
-  async created(/*owningView: View, myView: View*/) {
-    log.debug("created");
+    this.ea.subscribe(RouterEvent.Processing, this.navigationProcessing);
+    this.ea.subscribe(RouterEvent.Success, this.navigationSuccess);
     await this.store.dispatch("RehydrateSate", this.storeKey);
     this.rehydrateCompleted = true;
     this.ea.publish("state-hydrated");
     this.stateChanged(this.state);
   }
 
+  /**
+   * After bind, the component is attached to the DOM (in document). If the view-model has an attached callback, it will be invoked at this time
+   */
   attached() {
     log.debug("attached");
     this.resized();
-
     PLATFORM.global.addEventListener("resize", () => this.resized());
   }
 
+  /**
+   * fires when the router processes a new navigation
+   */
+  navigationProcessing = (event: { instruction: NavigationInstruction; result: PipelineResult }) => {
+    log.debug("departing to", event.instruction.config.name);
+    this.introContext.clear();
+  }
+
+  /**
+   * fires when the router finished processing navigation successfully
+   */
+  navigationSuccess = async (event: { instruction: NavigationInstruction; result: PipelineResult }) => {
+    log.debug("landed on", event.instruction.config.name);
+    // await this.introContext.startIntroOnce(event.instruction.config.name);
+    await this.introContext.startIntro();
+  }
+
+  /**
+   * If defined on your view-model - is invoked after the component has been removed from the DOM. Due to 
+   * navigating away or other reasons.
+   */
   detached() {
     PLATFORM.global.removeEventListener("resize", () => this.resized());
   }

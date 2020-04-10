@@ -78,7 +78,9 @@ export class WelcomeCustomElement {
       this.tran4 = new FormRowTranTemplate();
       this.tran5 = new FormRowTranTemplate();
       this.addedTrans = [];
-      this.welcomeForm.reset();
+      if (this.welcomeForm) {
+        this.welcomeForm.reset();
+      }
     }
   }
 
