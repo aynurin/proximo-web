@@ -31,17 +31,14 @@ const log = LogManager.getLogger('app');
 @connectTo()
 @autoinject()
 export class App {
-  router: Router;
-  disableTabs: boolean = true;
-  showWelcome: boolean = true;
+  private router: Router;
+  private disableTabs: boolean = true;
+  private showWelcome: boolean = true;
+  private rehydrateCompleted: boolean = false;
+  private resizeTimer: number;
 
   public state: State;
   public tranBuilder: ScheduleWizardCustomElement;
-
-  resizeTimer = null;
-  private rehydrateCompleted: boolean = false;
-  
-  storeKey = "tran-schedule-state";
 
   get isProduction(): boolean { return environment.debug === false; };
 
@@ -62,12 +59,12 @@ export class App {
     this.store.registerMiddleware(
       localStorageMiddleware,
       MiddlewarePlacement.After,
-      { key: this.storeKey }
+      { key: environment.storeKey }
     );
     this.store.registerAction("RehydrateSate", (state: State, key: string) => rehydrateFromLocalStorage(state, key) || false);
     this.ea.subscribe(RouterEvent.Processing, this.navigationProcessing);
     this.ea.subscribe(RouterEvent.Success, this.navigationSuccess);
-    await this.store.dispatch("RehydrateSate", this.storeKey);
+    await this.store.dispatch("RehydrateSate", environment.storeKey);
     this.rehydrateCompleted = true;
     this.ea.publish("state-hydrated");
     this.stateChanged(this.state);
@@ -108,8 +105,8 @@ export class App {
   }
 
   resized() {
-    clearTimeout(this.resizeTimer);
-    this.resizeTimer = setTimeout(() => {
+    window.clearTimeout(this.resizeTimer);
+    this.resizeTimer = window.setTimeout(() => {
       this.ea.publish("screen-changed");
     }, 300);
   }
