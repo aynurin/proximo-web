@@ -44,7 +44,8 @@ export class AccountsSummaryCustomElement {
     this.intro.ready([{ 
       element: this.htmlElement, 
       intro: "components\\accounts-summary:intro.text", 
-      version: 3 }]);
+      version: 4,
+      priority: 20 }]);
   }
 
   bind() {

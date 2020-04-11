@@ -11,7 +11,7 @@ import { IContainerInfo } from "model/intro-container";
 import { IntroStateActions } from "model/intro-actions";
 
 import 'intro.js/introjs.css';
-import 'intro.js/themes/introjs-nazanin.css';
+// import 'intro.js/themes/introjs-nazanin.css';
 
 const log = LogManager.getLogger('intro-building-context');
 
@@ -82,7 +82,10 @@ export class IntroBuildingContext {
      */
     public async startIntro() {
         let intro = introJs();
-        let pagesAdded = 0;
+        intro.setOptions({
+            showStepNumbers: false
+        });
+        const pagesToAdd:IIntroPage[] = [];
         for (let container of Object.values(this.containers)) {
             let introPages = await container.waiter;
             let containerState = this.getOrCreateContainerState(container.name);
@@ -94,15 +97,18 @@ export class IntroBuildingContext {
             log.debug("startIntro", container.name, introPages);
             for (let page of introPages) {
                 page.intro = this.i18n.tr(page.intro);
-                intro.addStep(page);
-                pagesAdded++;
+                pagesToAdd.push(page);
                 if (page.version > maxPageVersion) {
                     maxPageVersion = page.version;
                 }
             }
             container.maxPageVersion = maxPageVersion;
         }
-        if (pagesAdded > 0) {
+        if (pagesToAdd.length > 0) {
+            let sortedPages = pagesToAdd.sort((a,b) => a.priority - b.priority);
+            for (let page of sortedPages) {
+                intro.addStep(page);
+            }
             intro.oncomplete(() => {
                 for (let container of Object.values(this.containers)) {
                     let containerState = this.getOrCreateContainerState(container.name);
@@ -129,9 +135,24 @@ export class IntroBuildingContext {
 }
 
 export interface IIntroPage {
-    element: HTMLElement;
+    /**
+     * HTML element on which to show the message. `null` for full page messages.
+     */
+    element?: HTMLElement;
+    /**
+     * The message or a i18n key to show.
+     */
     intro: string;
+    /**
+     * Version of the message will be saved when the user clicks "done" on the intro. The message can be shown
+     * again in one of two cases: if the version is higher than the max version of any message the user has seen
+     * so far, or if the user clicks "show hints" again.
+     */
     version: number;
+    /**
+     * Defines the order of pages in the introduction. Lower numbers shown first.
+     */
+    priority: number;
 }
 
 export class IntroContainer {
