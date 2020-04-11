@@ -1,8 +1,14 @@
 import { autoinject } from "aurelia-framework";
 import { LogManager } from 'aurelia-framework';
-import {I18N} from 'aurelia-i18n';
+import { I18N } from 'aurelia-i18n';
+import { Store } from "aurelia-store";
 
 import * as introJs from "intro.js";
+import { Subscription } from "rxjs";
+
+import { State } from "state";
+import { IContainerInfo } from "model/intro-container";
+import { IntroStateActions } from "model/intro-actions";
 
 import 'intro.js/introjs.css';
 import 'intro.js/themes/introjs-nazanin.css';
@@ -15,13 +21,31 @@ const log = LogManager.getLogger('intro-building-context');
  */
 @autoinject()
 export class IntroBuildingContext {
-    storedInfo: { [name: string]: IContainerInfo } = {};
-    containers: { [name: string]: IntroContainer } = {};
+    private introContainersState: IContainerInfo[];
+    private subscription: Subscription;
+    // public introContainersState: IContainerInfo[];
+    private containers: { [name: string]: IntroContainer } = {};
 
-    constructor(private i18n: I18N) {}
+    constructor(
+        public store: Store<State>,
+        private i18n: I18N,
+        private introStateActions: IntroStateActions) {}
+
+    public bind() {
+        log.debug("bind");
+        this.subscription = this.store.state.subscribe(
+            (state) => {
+                this.introContainersState = state.introContainers.sort((a, b) => a.name.localeCompare(b.name));
+            }
+        );
+    }
+
+    public unbind() {
+        this.subscription.unsubscribe();
+    }
 
     /**
-     * Call getContainer in the component's `created` lifecycle method to let the context know
+     * Call getContainer in component's `created` lifecycle method to let the context know
      * that the component is planning to show intro pages. It's a good idea to just @autoinject() it.
      *
      * @param {string} name - name of your container, usually matches the file name w/o extension
@@ -33,13 +57,7 @@ export class IntroBuildingContext {
      *          this.intro = this.introContext.getContainer("accounts-summary");
      *      }
      */
-    getContainer(name: string): IntroContainer {
-        let container = this.getOrCreateContainer(name);
-        container.info = this.getOrCreateContainerInfo(name);
-        return container;
-    }
-
-    private getOrCreateContainer(name: string) {
+    public getContainer(name: string): IntroContainer {
         if (name in this.containers) {
             return this.containers[name];
         } else {
@@ -47,12 +65,14 @@ export class IntroBuildingContext {
         }
     }
 
-    private getOrCreateContainerInfo(name: string) {
-        if (name in this.storedInfo) {
-            return this.storedInfo[name];
-        } else {
-            return (this.storedInfo[name] = { name: name });
+    private getOrCreateContainerState(name: string) {
+        if (this.introContainersState) {
+            let container = this.introContainersState.find(c => c.name === name);
+            if (container) {
+                return container;
+            }
         }
+        return { name };
     }
 
     /**
@@ -62,41 +82,39 @@ export class IntroBuildingContext {
      */
     public async startIntro() {
         let intro = introJs();
-        let stepsAdded = 0;
+        let pagesAdded = 0;
         for (let container of Object.values(this.containers)) {
-            let introPages = (await container.waiter).filter(
-                p => container.info.versionCompleted < p.version || 
-                     container.info.versionCompleted == null);
+            let introPages = await container.waiter;
+            let containerState = this.getOrCreateContainerState(container.name);
+            log.debug(container.name, containerState);
+            if (containerState.versionCompleted != null) {
+                introPages = introPages.filter(p => p.version > containerState.versionCompleted);
+            }
             let maxPageVersion = 0;
             log.debug("startIntro", container.name, introPages);
             for (let page of introPages) {
                 page.intro = this.i18n.tr(page.intro);
                 intro.addStep(page);
-                stepsAdded++;
+                pagesAdded++;
                 if (page.version > maxPageVersion) {
                     maxPageVersion = page.version;
                 }
             }
             container.maxPageVersion = maxPageVersion;
         }
-        if (stepsAdded > 0) {
+        if (pagesAdded > 0) {
             intro.oncomplete(() => {
                 for (let container of Object.values(this.containers)) {
-                    container.completed();
-                    this.containerCompleted(container.name, container.maxPageVersion);
+                    let containerState = this.getOrCreateContainerState(container.name);
+                    log.debug(container.name, containerState);
+                    containerState.versionCompleted = container.maxPageVersion;
+                    containerState.completedDate = new Date().toISOString();
+                    log.debug("container completed", containerState.name, containerState.versionCompleted);
+                    this.introStateActions.addOrUpdateContainer(containerState);
                 }
             });
             intro.start();
         }
-    }
-
-    /**
-     * Called by introJs.oncomplete (see startIntro() body). Marks this conatiner version as 
-     * completed so it's not shown again. The completion information is intended to be stored 
-     * in app state.
-     */
-    private containerCompleted(name: string, version: number) {
-        log.debug("completed", name, version);
     }
 
     /**
@@ -116,14 +134,7 @@ export interface IIntroPage {
     version: number;
 }
 
-export interface IContainerInfo {
-    name: string;
-    versionCompleted?: number;
-    completedDate?: string;
-}
-
 export class IntroContainer {
-    public info: IContainerInfo;
     public waiter: Promise<IIntroPage[]>;
     public ready: (value: IIntroPage[] | PromiseLike<IIntroPage[]>) => void;
     public cancel: (reason?: any) => void;
@@ -134,10 +145,5 @@ export class IntroContainer {
             this.ready = resolve;
             this.cancel = reject;
         });
-    }
-
-    public completed() {
-        this.info.versionCompleted = this.maxPageVersion;
-        this.info.completedDate = new Date().toISOString();
     }
 }

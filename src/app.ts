@@ -21,7 +21,8 @@ import {
 import * as environment from '../config/environment.json';
 
 import { State } from './state';
-import { TranStateActions } from "./model/tran-actions";
+import { TranStateActions } from "model/tran-actions";
+import { IntroStateActions } from "model/intro-actions";
 
 import { ScheduleWizardCustomElement } from "components/schedule/schedule-wizard";
 import { IntroBuildingContext } from "components/intro-building-context";
@@ -45,6 +46,7 @@ export class App {
   public constructor(
     private store: Store<State>,
     private tranActions: TranStateActions,
+    private introActions: IntroStateActions,
     private ea: EventAggregator,
     private introContext: IntroBuildingContext) { }
 
@@ -56,6 +58,7 @@ export class App {
   async created(/*owningView: View, myView: View*/) {
     log.debug("created");
     this.tranActions.register();
+    this.introActions.register();
     this.store.registerMiddleware(
       localStorageMiddleware,
       MiddlewarePlacement.After,
@@ -68,6 +71,14 @@ export class App {
     this.rehydrateCompleted = true;
     this.ea.publish("state-hydrated");
     this.stateChanged(this.state);
+  }
+
+  bind() {
+    this.introContext.bind();
+  }
+
+  unbind() {
+    this.introContext.unbind();
   }
 
   /**

@@ -1,9 +1,11 @@
 import { autoinject } from "aurelia-framework";
-import { Store } from 'aurelia-store';
-import { State } from '../state';
-import { TranTemplate, TranGenerated } from './tran-template';
-import { AccountBalance } from './account-balance';
 import { LogManager } from 'aurelia-framework';
+import { Store } from 'aurelia-store';
+
+import { State } from '../state';
+
+import { AccountBalance } from './account-balance';
+import { TranTemplate, TranGenerated } from './tran-template';
 
 const log = LogManager.getLogger('tran-actions');
 

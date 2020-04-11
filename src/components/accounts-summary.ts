@@ -39,12 +39,12 @@ export class AccountsSummaryCustomElement {
     this.intro = this.introContext.getContainer("accounts-summary");
   }
 
-  introReady() {
-    log.debug("introReady");
+  readyForIntro() {
+    log.debug("readyForIntro");
     this.intro.ready([{ 
       element: this.htmlElement, 
       intro: "components\\accounts-summary:intro.text", 
-      version: 1 }]);
+      version: 3 }]);
   }
 
   bind() {
@@ -115,7 +115,7 @@ export class AccountsSummaryCustomElement {
     this.byMonths = Object.values(l_byMonth);
     this.months = l_months;
     this.totals = l_totals;
-    this.introReady();
+    this.readyForIntro();
   }
 }
 
