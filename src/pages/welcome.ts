@@ -1,23 +1,17 @@
-import {
-  bindable,
-  autoinject,
-  computedFrom
-} from "aurelia-framework";
-import cronstr from "../components/cronstr";
+import { autoinject } from "aurelia-framework";
+import { LogManager } from 'aurelia-framework';
 import { EventAggregator } from "aurelia-event-aggregator";
+import { connectTo } from "aurelia-store";
+
 import * as moment from "moment";
 
-import { Store, connectTo } from "aurelia-store";
 import { State } from "../state";
 
-import { Schedule, HolidayRule } from "../model/schedule";
+import { Schedule } from "../model/schedule";
 import { TranTemplate } from "../model/tran-template";
 import { TranStateActions } from "../model/tran-actions";
-import { DialogController } from 'aurelia-dialog';
-import { LogManager } from 'aurelia-framework';
 
 const log = LogManager.getLogger('welcome');
-
 
 @autoinject()
 @connectTo()
@@ -32,7 +26,6 @@ export class WelcomeCustomElement {
   public state: State;
 
   public constructor(
-    private dialogController: DialogController,
     private tranActions: TranStateActions,
     private ea: EventAggregator) { }
 
