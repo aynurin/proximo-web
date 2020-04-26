@@ -70,7 +70,8 @@ export class App {
     await this.store.dispatch("RehydrateSate", environment.storeKey);
     this.rehydrateCompleted = true;
     this.ea.publish("state-hydrated");
-    this.stateChanged(this.state);
+    log.debug("will call stateChanged");
+    this.stateChanged();
   }
 
   bind() {
@@ -122,31 +123,27 @@ export class App {
     }, 300);
   }
 
-  stateChanged(state: State) {
+  async stateChanged() {
     if (this.rehydrateCompleted) {
-      if (state && state.schedule && state.schedule.length > 0) {
-        this.setShowWelcome(false);
-      } else {
-        this.setShowWelcome(true);
-      }
-      log.debug('stateChanged', this.state ? this.state.scheduleVersion : 'none', this.disableTabs);
-    } else {
-      log.debug("stateChanged skept");
-    }
-  }
+      let showDashboard = this.state && this.state.schedule && this.state.schedule.length > 0;
+      let showWelcome = !showDashboard;
+      let originalLocationPath = document.location.pathname.trim().substr(1);
+      let targetRouteName = showDashboard ? "dashboard" : "welcome";
+      let allowRedirect = originalLocationPath === "" 
+        || targetRouteName === "welcome" 
+        || originalLocationPath === "welcome";
 
-  setShowWelcome(showWelcome: boolean) {
-    if (this.router.currentInstruction) {
-      if (showWelcome) {
-        if (this.router.currentInstruction.config.name !== "welcome") {
-          this.router.navigateToRoute("welcome");
+      if (allowRedirect) {
+        if (originalLocationPath !== targetRouteName) {
+            await this.router.navigateToRoute(targetRouteName);
+        } else {
+          log.debug("stateChanged no redirect necessary, showDashboard =", showDashboard, document.location.href);
         }
-      } else if (this.router.currentInstruction.config.name === "welcome") {
-        this.router.navigateToRoute("dashboard");
       }
+
+      this.showWelcome = showWelcome;
+      this.disableTabs = showWelcome;
     }
-    this.showWelcome = showWelcome;
-    this.disableTabs = showWelcome;
   }
 
   configureRouter(config: RouterConfiguration, router: Router): void {
@@ -156,7 +153,7 @@ export class App {
     config.options.pushState = true;
     config.options.root = '/';
     config.map([
-      { route: '', name: 'default', navigationStrategy: this.defaultNavigation },
+      { route: '', name: 'default', moduleId: PLATFORM.moduleName('./pages/loading.html'), nav: false, title: 'Loading...' },
       { route: 'dashboard', name: 'dashboard', moduleId: PLATFORM.moduleName('./pages/dashboard'), nav: true, title: 'Dashboard', settings: {mainNav: true} },
       { route: 'schedule', name: 'schedule', moduleId: PLATFORM.moduleName('./pages/schedule.html'), nav: true, title: 'Schedule', settings: {mainNav: true} },
       { route: 'ledger', name: 'ledger', moduleId: PLATFORM.moduleName('./pages/ledger.html'), nav: true, title: 'Ledger', settings: {mainNav: true} },
