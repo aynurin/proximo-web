@@ -285,3 +285,15 @@ div.welcome {
     text-align: center;
   }
 }
+
+.introjs-tooltipReferenceLayer {
+  .introjs-tooltip {
+    max-width: inherit !important;
+  }
+  .introjs-floating {
+    margin: 5vw 15vw !important;
+    position: fixed !important;
+    left: 0 !important;
+    top: 0 !important;
+  }
+}

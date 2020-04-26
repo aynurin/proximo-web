@@ -1,0 +1,6 @@
+{
+    "intro": {
+        "default": "<p>Welcome to <proximo>PROXIMO</proximo>!</p><p>This is your dashboard. It shows your financial forecast highlights.</p><p><proximo>PROXIMO</proximo> is not connected to your banking account, nor does it run any real transactions on your behalf. <proximo>PROXIMO</proximo> is a simulation tool that let's you visualize the state of your accounts by simulating transactions that you can predict.</p><p>Click &laquo;Next&raquo; to look around.</p>",
+        "schedule-tab": "Click here to see the schedule you have just defined."
+    }
+}

@@ -25,11 +25,12 @@ export class IntroBuildingContext {
     private subscription: Subscription;
     // public introContainersState: IContainerInfo[];
     private containers: { [name: string]: IntroContainer } = {};
+    private currentIntro: any = null;
 
     constructor(
         public store: Store<State>,
         private i18n: I18N,
-        private introStateActions: IntroStateActions) {}
+        private introStateActions: IntroStateActions) { }
 
     public bind() {
         log.debug("bind");
@@ -54,7 +55,7 @@ export class IntroBuildingContext {
      * @example
      *
      *      created() {
-     *          this.intro = this.introContext.getContainer("accounts-summary");
+     *          this.intro = this.introContext.getContainer("COMPONENT_NAME");
      *      }
      */
     public getContainer(name: string): IntroContainer {
@@ -81,15 +82,24 @@ export class IntroBuildingContext {
      * that have not been completed before.
      */
     public async startIntro() {
-        let intro = introJs();
-        intro.setOptions({
+        if (this.currentIntro != null) {
+            this.currentIntro.exit();
+        }
+        this.currentIntro = introJs();
+        this.currentIntro.setOptions({
             showStepNumbers: false
         });
-        const pagesToAdd:IIntroPage[] = [];
+        const pagesToAdd: IIntroPage[] = [];
         for (let container of Object.values(this.containers)) {
             let introPages = await container.waiter;
             let containerState = this.getOrCreateContainerState(container.name);
             log.debug(container.name, containerState);
+            // fool proof:
+            for (let page of introPages) {
+                if (page.version < 1) {
+                    console.warn("Intro pages versions must be integers greater than 0", page);
+                }
+            }
             if (containerState.versionCompleted != null) {
                 introPages = introPages.filter(p => p.version > containerState.versionCompleted);
             }
@@ -105,31 +115,61 @@ export class IntroBuildingContext {
             container.maxPageVersion = maxPageVersion;
         }
         if (pagesToAdd.length > 0) {
-            let sortedPages = pagesToAdd.sort((a,b) => a.priority - b.priority);
+            let sortedPages = pagesToAdd.sort((a, b) => a.priority - b.priority);
             for (let page of sortedPages) {
-                intro.addStep(page);
+                this.currentIntro.addStep(page);
             }
-            intro.oncomplete(() => {
-                for (let container of Object.values(this.containers)) {
-                    let containerState = this.getOrCreateContainerState(container.name);
-                    log.debug(container.name, containerState);
-                    containerState.versionCompleted = container.maxPageVersion;
-                    containerState.completedDate = new Date().toISOString();
-                    log.debug("container completed", containerState.name, containerState.versionCompleted);
-                    this.introStateActions.addOrUpdateContainer(containerState);
+            let _self = this;
+            this.currentIntro.onchange(function () {
+                let previousPage: IIntroPage;
+                if (this.previousItem == null || typeof this.previousItem === "undefined") {
+                    previousPage = null;
+                } else {
+                    previousPage = this.previousItem;
+                }
+                let currentPage: IIntroPage = this._introItems[this._currentStep];
+                this.previousItem = currentPage;
+                if (previousPage && typeof previousPage.onStepExit === "function") {
+                    previousPage.onStepExit(_self);
+                }
+                if (currentPage && typeof currentPage.onStepEnter === "function") {
+                    currentPage.onStepEnter(_self);
                 }
             });
-            intro.start();
+            this.currentIntro.oncomplete(this.completeIntro);
+            this.currentIntro.start();
+        }
+    }
+
+    public completeIntro = async() => {
+        log.debug("completeIntro", this.containers);
+        for (let container of Object.values(this.containers)) {
+            let containerState = this.getOrCreateContainerState(container.name);
+            log.debug(container.name, containerState);
+            if (container.maxPageVersion > 0) {
+                containerState.versionCompleted = container.maxPageVersion;
+                containerState.completedDate = new Date().toISOString();
+                log.debug("container completed", containerState.name, containerState.versionCompleted);
+                await this.introStateActions.addOrUpdateContainer(containerState);
+            }
         }
     }
 
     /**
      * Clears this context before loading new containers for the new page. 
-     * Called by the app.ts when the app is ready to starting off to another pate (on RouterEvent.Processing).
+     * Called by the app.ts when the app is ready to starting off to another path (on RouterEvent.Processing).
      * It will ensure for all containers have completed before clearing, so it's importang that it's awaited.
      */
     public async clear() {
+        log.debug("clearing");
         await Promise.all(Object.values(this.containers).map(w => w.waiter));
+        // if a page is open, fire it's onStepExit (if defined)
+        if (this.currentIntro._currentStep >= 0 && this.currentIntro._currentStep <= this.currentIntro._introItems.length) {
+            let currentPage: IIntroPage = this.currentIntro._introItems[this.currentIntro._currentStep];
+            if (currentPage && typeof currentPage.onStepExit === "function") {
+                currentPage.onStepExit(this);
+            }
+        }
         this.containers = {};
     }
 }
@@ -153,6 +193,14 @@ export interface IIntroPage {
      * Defines the order of pages in the introduction. Lower numbers shown first.
      */
     priority: number;
+    /**
+     * Called when the step starts
+     */
+    onStepEnter?: (introContext: IntroBuildingContext) => any;
+    /**
+     * Called before step ends
+     */
+    onStepExit?: (introContext: IntroBuildingContext) => any;
 }
 
 export class IntroContainer {

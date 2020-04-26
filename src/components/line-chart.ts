@@ -1,32 +1,50 @@
-import { EventAggregator } from "aurelia-event-aggregator";
-import { pluck } from 'rxjs/operators';
-import { connectTo } from 'aurelia-store';
-import { State } from '../state';
-import Chart from "./alt-chartjs";
-
-import * as moment from "moment";
-import numeral from 'numeral';
 import { autoinject } from 'aurelia-framework';
 import { LogManager } from 'aurelia-framework';
+import { EventAggregator } from "aurelia-event-aggregator";
+import { connectTo } from 'aurelia-store';
+
+import * as moment from "moment";
+import numeral from "numeral";
+
+import { State } from 'state';
 import { TranGenerated } from "model/tran-template";
 
-const log = LogManager.getLogger('line-chart');
+import Chart from "./alt-chartjs";
+import { IntroContainer, IntroBuildingContext } from "./intro-building-context";
+
+const COMPONENT_NAME = "line-chart";
+
+const log = LogManager.getLogger(COMPONENT_NAME);
 
 @autoinject()
 @connectTo()
 export class LineChartCustomElement {
-  chartArea: HTMLCanvasElement;
-  lineChart: Chart;
-  canvas: CanvasRenderingContext2D;
-  datasets: any[] = [];
-  isAttached: boolean = false;
-  ledger: TranGenerated[];
-  state: State;
-  lastVersion: number;
+  private chartArea: HTMLCanvasElement;
+  private lineChart: Chart;
+  private canvas: CanvasRenderingContext2D;
+  private datasets: any[] = [];
+  private state: State;
+  private lastVersion: number;
 
-  constructor(ea: EventAggregator) {
-    log.debug('constructor');
-    ea.subscribe("ledger-changed", () => this.ledgerChanged());
+  private intro: IntroContainer;
+
+  constructor(
+    private ea: EventAggregator,
+    private introContext: IntroBuildingContext) { }
+
+  created() {
+    log.debug('created');
+    this.ea.subscribe("ledger-changed", () => this.ledgerChanged());
+    this.intro = this.introContext.getContainer(COMPONENT_NAME);
+  }
+
+  readyForIntro() {
+    log.debug("readyForIntro");
+    this.intro.ready([{ 
+      element: this.chartArea, 
+      intro: `components:${COMPONENT_NAME}.intro.default`, 
+      version: 7,
+      priority: 20 }]);
   }
 
   ledgerChanged = () => {
@@ -56,20 +74,19 @@ export class LineChartCustomElement {
     }
     if (this.lineChart) {
       this.lineChart.update();
+      this.readyForIntro();
     }
   }
 
   // when control is attached to dom - need to initialize the chart drawing area
   attached() {
     log.debug('attached');
-    this.isAttached = true;
     this.resetChartContext();
     this.ifLedgerChanged(this.generateChart);
   }
 
   detached() {
     log.debug('detached');
-    this.isAttached = false;
   }
 
   resetChartContext() {

@@ -1,5 +1,4 @@
 {
-  "schedule-wizard-button": "Click this button to add a new transaction to your schedule",
   "score": "Score: {{score}}",
   "lives": "{{count}} life remaining",
   "lives_plural": "{{count}} lives remaining",

@@ -9,7 +9,7 @@ For more information, go to https://aurelia.io/docs/cli/webpack
 Guess account balances
 Intro:
     * -> Dash: Welcome to PROXIMO! This is your dashboard. It shows you your financial forecast. REMEMBER: PROXIMO is not connected to your banking account, and it does not run any real transactions on your behalf. PROXIMO is a simulation tool that let's you simulate transactions that you can predict in the future. Click "Next" to look around.
-        * CHART: The chart shows how your accounts will behave given the transactions schedule you create
+        * CHART: The chart shows how your accounts will behave over the next year given the transactions schedule you define.
         * TABLE: This table shows your monthly accounts and totals. You can find the mininum account balance during the month, ending balance, how much money was deposited on that account, and how much was spent. This table will highlight months when your expences exceed your income or when you have a risk of an overdraft.
         * FORM: This is where you set your current accounts balance. PROXIMO will try to guess these numbers given the schedule you define, but it is always a good idea to check again with your online bank or banking app and update here if anything is not matching.
         * SCHEDULE: Click here to see the schedule you have just defined.

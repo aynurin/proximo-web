@@ -12,7 +12,9 @@ import { State } from '../state';
 import { IntroBuildingContext, IntroContainer } from "./intro-building-context";
 import { AccountBalance } from '../model/account-balance';
 
-const log = LogManager.getLogger('accounts-summary');
+const COMPONENT_NAME = "accounts-summary";
+
+const log = LogManager.getLogger(COMPONENT_NAME);
 
 @autoinject()
 @connectTo()
@@ -36,15 +38,15 @@ export class AccountsSummaryCustomElement {
   created() {
     log.debug('created');
     this.ea.subscribe("ledger-changed", () => this.ledgerChanged());
-    this.intro = this.introContext.getContainer("accounts-summary");
+    this.intro = this.introContext.getContainer(COMPONENT_NAME);
   }
 
   readyForIntro() {
     log.debug("readyForIntro");
     this.intro.ready([{ 
       element: this.htmlElement, 
-      intro: "components\\accounts-summary:intro.text", 
-      version: 4,
+      intro: `components:${COMPONENT_NAME}.intro.default`, 
+      version: 9,
       priority: 20 }]);
   }
 
@@ -117,6 +119,10 @@ export class AccountsSummaryCustomElement {
     this.months = l_months;
     this.totals = l_totals;
     this.readyForIntro();
+  }
+
+  monthName(month: string) {
+    return moment(month).format("MMM");
   }
 }
 
