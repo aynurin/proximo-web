@@ -155,8 +155,8 @@ export class App {
     config.map([
       { route: '', name: 'default', moduleId: PLATFORM.moduleName('./pages/loading.html'), nav: false, title: 'Loading...' },
       { route: 'dashboard', name: 'dashboard', moduleId: PLATFORM.moduleName('./pages/dashboard'), nav: true, title: 'Dashboard', settings: {mainNav: true} },
-      { route: 'schedule', name: 'schedule', moduleId: PLATFORM.moduleName('./pages/schedule.html'), nav: true, title: 'Schedule', settings: {mainNav: true} },
-      { route: 'ledger', name: 'ledger', moduleId: PLATFORM.moduleName('./pages/ledger.html'), nav: true, title: 'Ledger', settings: {mainNav: true} },
+      { route: 'schedule', name: 'schedule', moduleId: PLATFORM.moduleName('./pages/schedule'), nav: true, title: 'Schedule', settings: {mainNav: true} },
+      { route: 'ledger', name: 'ledger', moduleId: PLATFORM.moduleName('./pages/ledger'), nav: true, title: 'Ledger', settings: {mainNav: true} },
       { route: 'welcome', name: 'welcome', moduleId: PLATFORM.moduleName('./pages/welcome'), nav: false, title: 'Welcome to Proximo!' },
       { route: 'feedback', name: 'feedback', moduleId: PLATFORM.moduleName('./pages/feedback.html'), nav: true, title: 'feedback', settings: {secondaryNav: true} },
       { route: 'about', name: 'about', moduleId: PLATFORM.moduleName('./pages/about.html'), nav: true, title: 'about', settings: {secondaryNav: true} },

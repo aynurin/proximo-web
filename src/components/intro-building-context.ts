@@ -153,6 +153,8 @@ export class IntroBuildingContext {
                 await this.introStateActions.addOrUpdateContainer(containerState);
             }
         }
+        this.currentIntro.exit();
+        this.currentIntro = null;
     }
 
     /**

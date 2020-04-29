@@ -43,7 +43,7 @@ export class LineChartCustomElement {
     this.intro.ready([{ 
       element: this.chartArea, 
       intro: `components:${COMPONENT_NAME}.intro.default`, 
-      version: 7,
+      version: 11,
       priority: 20 }]);
   }
 

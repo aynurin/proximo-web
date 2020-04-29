@@ -4,12 +4,12 @@ import { LogManager } from 'aurelia-framework';
 import { IntroBuildingContext, IntroContainer } from "components/intro-building-context";
 import { waitForHtmlElement } from "components/utils";
 
-const COMPONENT_NAME = "dashboard";
+const COMPONENT_NAME = "ledger";
 
 const log = LogManager.getLogger(COMPONENT_NAME);
 
 @autoinject()
-export class DashboardCustomElement {
+export class LedgerCustomElement {
   private intro: IntroContainer;
 
   constructor(private introContext: IntroBuildingContext) { }
@@ -21,23 +21,19 @@ export class DashboardCustomElement {
 
   readyForIntro() {
     log.debug("readyForIntro");
-    waitForHtmlElement("schedule-tab-button", (scheduleTabButton: HTMLElement) => {
+    waitForHtmlElement("scheduleWizardButton", (scheduleWizardButton: HTMLElement) => {
       this.intro.ready([{
-        intro: `${COMPONENT_NAME}:intro.default`,
-        version: 11,
-        priority: 0
-      }, {
-        element: scheduleTabButton, 
-        intro: `${COMPONENT_NAME}:intro.schedule-tab`,
-        version: 11,
+        element: scheduleWizardButton, 
+        intro: `${COMPONENT_NAME}:intro.schedule-wizard-button`,
+        version: 12,
         priority: 100,
         onStepEnter: (introContext: IntroBuildingContext) => {
           log.debug("attaching scheduleTabButton click event listener");
-          scheduleTabButton.addEventListener("click", introContext.completeIntro);
+          scheduleWizardButton.addEventListener("click", introContext.completeIntro);
         },
         onStepExit: (introContext: IntroBuildingContext) => {
           log.debug("detaching scheduleTabButton click event listener");
-          scheduleTabButton.removeEventListener("click", introContext.completeIntro);
+          scheduleWizardButton.removeEventListener("click", introContext.completeIntro);
       }
       }]);
     });
