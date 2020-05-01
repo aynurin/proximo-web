@@ -39,7 +39,7 @@ export function configure(aurelia: Aurelia) {
         lng: 'en',
         fallbackLng: 'en',
         debug: environment.debug,
-        ns: ['components', 'dashboard', 'ledger', 'schedule'],
+        ns: ['components', 'dashboard', 'ledger', 'schedule', 'schedule-wizard'],
         skipTranslationOnMissingKey: true
       });
     });

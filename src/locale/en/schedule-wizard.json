@@ -1,0 +1,19 @@
+{
+    "intro": {
+        "date": {
+            "default": "Choose a date. For one-off transaction, this is the date when it will be simulated. For recurring transactions, you will define the schedule on the next step."
+        },
+        "schedule": {
+            "default": "Now choose a schedule. Select the last option to run this transaction only once, or choose a once every week, once a month, or once a year schedule"
+        },
+        "holidayrule": {
+            "default": "If it's a bank holiday, when should <proximo>proximo</proximo> simulate it? For example, wage sometimes is deposited <em>before</em> the holiday, an AHC payment is executed <em>after</em> the holiday. A credit card transaction would happen <em>on</em> the same day."
+        },
+        "daterange": {
+            "default": "Choose if you want to limit the start or end date when the schedule is effective."
+        },
+        "parameters": {
+            "default": "On this screen you set all the basic parameters of this transaction: its amount, account, and description. Transfers between your own accounts require setting source and target accounts."
+        }
+    }
+}

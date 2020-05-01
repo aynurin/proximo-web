@@ -36,7 +36,7 @@ export class LedgerGridCustomElement {
     this.intro.ready([{
       element: this.htmlElement,
       intro: `ledger:${COMPONENT_NAME}.intro.default`,
-      version: 13,
+      version: 14,
       priority: 0
     }]);
   }

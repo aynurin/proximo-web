@@ -26,6 +26,7 @@ export class IntroBuildingContext {
     // public introContainersState: IContainerInfo[];
     private containers: { [name: string]: IntroContainer } = {};
     private currentIntro: any = null;
+    private introIsRunning: boolean = false;
 
     constructor(
         public store: Store<State>,
@@ -77,48 +78,73 @@ export class IntroBuildingContext {
     }
 
     /**
+     * Checks if a page was shown and marked as "done" by the user and selects only the pages
+     * that are still not "done." Processes i18n on the go.
+     * @param container Container assigned to this scope of intro pages
+     * @param allPages All pages in this container
+     */
+    public getPagesToShow(container: IntroContainer, allPages: IIntroPage[]): IIntroPage[] {
+        let pagesToShow: IIntroPage[] = [];
+        let containerState = this.getOrCreateContainerState(container.name);
+        log.debug(container.name, containerState);
+        allPages = allPages.map(p => pageWithDefaults(container, p));
+        // fool proof:
+        for (let page of allPages) {
+            if (page.version < 1) {
+                log.warn("Intro pages versions must be integers greater than 0", page);
+            }
+        }
+        if (containerState.versionCompleted != null) {
+            allPages = allPages.filter(p => p.version > containerState.versionCompleted);
+        }
+        let maxPageVersion = 0;
+        log.debug("getPagesToShow", container.name, allPages);
+        for (let page of allPages) {
+            let i18nId = page.intro;
+            if (i18nId == null && page.id != null && page.id.length > 0) {
+                i18nId = `${container.name}:intro.${page.id}`; 
+            }
+            page.hint = page.intro = this.i18n.tr(page.intro);
+            pagesToShow.push(page);
+            if (page.version > maxPageVersion) {
+                maxPageVersion = page.version;
+            }
+        }
+        container.maxPageVersion = maxPageVersion;
+        pagesToShow = pagesToShow.sort((a, b) => a.priority - b.priority);
+
+        if (pagesToShow.length > 0) {
+            this.currentIntro.setOption("steps", pagesToShow);
+            this.currentIntro.setOption("hints", pagesToShow);
+        }
+
+        return pagesToShow;
+    }
+
+    /**
      * Called by the app.ts when the app is ready to run the intro (on RouterEvent.Success)
      * It will wait for all containers to be ready before starting, and will only show pages 
      * that have not been completed before.
      */
-    public async startIntro() {
+    public async startIntro(startIntroOptions?: any) {
         if (this.currentIntro != null) {
-            this.currentIntro.exit();
+            this.stopCurrentIntro();
+            this.currentIntro = null;
         }
         this.currentIntro = introJs();
-        this.currentIntro.setOptions({
-            showStepNumbers: false
-        });
+        if (startIntroOptions == null) {
+            startIntroOptions = { showStepNumbers: false, hintPosition: 'top-right' };
+        }
+        this.currentIntro.setOptions(startIntroOptions);
         const pagesToAdd: IIntroPage[] = [];
         for (let container of Object.values(this.containers)) {
             let introPages = await container.waiter;
-            let containerState = this.getOrCreateContainerState(container.name);
-            log.debug(container.name, containerState);
-            // fool proof:
+            introPages = this.getPagesToShow(container, introPages);
             for (let page of introPages) {
-                if (page.version < 1) {
-                    console.warn("Intro pages versions must be integers greater than 0", page);
-                }
-            }
-            if (containerState.versionCompleted != null) {
-                introPages = introPages.filter(p => p.version > containerState.versionCompleted);
-            }
-            let maxPageVersion = 0;
-            log.debug("startIntro", container.name, introPages);
-            for (let page of introPages) {
-                page.intro = this.i18n.tr(page.intro);
                 pagesToAdd.push(page);
-                if (page.version > maxPageVersion) {
-                    maxPageVersion = page.version;
-                }
             }
-            container.maxPageVersion = maxPageVersion;
         }
         if (pagesToAdd.length > 0) {
-            let sortedPages = pagesToAdd.sort((a, b) => a.priority - b.priority);
-            for (let page of sortedPages) {
-                this.currentIntro.addStep(page);
-            }
             let _self = this;
             this.currentIntro.onchange(function () {
                 let previousPage: IIntroPage;
@@ -136,11 +162,39 @@ export class IntroBuildingContext {
                     currentPage.onStepEnter(_self);
                 }
             });
-            this.currentIntro.oncomplete(this.completeIntro);
-            this.currentIntro.start();
+            this.startCurrentIntro();
         }
     }
 
+    public showOnePage(pageIndex: number, page: IIntroPage) {
+        log.debug("showOnePage", page, pageIndex, this.introIsRunning);
+        if (!this.introIsRunning) {
+            this.currentIntro.addHints();
+            this.currentIntro.hideHints();
+            this.introIsRunning = true;
+        }
+        this.currentIntro.showHint(pageIndex);
+        this.currentIntro.showHintDialog(pageIndex);
+    }
+
+    private startCurrentIntro() {
+        this.currentIntro.onexit(() => this.introIsRunning = false);
+        this.currentIntro.oncomplete(this.completeIntro);
+        this.currentIntro.start();
+        this.introIsRunning = true;
+    }
+
+    private stopCurrentIntro() {
+        if (this.currentIntro) {
+            this.currentIntro.hideHints();
+            this.currentIntro.exit();
+        }
+        this.introIsRunning = false;
+    }
+
+    /**
+     * Stops current intro and marks all pages as seen.
+     */
     public completeIntro = async() => {
         log.debug("completeIntro", this.containers);
         for (let container of Object.values(this.containers)) {
@@ -153,8 +207,7 @@ export class IntroBuildingContext {
                 await this.introStateActions.addOrUpdateContainer(containerState);
             }
         }
-        this.currentIntro.exit();
-        this.currentIntro = null;
+        this.stopCurrentIntro();
     }
 
     /**
@@ -162,39 +215,56 @@ export class IntroBuildingContext {
      * Called by the app.ts when the app is ready to starting off to another path (on RouterEvent.Processing).
      * It will ensure for all containers have completed before clearing, so it's importang that it's awaited.
      */
-    public async clear() {
-        log.debug("clearing");
-        await Promise.all(Object.values(this.containers).map(w => w.waiter));
-        // if a page is open, fire it's onStepExit (if defined)
-        if (this.currentIntro._currentStep >= 0 && this.currentIntro._currentStep <= this.currentIntro._introItems.length) {
-            let currentPage: IIntroPage = this.currentIntro._introItems[this.currentIntro._currentStep];
-            if (currentPage && typeof currentPage.onStepExit === "function") {
-                currentPage.onStepExit(this);
+    public clear() {
+        if (this.currentIntro != null) {
+            // if a page is open, fire it's onStepExit (if defined)
+            if (this.currentIntro._currentStep >= 0 && this.currentIntro._currentStep <= this.currentIntro._introItems.length) {
+                let currentPage: IIntroPage = this.currentIntro._introItems[this.currentIntro._currentStep];
+                if (currentPage && typeof currentPage.onStepExit === "function") {
+                    currentPage.onStepExit(this);
+                }
             }
         }
         this.containers = {};
+        this.stopCurrentIntro();
     }
 }
 
+function pageWithDefaults(container: IntroContainer, page: IIntroPage): IIntroPage {
+    return Object.assign({
+        intro: `${container.name}:intro.${page.id}`,
+        version: 1,
+        priority: 10
+    }, page);
+}
+
 export interface IIntroPage {
+    /**
+     * Optional id if needed by the client code. Not used in the internal logic.
+     */
+    id?: string;
     /**
      * HTML element on which to show the message. `null` for full page messages.
      */
     element?: HTMLElement;
     /**
-     * The message or a i18n key to show.
+     * The message or a i18n key to show. If not defined, the IntroBuildingContext will try to build it using the following format: `${container.name}:intro.${page.id}`
      */
-    intro: string;
+    intro?: string;
+    /**
+     * The message or a i18n key to show. If not defined, the IntroBuildingContext will try to build it using the following format: `${container.name}:intro.${page.id}`
+     */
+    hint?: string;
     /**
      * Version of the message will be saved when the user clicks "done" on the intro. The message can be shown
      * again in one of two cases: if the version is higher than the max version of any message the user has seen
-     * so far, or if the user clicks "show hints" again.
+     * so far, or if the user clicks "show hints" again. The default version number is `1`.
      */
-    version: number;
+    version?: number;
     /**
-     * Defines the order of pages in the introduction. Lower numbers shown first.
+     * Defines the order of pages in the introduction. Lower numbers shown first. The default priority is `10`.
      */
-    priority: number;
+    priority?: number;
     /**
      * Called when the step starts
      */

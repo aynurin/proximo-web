@@ -15,31 +15,73 @@ import { TranTemplate, TranScheduleWrapper } from "../../model/tran-template";
 import { TranStateActions } from "../../model/tran-actions";
 import { DialogController } from 'aurelia-dialog';
 import { LogManager } from 'aurelia-framework';
+import { IntroContainer, IntroBuildingContext, IIntroPage } from "components/intro-building-context";
+import { waitForHtmlElement, waitFor } from "components/utils";
 
-const log = LogManager.getLogger('schedule-wizard');
+const COMPONENT_NAME = "schedule-wizard";
+
+const log = LogManager.getLogger(COMPONENT_NAME);
 
 @autoinject()
 @connectTo()
 export class ScheduleWizardCustomElement {
   @bindable tranwr: TranScheduleWrapper<TranTemplate> = new TranScheduleWrapper(new TranTemplate());
-  scheduleWizardForm: HTMLFormElement;
-  htmlModal: HTMLDivElement;
-  holidayRuleNames: string[] = Object.keys(HolidayRule).filter(
+  private scheduleWizardForm: HTMLFormElement;
+  private htmlModal: HTMLDivElement;
+  private holidayRuleNames: string[] = Object.keys(HolidayRule).filter(
     key => typeof HolidayRule[key] === "number"
   );
+  private intro: IntroContainer;
+  private introPages: IIntroPage[];
+
   public state: State;
 
   public flow: AddTransactionWorkflow = new AddTransactionWorkflow();
 
+  readyForIntro = (element: HTMLElement) => {
+    element = element.parentElement;
+    // todo: show next on some steps, but not others
+    // don't show "next" on steps where the user needs to interact with the UI
+    // then the controller will need to decide that the next intro step has to be shown
+    log.debug("readyForIntro", element);
+    this.introPages = this.introContext.getPagesToShow(this.intro, [
+      { element, version: 3, id: 'date.default' },
+      { element, version: 3, id: 'schedule.default' },
+      { element, version: 3, id: 'holidayrule.default' },
+      { element, version: 3, id: 'daterange.default' },
+      { element, version: 3, id: 'parameters.default' }
+    ]);
+  }
+
   public constructor(
     private dialogController: DialogController,
     private tranActions: TranStateActions, 
-    private ea: EventAggregator) { }
+    private ea: EventAggregator,
+    private introContext: IntroBuildingContext) { }
 
   activate(tran: TranTemplate) {
+    log.debug('activate');
+    this.intro = this.introContext.getContainer(COMPONENT_NAME);
+    this.flow.onStageChangedCallback = this.showIntroPage;
+    waitForHtmlElement("scheduleWizardForm", element => this.readyForIntro(element));
     this.tranwr = new TranScheduleWrapper(tran);
     this.flow.initialStage = ScheduleStage.Date;
     this.flow.advanceIfValid(this.tranwr.value);
+  }
+
+  showIntroPage = (oldStage: ScheduleStage, newStage: ScheduleStage) => {
+    // we are in race condition with readyForIntro here.
+    waitFor(() => this.introPages != null, () => {
+      log.debug(`Moving from stage ${oldStage} to stage ${newStage}`);
+      let introPageId = ScheduleStage[newStage].toLowerCase() + ".default";
+      let pageIndex = this.introPages.findIndex(page => page.id == introPageId);
+      let page = this.introPages[pageIndex];
+      if (page) {
+        this.introContext.showOnePage(pageIndex, page);
+      } else {
+        log.debug(`Didn't find page for stage ${ScheduleStage[newStage]} by id (${introPageId})`);
+      }
+    });
   }
 
   formChange() {
@@ -57,7 +99,9 @@ export class ScheduleWizardCustomElement {
       log.debug("Add new schedule", this.tranwr.value);
       await this.tranActions.addSchedule(this.tranwr.value);
       this.ea.publish('schedule-changed');
+      this.introContext.completeIntro();
       await this.dialogController.ok();
+      this.flow.onStageChangedCallback = null;
       this.tranwr = new TranScheduleWrapper(new TranTemplate());
       this.flow.reset();
     }
@@ -164,9 +208,10 @@ export enum ScheduleStage {
 }
 
 class AddTransactionWorkflow {
-  public stage: ScheduleStage = ScheduleStage.Initial;
+  public __stage: ScheduleStage = ScheduleStage.Initial;
   public initialStage: ScheduleStage = ScheduleStage.Initial;
   public complete: () => {} = null;
+  public onStageChangedCallback: (oldStage: ScheduleStage, newStage: ScheduleStage) => any;
 
   get isInitial(): boolean {
     return this.stage <= this.initialStage;
@@ -187,29 +232,40 @@ class AddTransactionWorkflow {
     return this.stage == ScheduleStage.Parameters;
   }
 
-  advance(tran: TranTemplate) {
-    if (this.stage != ScheduleStage.Parameters) {
-      this.stage += 1;
-      if (
-        this.stage == ScheduleStage.HolidayRule &&
-        tran &&
-        tran.selectedSchedule &&
-        !Schedule.allowsHolidayRule(tran.selectedSchedule)
-      ) {
-        this.advance(tran);
-      }
-      if (
-        this.stage == ScheduleStage.DateRange &&
-        tran &&
-        tran.selectedSchedule &&
-        !Schedule.allowsDateRange(tran.selectedSchedule)
-      ) {
-        this.advance(tran);
-      }
-    } else {
+  set stage(newStage: ScheduleStage) {
+    let previousStage = this.__stage;
+    this.__stage = newStage;
+    if (typeof this.onStageChangedCallback === "function") {
+      this.onStageChangedCallback(previousStage, newStage);
+    }
+  }
+
+  get stage(): ScheduleStage {
+    return this.__stage;
+  }
+
+  advance(tran: TranTemplate, step: number = 1) {
+    let newStage = this.stage + step;
+    if (newStage < this.initialStage) {
+      // won't move
+    } else if (newStage > ScheduleStage.Parameters) {
+      // we're done
       if (this.complete != null) {
         this.complete();
         this.reset();
+      }
+    } else {
+      // check if the new step is not skipped
+      if ((tran != null && tran.selectedSchedule != null) &&
+         ((newStage == ScheduleStage.HolidayRule && !Schedule.allowsHolidayRule(tran.selectedSchedule))
+        ||(newStage == ScheduleStage.DateRange && !Schedule.allowsDateRange(tran.selectedSchedule)))
+      ) {
+        if (step > 0) step++;
+        else step--;
+        this.advance(tran, step);
+      } else {
+        // move
+        this.stage = newStage;
       }
     }
   }
@@ -327,10 +383,8 @@ class AddTransactionWorkflow {
     }
   }
 
-  back() {
-    if (this.stage > this.initialStage) {
-      this.stage -= 1;
-    }
+  back(tran: TranTemplate) {
+    this.advance(tran, -1);
   }
 
   reset() {
