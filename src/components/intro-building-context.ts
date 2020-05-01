@@ -178,7 +178,10 @@ export class IntroBuildingContext {
     }
 
     private startCurrentIntro() {
-        this.currentIntro.onexit(() => this.introIsRunning = false);
+        this.currentIntro.onexit(() => {
+            this.runOnExitHandlers();
+            this.introIsRunning = false;
+        });
         this.currentIntro.oncomplete(this.completeIntro);
         this.currentIntro.start();
         this.introIsRunning = true;
@@ -216,6 +219,12 @@ export class IntroBuildingContext {
      * It will ensure for all containers have completed before clearing, so it's importang that it's awaited.
      */
     public clear() {
+        this.runOnExitHandlers();
+        this.containers = {};
+        this.stopCurrentIntro();
+    }
+
+    private runOnExitHandlers() {
         if (this.currentIntro != null) {
             // if a page is open, fire it's onStepExit (if defined)
             if (this.currentIntro._currentStep >= 0 && this.currentIntro._currentStep <= this.currentIntro._introItems.length) {
@@ -225,8 +234,6 @@ export class IntroBuildingContext {
                 }
             }
         }
-        this.containers = {};
-        this.stopCurrentIntro();
     }
 }
 
