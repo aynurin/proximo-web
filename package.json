@@ -1,7 +1,7 @@
 {
   "name": "aurelia-app",
   "description": "An Aurelia client application.",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "repository": {
     "type": "???",
     "url": "???"
@@ -20,6 +20,7 @@
     "cron-parser": "^2.13.0",
     "font-awesome": "^4.7.0",
     "i18next-xhr-backend": "^3.2.2",
+    "intro.js": "^2.9.3",
     "moment": "^2.24.0",
     "numeral": "^2.0.6",
     "rxjs": "^6.5.4"

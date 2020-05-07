@@ -1,4 +1,4 @@
-<template>
+<template ref="htmlElement">
     <table class="accounts-summary table table-sm">
         <thead>
             <tr>
@@ -11,28 +11,28 @@
         <tbody repeat.for="acc of byMonths">
             <tr>
                 <th scope="row" rowspan="4"><div class="label">${acc.account}</div></th>
-                <td><div class="label label-sm">min</div></td>
+                <td><div class="label label-sm" title="Minimal balance during the period">min</div></td>
                 <td repeat.for="month of months" class="${acc.months[month].status}">
-                    <div class="money">${acc.months[month].low | textToMoney}</div>
+                    <div class="money" title="${'Minimum balance in ' + monthName(month)}">${acc.months[month].low | textToMoney}</div>
                 </td>
                 <td rowspan="4"><div class="money">${acc.endingBalance | textToMoney}</div></td>
             </tr>
             <tr>
-                <td><div class="label label-sm">end</div></td>
+                <td><div class="label label-sm" title="Ending balance for the period">end</div></td>
                 <td repeat.for="month of months" class="${acc.months[month].status}">
-                    <div class="money">${acc.months[month].ending | textToMoney}</div>
+                    <div class="money" title="${monthName(month) + ' ending balance'}">${acc.months[month].ending | textToMoney}</div>
                 </td>
             </tr>
             <tr>
-                <td><div class="label label-sm">spent</div></td>
+                <td><div class="label label-sm" title="How much money was spent during the period">spent</div></td>
                 <td repeat.for="month of months" class="${acc.months[month].status}">
-                    <div class="money">${acc.months[month].spend | textToMoney}</div>
+                    <div class="money" title="${'Spent in ' + monthName(month)}">${acc.months[month].spend | textToMoney}</div>
                 </td>
             </tr>
             <tr>
-                <td><div class="label label-sm">earned</div></td>
+                <td><div class="label label-sm" title="How much money was deposited during the period">earned</div></td>
                 <td repeat.for="month of months" class="${acc.months[month].status}">
-                    <div class="money">${acc.months[month].income | textToMoney}</div>
+                    <div class="money" title="${'Deposited in ' + monthName(month)}">${acc.months[month].income | textToMoney}</div>
                 </td>
             </tr>
         </tbody>

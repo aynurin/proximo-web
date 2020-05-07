@@ -1,0 +1,10 @@
+{
+    "ledger-grid": {
+        "intro": {
+            "default": "This page shows your upcoming transactions forcasted based on the schedule you defined. It is often helpful if you want to have a look at the upcoming transactions, or make a detailed review and analysis of where the money will go. It will highlight transactions in yellow if they make any of your accounts go below $50 or in red if they cause an overdraft."
+        }
+    },
+    "intro": {
+        "schedule-wizard-button": "Click this button to schedule a new transaction. Let's try and plan a hefty once-a-year transaction, such as a birthday party or Black Friday."
+    }
+}

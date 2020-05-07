@@ -80,6 +80,7 @@ app-header {
 }
 
 proximo {
+  text-transform: uppercase;
   display: inline;
   font-family: Comfortaa, $font-family-sans-serif;
   text-transform: capitalize;
@@ -240,6 +241,8 @@ dialogue-frame {
   display: block;
   padding: $spacer * 2 $spacer * 3 $spacer $spacer * 3;
   background-color: lighten($body-bg, 3%);
+  max-height: 90vh;
+  overflow: auto;
 
   @extend .border, .rounded;
 }
@@ -283,5 +286,36 @@ div.welcome {
   margin-left: -$spacer/2;
   & > div {
     text-align: center;
+  }
+}
+
+.introjs-tooltipReferenceLayer {
+  .introjs-tooltip {
+    max-width: inherit !important;
+  }
+  .introjs-floating {
+    margin: 5vw 15vw !important;
+    position: fixed !important;
+    left: 0 !important;
+    top: 0 !important;
+  }
+}
+
+.introjs-tooltiptext {
+  a.introjs-button {
+    display: none;
+  }
+}
+
+.introjs-hint {
+  z-index: 1001;
+  $lightblue: desaturate(lighten($blue, 60%), 30%);
+  $lightlightblue: desaturate(lighten($lightblue, 60%), 30%);
+  .introjs-hint-pulse {
+    background-color: $lightblue;
+    border: 5px solid $lightlightblue;
+  }
+  .introjs-hint-dot {
+    border: 10px solid $lightblue; // rgba(146, 146, 146, 0.36)
   }
 }

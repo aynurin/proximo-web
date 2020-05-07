@@ -2,18 +2,19 @@ import {
   bindable,
   autoinject,
 } from "aurelia-framework";
-import { EventAggregator } from "aurelia-event-aggregator";
-
-import { connectTo } from 'aurelia-store';
-import { State } from '../state';
-
-import { AccountBalance } from '../model/account-balance';
-import { pluck } from "rxjs/operators";
-import * as moment from "moment";
 import { LogManager } from 'aurelia-framework';
-import { TranGenerated } from "model/tran-template";
+import { EventAggregator } from "aurelia-event-aggregator";
+import { connectTo } from 'aurelia-store';
 
-const log = LogManager.getLogger('accounts-summary');
+import * as moment from "moment";
+
+import { State } from '../state';
+import { IntroBuildingContext, IntroContainer } from "./intro-building-context";
+import { AccountBalance } from '../model/account-balance';
+
+const COMPONENT_NAME = "accounts-summary";
+
+const log = LogManager.getLogger(COMPONENT_NAME);
 
 @autoinject()
 @connectTo()
@@ -26,28 +27,43 @@ export class AccountsSummaryCustomElement {
   public months: string[];
   public totals: AccountByMonths;
 
-  private lastVersion: number;
+  private htmlElement: HTMLElement;
 
-  constructor(ea: EventAggregator) {
-    log.debug('constructor');
-    ea.subscribe("ledger-changed", () => this.ledgerChanged());
+  private intro: IntroContainer;
+
+  constructor(
+    private ea: EventAggregator,
+    private introContext: IntroBuildingContext) { }
+
+  created() {
+    log.debug('created');
+    this.ea.subscribe("ledger-changed", () => this.ledgerChanged());
+    this.intro = this.introContext.getContainer(COMPONENT_NAME);
+  }
+
+  readyForIntro() {
+    log.debug("readyForIntro");
+    this.intro.ready([{ 
+      element: this.htmlElement, 
+      intro: `components:${COMPONENT_NAME}.intro.default`, 
+      version: 1,
+      priority: 20 }]);
+  }
+
+  bind() {
+    log.debug('bind');
+    if (this.state && this.state.ledger && this.state.ledger.length > 0) {
+      this.generateTable(this.state);
+    }
   }
 
   attached() {
     log.debug('attached');
-    this.generateTable(this.state);
   }
 
   ledgerChanged = () => {
     log.debug('ledgerChanged');
     this.generateTable(this.state);
-  }
-
-  ifLedgerChanged(action: (state: State) => void) {
-    if (this.state) {
-      action(this.state);
-      this.lastVersion = this.state.scheduleVersion;
-    }
   }
 
   // when data is changed - need to update datasets
@@ -98,14 +114,15 @@ export class AccountsSummaryCustomElement {
       }
       l_totals.endingBalance = l_totals.months[month].ending;
     }
-    
+
     this.byMonths = Object.values(l_byMonth);
     this.months = l_months;
     this.totals = l_totals;
+    this.readyForIntro();
   }
 
   monthName(month: string) {
-    return moment(month).format("MMMM");
+    return moment(month).format("MMM");
   }
 }
 
@@ -161,11 +178,4 @@ class AccountMonth {
       return "warning";
     }
   }
-}
-
-interface TranMonth {
-  account: string;
-  month: number;
-  amount: number;
-  balance: number;
 }

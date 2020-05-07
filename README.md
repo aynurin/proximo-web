@@ -8,16 +8,16 @@ For more information, go to https://aurelia.io/docs/cli/webpack
 
 Guess account balances
 Intro:
-    * -> Dash: Welcome to PROXIMO! This is your dashboard. It shows you your financial forecast. REMEMBER: PROXIMO is not connected to your banking account, and it does not run any real transactions on your behalf. PROXIMO is a simulation tool that let's you simulate transactions that you can predict in the future. Click "Next" to look around.
-        * CHART: The chart shows how your accounts will behave given the transactions schedule you create
-        * TABLE: This table shows your monthly accounts and totals. You can find the mininum account balance during the month, ending balance, how much money was deposited on that account, and how much was spent. This table will highlight months when your expences exceed your income or when you have a risk of an overdraft.
-        * FORM: This is where you set your current accounts balance. PROXIMO will try to guess these numbers given the schedule you define, but it is always a good idea to check again with your online bank or banking app and update here if anything is not matching.
-        * SCHEDULE: Click here to see the schedule you have just defined.
-    * -> Schedule: This is your schedule. It instructs PROXIMO what transactions to simulate on your accounts. You can review the schedule here, modify it, or delete a scheduled transaction. As a reminder: PROXIMO is not connected to your banking account, and it does not run any real transactions on your behalf. PROXIMO is a simulation tool that let's you simulate transactions that you can predict in the future.
-        * LEDGER: Click here to have a look at your forecasted ledger
-    * -> Ledger: This is your forecast. It shows transactions generated based on your schedule. It is often helpful to look into it for a detailed review and to figure our where the money went. It will highlight transactions in yellow if they make any of your accounts go below $50 or in red if they cause an overdraft.
+    * -> + Dash: Welcome to PROXIMO! This is your dashboard. It shows you your financial forecast. REMEMBER: PROXIMO is not connected to your banking account, and it does not run any real transactions on your behalf. PROXIMO is a simulation tool that let's you simulate transactions that you can predict in the future. Click "Next" to look around.
+        * + CHART: The chart shows how your accounts will behave over the next year given the transactions schedule you define.
+        * + TABLE: This table shows your monthly accounts and totals. You can find the mininum account balance during the month, ending balance, how much money was deposited on that account, and how much was spent. This table will highlight months when your expences exceed your income or when you have a risk of an overdraft.
+        * + FORM: This is where you set your current accounts balance. PROXIMO will try to guess these numbers given the schedule you define, but it is always a good idea to check again with your online bank or banking app and update here if anything is not matching.
+        * + SCHEDULE: Click here to see the schedule you have just defined.
+    * -> + Schedule: This is your schedule. It instructs PROXIMO what transactions to simulate. You can review the schedule here, modify it, or delete a scheduled transaction that shouldn't be executed anymore. As a reminder: PROXIMO is not connected to your banking account, and it does not run any real transactions on your behalf. PROXIMO is a simulation tool that lets you simulate transactions that you can predict in the future.
+        * + LEDGER: Click here to have a look at your forecasted ledger
+    * -> + Ledger: This page shows your forcasted transactions. It shows transactions generated based on your schedule. It is often helpful to look into it for a detailed review and to figure our where the money went. It will highlight transactions in yellow if they make any of your accounts go below $50 or in red if they cause an overdraft.
         * ACCOUNT: This is your running balance on this account.
-        * NEW TRANSACTION: Click here to plan a birthday party that will happen in several months.
+        * + NEW TRANSACTION: Click here to plan a birthday party that will happen in several months.
             * Choose a date when it happens
             * Now tell PROXIMO how to schedule this transaction. Given this is a birthday party, it will probably happen once a year, so choose this option and click NEXT.
             * Even if this is a weekend or a holiday, PROXIMO should simulate it right on the birthday date, so let's keep this as is and click NEXT.
@@ -36,6 +36,10 @@ Undo/Redo/Create new experiment
 Date Picker UX
 Focus mode - next month in details
 Daily notifications
+Loading
+
+
+BLOG idea: Hugo with theme: 
 
 ## Run dev app
 

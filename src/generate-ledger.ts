@@ -1,15 +1,17 @@
 import { autoinject, noView, observable } from "aurelia-framework";
+import { LogManager } from 'aurelia-framework';
 import { EventAggregator } from "aurelia-event-aggregator";
 import { Store } from "aurelia-store";
-import { State } from "./state";
-import { LogManager } from 'aurelia-framework';
+
 import * as CronParser from "cron-parser";
 import * as moment from "moment";
-import { Schedule } from "model/schedule";
 import { Subscription } from "rxjs";
+
+import { State } from "./state";
+
+import { Schedule } from "model/schedule";
 import { TranStateActions } from "model/tran-actions";
-import { TranGenerated, TranTemplate } from "model/tran-template";
-import { AccountBalance } from "model/account-balance";
+import { TranGenerated } from "model/tran-template";
 
 const log = LogManager.getLogger('generate-ledger');
 
@@ -20,38 +22,44 @@ export class GenerateLedger {
     private subscription: Subscription;
 
     private ledger: TranGenerated[] = null;
-    private ledgerVersion: number = null;
-    private lastVersion: number;
 
-    bind() {
-      this.subscription = this.store.state.subscribe(
-        (state) => this.state = state
-      );
-    }
-  
-    unbind() {
-      this.subscription.unsubscribe();
-    }
-    
-    public constructor(public store: Store<State>, private ea: EventAggregator,
+    public constructor(
+        public store: Store<State>,
+        private ea: EventAggregator,
         private tranActions: TranStateActions) {
-            ea.subscribe('schedule-changed', this.scheduleChanged);
-            ea.subscribe('accounts-changed', this.accountsChanged);
+        ea.subscribe('schedule-changed', this.scheduleChanged);
+        ea.subscribe('accounts-changed', this.accountsChanged);
+        ea.subscribe('state-hydrated', this.stateHydrated);
     }
 
-    scheduleChanged = async () => {
+    public bind() {
+        this.subscription = this.store.state.subscribe(
+            (state) => this.state = state
+        );
+    }
+
+    public unbind() {
+        this.subscription.unsubscribe();
+    }
+
+    private stateHydrated = async () => {
+        log.debug('stateRehydrated');
+        await this.generateLedger(this.state);
+    }
+
+    private scheduleChanged = async () => {
         log.debug('scheduleChanged');
         await this.generateLedger(this.state);
     }
 
-    accountsChanged = async () => {
+    private accountsChanged = async () => {
         log.debug('accountsChanged');
         await this.generateLedger(this.state);
     }
 
     public generateLedger = async (state: State): Promise<TranGenerated[]> => {
         log.debug('generateLedger', state ? state.scheduleVersion : 'none');
-        let accounts = state.accounts2.map(a => Object.assign({}, a, {inUse: false}));
+        let accounts = state.accounts2.map(a => Object.assign({}, a, { inUse: false }));
         let start = new Date();
         let end = new Date();
         end.setFullYear(end.getFullYear() + 1);
@@ -140,9 +148,9 @@ export class GenerateLedger {
             gtran.balances = Object.assign({}, balances);
         }
 
-        log.debug("ledger-changed", ledger.length, accounts.length);
         await this.tranActions.replaceLedger(ledger);
         await this.tranActions.replaceAccounts(accounts);
+        log.debug("ea:ledger-changed", ledger.length, accounts.length);
         this.ea.publish("ledger-changed", ledger);
         return this.ledger;
     }
@@ -159,8 +167,4 @@ function getBestDate(one: Date, another: Date | string) {
     } else {
         return moment(another);
     }
-}
-
-function cloneArray<T>(arr: Array<T>) {
-    return arr.map(i => Object.assign({}, i));
 }

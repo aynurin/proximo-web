@@ -1,22 +1,17 @@
-import {
-  bindable,
-  autoinject,
-  computedFrom
-} from "aurelia-framework";
-import cronstr from "../components/cronstr";
+import { autoinject } from "aurelia-framework";
+import { LogManager } from 'aurelia-framework';
+import { EventAggregator } from "aurelia-event-aggregator";
+import { connectTo } from "aurelia-store";
+
 import * as moment from "moment";
 
-import { Store, connectTo } from "aurelia-store";
 import { State } from "../state";
 
-import { Schedule, HolidayRule } from "../model/schedule";
+import { Schedule } from "../model/schedule";
 import { TranTemplate } from "../model/tran-template";
 import { TranStateActions } from "../model/tran-actions";
-import { DialogController } from 'aurelia-dialog';
-import { LogManager } from 'aurelia-framework';
 
-const log = LogManager.getLogger('edit-schedule');
-
+const log = LogManager.getLogger('welcome');
 
 @autoinject()
 @connectTo()
@@ -31,12 +26,16 @@ export class WelcomeCustomElement {
   public state: State;
 
   public constructor(
-    private dialogController: DialogController,
-    private tranActions: TranStateActions) { }
+    private tranActions: TranStateActions,
+    private ea: EventAggregator) { }
 
   get canSave(): boolean {
     const toSave = this.getTransactionsToSave();
     return toSave !== false && toSave.length > 0;
+  }
+
+  attached() {
+    log.debug("attached");
   }
 
   getTransactionsToSave(): FormRowTranTemplate[] | false {
@@ -57,20 +56,24 @@ export class WelcomeCustomElement {
     this.addedTrans.push(new FormRowTranTemplate());
   }
 
-  saveSchedule() {
+  async saveSchedule() {
     const toSave = this.getTransactionsToSave();
     if (toSave !== false && toSave.length > 0) {
       const trans = toSave.map(t => this.createSchedule(t));
+      await this.tranActions.replaceAccounts([]);
       for (let tran of trans) {
-        this.tranActions.addSchedule(tran);
+        await this.tranActions.addSchedule(tran);
       }
+      this.ea.publish("state-hydrated");
       this.tran1 = new FormRowTranTemplate();
       this.tran2 = new FormRowTranTemplate();
       this.tran3 = new FormRowTranTemplate();
       this.tran4 = new FormRowTranTemplate();
       this.tran5 = new FormRowTranTemplate();
       this.addedTrans = [];
-      this.welcomeForm.reset();
+      if (this.welcomeForm) {
+        this.welcomeForm.reset();
+      }
     }
   }
 

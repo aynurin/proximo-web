@@ -1,9 +1,11 @@
 import { autoinject } from "aurelia-framework";
-import { Store } from 'aurelia-store';
-import { State } from '../state';
-import { TranTemplate, TranGenerated } from './tran-template';
-import { AccountBalance } from './account-balance';
 import { LogManager } from 'aurelia-framework';
+import { Store } from 'aurelia-store';
+
+import { State } from '../state';
+
+import { AccountBalance } from './account-balance';
+import { TranTemplate, TranGenerated } from './tran-template';
 
 const log = LogManager.getLogger('tran-actions');
 
@@ -86,7 +88,7 @@ const addScheduleAction = (state: State, tran: TranTemplate) => {
     newState.scheduleVersion = 1;
   } else {
     newState.scheduleVersion += 1;
-    log.debug("addTran, new version:", newState.scheduleVersion);
+    log.debug("addSchedule, new version:", newState.scheduleVersion);
   }
 
   return newState;
