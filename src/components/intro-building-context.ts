@@ -27,6 +27,7 @@ export class IntroBuildingContext {
     private containers: { [name: string]: IntroContainer } = {};
     private currentIntro: any = null;
     private introIsRunning: boolean = false;
+    private introStartHandle: number = 0;
 
     constructor(
         public store: Store<State>,
@@ -34,10 +35,9 @@ export class IntroBuildingContext {
         private introStateActions: IntroStateActions) { }
 
     public bind() {
-        log.debug("bind");
         this.subscription = this.store.state.subscribe(
             (state) => {
-                this.introContainersState = state.introContainers.sort((a, b) => a.name.localeCompare(b.name));
+                this.introContainersState = state.introContainers ? state.introContainers.sort((a, b) => a.name.localeCompare(b.name)) : [];
             }
         );
     }
@@ -86,7 +86,6 @@ export class IntroBuildingContext {
     public getPagesToShow(container: IntroContainer, allPages: IIntroPage[]): IIntroPage[] {
         let pagesToShow: IIntroPage[] = [];
         let containerState = this.getOrCreateContainerState(container.name);
-        log.debug(container.name, containerState);
         allPages = allPages.map(p => pageWithDefaults(container, p));
         // fool proof:
         for (let page of allPages) {
@@ -98,7 +97,6 @@ export class IntroBuildingContext {
             allPages = allPages.filter(p => p.version > containerState.versionCompleted);
         }
         let maxPageVersion = 0;
-        log.debug("getPagesToShow", container.name, allPages);
         for (let page of allPages) {
             let i18nId = page.intro;
             if (i18nId == null && page.id != null && page.id.length > 0) {
@@ -111,14 +109,19 @@ export class IntroBuildingContext {
             }
         }
         container.maxPageVersion = maxPageVersion;
-        pagesToShow = pagesToShow.sort((a, b) => a.priority - b.priority);
 
-        if (pagesToShow.length > 0) {
-            this.currentIntro.setOption("steps", pagesToShow);
-            this.currentIntro.setOption("hints", pagesToShow);
-        }
+        log.debug(`will show ${allPages.length} pages for ${container.name}`);
 
         return pagesToShow;
+    }
+
+    public startHints(hints: IIntroPage[]) {
+      this.currentIntro.setOption("hints", hints);
+      if (!this.introIsRunning) {
+          this.currentIntro.addHints();
+          this.currentIntro.hideHints();
+          this.introIsRunning = true;
+      }
     }
 
     /**
@@ -136,15 +139,20 @@ export class IntroBuildingContext {
             startIntroOptions = { showStepNumbers: false, hintPosition: 'top-right' };
         }
         this.currentIntro.setOptions(startIntroOptions);
-        const pagesToAdd: IIntroPage[] = [];
+        let pagesToShow: IIntroPage[] = [];
         for (let container of Object.values(this.containers)) {
             let introPages = await container.waiter;
             introPages = this.getPagesToShow(container, introPages);
             for (let page of introPages) {
-                pagesToAdd.push(page);
+              pagesToShow.push(page);
             }
         }
-        if (pagesToAdd.length > 0) {
+        pagesToShow = pagesToShow.sort((a, b) => a.priority - b.priority);
+        log.debug("will show pages", pagesToShow);
+
+        if (pagesToShow.length > 0) {
+            this.currentIntro.setOption("steps", pagesToShow);
+
             let _self = this;
             this.currentIntro.onchange(function () {
                 let previousPage: IIntroPage;
@@ -168,11 +176,6 @@ export class IntroBuildingContext {
 
     public showOnePage(pageIndex: number, page: IIntroPage) {
         log.debug("showOnePage", page, pageIndex, this.introIsRunning);
-        if (!this.introIsRunning) {
-            this.currentIntro.addHints();
-            this.currentIntro.hideHints();
-            this.introIsRunning = true;
-        }
         this.currentIntro.showHint(pageIndex);
         this.currentIntro.showHintDialog(pageIndex);
     }
@@ -183,8 +186,14 @@ export class IntroBuildingContext {
             this.introIsRunning = false;
         });
         this.currentIntro.oncomplete(this.completeIntro);
-        this.currentIntro.start();
-        this.introIsRunning = true;
+        if (this.introStartHandle != null) {
+          window.clearTimeout(this.introStartHandle);
+          this.introStartHandle = null;
+        }
+        this.introStartHandle = window.setTimeout(() => {
+          this.currentIntro.start();
+          this.introIsRunning = true;
+        }, 1000);
     }
 
     private stopCurrentIntro() {
@@ -202,7 +211,6 @@ export class IntroBuildingContext {
         log.debug("completeIntro", this.containers);
         for (let container of Object.values(this.containers)) {
             let containerState = this.getOrCreateContainerState(container.name);
-            log.debug(container.name, containerState);
             if (container.maxPageVersion > 0) {
                 containerState.versionCompleted = container.maxPageVersion;
                 containerState.completedDate = new Date().toISOString();
