@@ -110,7 +110,7 @@ export class IntroBuildingContext {
         }
         container.maxPageVersion = maxPageVersion;
 
-        log.debug(`will show ${allPages.length} pages for ${container.name}`);
+        log.debug(`will show ${allPages.length} pages for ${container.name}; versionCompleted = ${containerState.versionCompleted}`);
 
         return pagesToShow;
     }
