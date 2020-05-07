@@ -28,6 +28,7 @@ export class LedgerGridCustomElement {
   }
 
   attached() {
+    log.debug('attached');
     waitFor(() => this.htmlElement && this.htmlElement.rows.length > 0, this.readyForIntro);
   }
 

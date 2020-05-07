@@ -88,7 +88,7 @@ const addScheduleAction = (state: State, tran: TranTemplate) => {
     newState.scheduleVersion = 1;
   } else {
     newState.scheduleVersion += 1;
-    log.debug("addTran, new version:", newState.scheduleVersion);
+    log.debug("addSchedule, new version:", newState.scheduleVersion);
   }
 
   return newState;

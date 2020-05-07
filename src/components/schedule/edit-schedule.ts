@@ -7,7 +7,6 @@ import { EventAggregator } from "aurelia-event-aggregator";
 import cronstr from "../cronstr";
 import * as moment from "moment";
 
-import { Store, connectTo } from "aurelia-store";
 import { State } from "../../state";
 
 import { Schedule, HolidayRule } from "../../model/schedule";
@@ -20,7 +19,6 @@ const log = LogManager.getLogger('edit-schedule');
 
 
 @autoinject()
-@connectTo()
 export class EditScheduleCustomElement {
   @bindable tranwr: TranScheduleWrapper<TranTemplate> = new TranScheduleWrapper(new TranTemplate());
   originalTran: TranTemplate = null;
@@ -39,12 +37,12 @@ export class EditScheduleCustomElement {
   }
 
   async cancelForm() {
-    log.debug('cancel dialog');
+    log.debug('cancelForm');
     await this.dialogController.cancel();
   }
 
   async saveSchedule() {
-    log.debug('save schedule');
+    log.debug('saveSchedule');
     if (this.canSave) {
       await this.tranActions.replaceSchedule(this.originalTran, this.tranwr.value);
       this.ea.publish('schedule-changed');
@@ -54,7 +52,6 @@ export class EditScheduleCustomElement {
   }
 
   scheduleMatcher(a: Schedule, b: Schedule) {
-    log.debug('scheduleMatcher', a, b);
     return Schedule.equals(a, b);
   }
 

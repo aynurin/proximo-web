@@ -212,14 +212,15 @@ export class IntroBuildingContext {
      * Stops current intro and marks all pages as seen.
      */
     public completeIntro = async() => {
-        log.debug("completeIntro", this.containers);
         for (let container of Object.values(this.containers)) {
             let containerState = this.getOrCreateContainerState(container.name);
             if (container.maxPageVersion > 0) {
                 containerState.versionCompleted = container.maxPageVersion;
                 containerState.completedDate = new Date().toISOString();
-                log.debug("container completed", containerState.name, containerState.versionCompleted);
+                log.debug(`container ${containerState.name} completed, versionCompleted =`, containerState.versionCompleted);
                 await this.introStateActions.addOrUpdateContainer(containerState);
+            } else {
+              log.debug(`container ${containerState.name} won't complete as the max version is set to ${container.maxPageVersion}, versionCompleted =`, containerState.versionCompleted);
             }
         }
         this.stopCurrentIntro();

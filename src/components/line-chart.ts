@@ -90,7 +90,7 @@ export class LineChartCustomElement {
   }
 
   resetChartContext() {
-    log.debug('resetChartContext');
+    log.debug('resetChartContext', this.chartArea != null);
     if (this.chartArea == null) {
       return;
     }

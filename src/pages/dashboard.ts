@@ -32,11 +32,11 @@ export class DashboardCustomElement {
         version: 1,
         priority: 100,
         onStepEnter: (introContext: IntroBuildingContext) => {
-          log.debug("attaching scheduleTabButton click event listener");
+          log.debug("attaching onclick", scheduleTabButton);
           scheduleTabButton.addEventListener("click", introContext.completeIntro);
         },
         onStepExit: (introContext: IntroBuildingContext) => {
-          log.debug("detaching scheduleTabButton click event listener");
+          log.debug("detaching onclick", scheduleTabButton);
           scheduleTabButton.removeEventListener("click", introContext.completeIntro);
       }
       }]);

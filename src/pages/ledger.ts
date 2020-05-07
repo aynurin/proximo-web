@@ -28,11 +28,11 @@ export class LedgerCustomElement {
         version: 1,
         priority: 100,
         onStepEnter: (introContext: IntroBuildingContext) => {
-          log.debug("attaching scheduleTabButton click event listener");
+          log.debug("attaching onclick", scheduleWizardButton);
           scheduleWizardButton.addEventListener("click", introContext.completeIntro);
         },
         onStepExit: (introContext: IntroBuildingContext) => {
-          log.debug("detaching scheduleTabButton click event listener");
+          log.debug("detaching onclick", scheduleWizardButton);
           scheduleWizardButton.removeEventListener("click", introContext.completeIntro);
       }
       }]);
