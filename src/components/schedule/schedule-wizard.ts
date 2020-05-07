@@ -51,6 +51,7 @@ export class ScheduleWizardCustomElement {
       { element, version: 3, id: 'daterange.default' },
       { element, version: 3, id: 'parameters.default' }
     ]);
+    this.introContext.startHints(this.introPages);
   }
 
   public constructor(
@@ -96,12 +97,10 @@ export class ScheduleWizardCustomElement {
 
   async addNewTran() {
     if (this.canSave) {
-      log.debug("Add new schedule", this.tranwr.value);
-      await this.tranActions.addSchedule(this.tranwr.value);
-      this.ea.publish('schedule-changed');
       this.introContext.completeIntro();
-      await this.dialogController.ok();
+      this.introContext.clear();
       this.flow.onStageChangedCallback = null;
+      await this.dialogController.ok(this.tranwr.value);
       this.tranwr = new TranScheduleWrapper(new TranTemplate());
       this.flow.reset();
     }

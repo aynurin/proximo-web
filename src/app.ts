@@ -146,6 +146,12 @@ export class App {
     }
   }
 
+  createSchedule = async (evt) => {
+    log.debug("Create schedule (ea:schedule-changed)", evt.detail);
+    await this.tranActions.addSchedule(evt.detail);
+    this.ea.publish('schedule-changed');
+  }
+
   configureRouter(config: RouterConfiguration, router: Router): void {
     log.debug("configureRouter");
     this.router = router;
