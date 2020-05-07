@@ -48,7 +48,7 @@ export class ScheduleGridCustomElement {
     this.intro.ready([{
       element: this.htmlElement,
       intro: `schedule:${COMPONENT_NAME}.intro.default`,
-      version: 12,
+      version: 1,
       priority: 0
     }]);
   }

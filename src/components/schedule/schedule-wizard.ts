@@ -45,11 +45,11 @@ export class ScheduleWizardCustomElement {
     // then the controller will need to decide that the next intro step has to be shown
     log.debug("readyForIntro", element);
     this.introPages = this.introContext.getPagesToShow(this.intro, [
-      { element, version: 3, id: 'date.default' },
-      { element, version: 3, id: 'schedule.default' },
-      { element, version: 3, id: 'holidayrule.default' },
-      { element, version: 3, id: 'daterange.default' },
-      { element, version: 3, id: 'parameters.default' }
+      { element, version: 1, id: 'date.default' },
+      { element, version: 1, id: 'schedule.default' },
+      { element, version: 1, id: 'holidayrule.default' },
+      { element, version: 1, id: 'daterange.default' },
+      { element, version: 1, id: 'parameters.default' }
     ]);
     this.introContext.startHints(this.introPages);
   }

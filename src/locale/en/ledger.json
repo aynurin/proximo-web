@@ -1,7 +1,7 @@
 {
     "ledger-grid": {
         "intro": {
-            "default": "This page shows your upcoming transactions forcasted based on the schedule you defined. It is often helpful to look into it to see the next transactions, or for a detailed review and analysis of where the money go. It will highlight transactions in yellow if they make any of your accounts go below $50 or in red if they cause an overdraft."
+            "default": "This page shows your upcoming transactions forcasted based on the schedule you defined. It is often helpful if you want to have a look at the upcoming transactions, or make a detailed review and analysis of where the money will go. It will highlight transactions in yellow if they make any of your accounts go below $50 or in red if they cause an overdraft."
         }
     },
     "intro": {

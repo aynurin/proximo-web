@@ -24,12 +24,12 @@ export class DashboardCustomElement {
     waitForHtmlElement("schedule-tab-button", (scheduleTabButton: HTMLElement) => {
       this.intro.ready([{
         intro: `${COMPONENT_NAME}:intro.default`,
-        version: 15,
+        version: 1,
         priority: 0
       }, {
         element: scheduleTabButton, 
         intro: `${COMPONENT_NAME}:intro.schedule-tab`,
-        version: 15,
+        version: 1,
         priority: 100,
         onStepEnter: (introContext: IntroBuildingContext) => {
           log.debug("attaching scheduleTabButton click event listener");
