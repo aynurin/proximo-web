@@ -35,7 +35,7 @@ export class ScheduleCustomElement {
         onStepExit: (introContext: IntroBuildingContext) => {
           log.debug("detaching scheduleTabButton click event listener");
           ledgerTabButton.removeEventListener("click", introContext.completeIntro);
-      }
+        }
       }]);
     });
   }

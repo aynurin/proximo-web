@@ -124,21 +124,46 @@ export class IntroBuildingContext {
       }
     }
 
+    public startIntroWithPages(pagesToShow: IIntroPage[], startIntroOptions?: any) {
+      if (this.currentIntro != null) {
+          this.stopCurrentIntro();
+          this.currentIntro = null;
+      }
+      this.currentIntro = introJs();
+      if (startIntroOptions == null) {
+          startIntroOptions = { showStepNumbers: false, hintPosition: 'top-right' };
+      }
+      this.currentIntro.setOptions(startIntroOptions);
+      this.currentIntro.setOption("steps", pagesToShow);
+
+      if (pagesToShow.length > 0) {
+        let _self = this;
+        this.currentIntro.onchange(function () {
+            let previousPage: IIntroPage;
+            if (this.previousItem == null || typeof this.previousItem === "undefined") {
+                previousPage = null;
+            } else {
+                previousPage = this.previousItem;
+            }
+            let currentPage: IIntroPage = this._introItems[this._currentStep];
+            this.previousItem = currentPage;
+            if (previousPage && typeof previousPage.onStepExit === "function") {
+                previousPage.onStepExit(_self);
+            }
+            if (currentPage && typeof currentPage.onStepEnter === "function") {
+                currentPage.onStepEnter(_self);
+            }
+        });
+        this.startCurrentIntro();
+      }
+    }
+
     /**
      * Called by the app.ts when the app is ready to run the intro (on RouterEvent.Success)
      * It will wait for all containers to be ready before starting, and will only show pages 
      * that have not been completed before.
      */
     public async startIntro(startIntroOptions?: any) {
-        if (this.currentIntro != null) {
-            this.stopCurrentIntro();
-            this.currentIntro = null;
-        }
-        this.currentIntro = introJs();
-        if (startIntroOptions == null) {
-            startIntroOptions = { showStepNumbers: false, hintPosition: 'top-right' };
-        }
-        this.currentIntro.setOptions(startIntroOptions);
         let pagesToShow: IIntroPage[] = [];
         for (let container of Object.values(this.containers)) {
             let introPages = await container.waiter;
@@ -150,28 +175,7 @@ export class IntroBuildingContext {
         pagesToShow = pagesToShow.sort((a, b) => a.priority - b.priority);
         log.debug("will show pages", pagesToShow);
 
-        if (pagesToShow.length > 0) {
-            this.currentIntro.setOption("steps", pagesToShow);
-
-            let _self = this;
-            this.currentIntro.onchange(function () {
-                let previousPage: IIntroPage;
-                if (this.previousItem == null || typeof this.previousItem === "undefined") {
-                    previousPage = null;
-                } else {
-                    previousPage = this.previousItem;
-                }
-                let currentPage: IIntroPage = this._introItems[this._currentStep];
-                this.previousItem = currentPage;
-                if (previousPage && typeof previousPage.onStepExit === "function") {
-                    previousPage.onStepExit(_self);
-                }
-                if (currentPage && typeof currentPage.onStepEnter === "function") {
-                    currentPage.onStepEnter(_self);
-                }
-            });
-            this.startCurrentIntro();
-        }
+        this.startIntroWithPages(pagesToShow, startIntroOptions);
     }
 
     public showOnePage(pageIndex: number, page: IIntroPage) {
@@ -193,7 +197,7 @@ export class IntroBuildingContext {
         this.introStartHandle = window.setTimeout(() => {
           this.currentIntro.start();
           this.introIsRunning = true;
-        }, 1000);
+        }, 500);
     }
 
     private stopCurrentIntro() {

@@ -26,8 +26,11 @@ import { IntroStateActions } from "model/intro-actions";
 
 import { ScheduleWizardCustomElement } from "components/schedule/schedule-wizard";
 import { IntroBuildingContext } from "components/intro-building-context";
+import { waitForHtmlElement } from "components/utils";
 
-const log = LogManager.getLogger('app');
+const COMPONENT_NAME = "app";
+
+const log = LogManager.getLogger(COMPONENT_NAME);
 
 @connectTo()
 @autoinject()
@@ -70,7 +73,6 @@ export class App {
     await this.store.dispatch("RehydrateSate", environment.storeKey);
     this.rehydrateCompleted = true;
     this.ea.publish("state-hydrated");
-    log.debug("will call stateChanged");
     this.stateChanged();
   }
 
@@ -146,10 +148,32 @@ export class App {
     }
   }
 
-  createSchedule = async (evt) => {
+  async createSchedule(evt) {
     log.debug("Create schedule (ea:schedule-changed)", evt.detail);
     await this.tranActions.addSchedule(evt.detail);
     this.ea.publish('schedule-changed');
+
+    this.showHintsIfNecessary();
+  }
+
+  showHintsIfNecessary() {
+    let intro = this.introContext.getContainer(COMPONENT_NAME);
+    waitForHtmlElement("dashboard-tab-button", element => {
+      log.debug("dashboard-tab-button", element);
+      let introPages = this.introContext.getPagesToShow(intro, [
+        { element, id: 'transaction-added.dashboard',
+          onStepEnter: (introContext: IntroBuildingContext) => {
+            log.debug("attaching scheduleTabButton click event listener");
+            element.addEventListener("click", introContext.completeIntro);
+          },
+          onStepExit: (introContext: IntroBuildingContext) => {
+            log.debug("detaching scheduleTabButton click event listener");
+            element.removeEventListener("click", introContext.completeIntro);
+          } 
+        },
+      ]);
+      this.introContext.startIntroWithPages(introPages);
+    });
   }
 
   configureRouter(config: RouterConfiguration, router: Router): void {
