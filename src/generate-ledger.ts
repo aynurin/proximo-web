@@ -148,9 +148,9 @@ export class GenerateLedger {
             gtran.balances = Object.assign({}, balances);
         }
 
-        log.debug("ledger-changed", ledger.length, accounts.length);
         await this.tranActions.replaceLedger(ledger);
         await this.tranActions.replaceAccounts(accounts);
+        log.debug("ea:ledger-changed", ledger.length, accounts.length);
         this.ea.publish("ledger-changed", ledger);
         return this.ledger;
     }

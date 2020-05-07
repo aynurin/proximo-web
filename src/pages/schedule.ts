@@ -26,16 +26,16 @@ export class ScheduleCustomElement {
       this.intro.ready([{
         element: ledgerTabButton, 
         intro: `${COMPONENT_NAME}:intro.ledger-tab`,
-        version: 11,
+        version: 1,
         priority: 100,
         onStepEnter: (introContext: IntroBuildingContext) => {
-          log.debug("attaching scheduleTabButton click event listener");
+          log.debug("attaching onclick", ledgerTabButton);
           ledgerTabButton.addEventListener("click", introContext.completeIntro);
         },
         onStepExit: (introContext: IntroBuildingContext) => {
-          log.debug("detaching scheduleTabButton click event listener");
+          log.debug("detaching onclick", ledgerTabButton);
           ledgerTabButton.removeEventListener("click", introContext.completeIntro);
-      }
+        }
       }]);
     });
   }

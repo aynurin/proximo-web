@@ -45,7 +45,7 @@ export class AccountsCustomElement {
     this.intro.ready([{
       element: this.htmlElement,
       intro: `components:${COMPONENT_NAME}.intro.default`, 
-      version: 12,
+      version: 1,
       priority: 20
     }]);
   }

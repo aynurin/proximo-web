@@ -46,7 +46,7 @@ export class AccountsSummaryCustomElement {
     this.intro.ready([{ 
       element: this.htmlElement, 
       intro: `components:${COMPONENT_NAME}.intro.default`, 
-      version: 11,
+      version: 1,
       priority: 20 }]);
   }
 

@@ -28,6 +28,7 @@ export class LedgerGridCustomElement {
   }
 
   attached() {
+    log.debug('attached');
     waitFor(() => this.htmlElement && this.htmlElement.rows.length > 0, this.readyForIntro);
   }
 
@@ -36,7 +37,7 @@ export class LedgerGridCustomElement {
     this.intro.ready([{
       element: this.htmlElement,
       intro: `ledger:${COMPONENT_NAME}.intro.default`,
-      version: 14,
+      version: 1,
       priority: 0
     }]);
   }

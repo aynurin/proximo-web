@@ -25,14 +25,14 @@ export class LedgerCustomElement {
       this.intro.ready([{
         element: scheduleWizardButton, 
         intro: `${COMPONENT_NAME}:intro.schedule-wizard-button`,
-        version: 14,
+        version: 1,
         priority: 100,
         onStepEnter: (introContext: IntroBuildingContext) => {
-          log.debug("attaching scheduleTabButton click event listener");
+          log.debug("attaching onclick", scheduleWizardButton);
           scheduleWizardButton.addEventListener("click", introContext.completeIntro);
         },
         onStepExit: (introContext: IntroBuildingContext) => {
-          log.debug("detaching scheduleTabButton click event listener");
+          log.debug("detaching onclick", scheduleWizardButton);
           scheduleWizardButton.removeEventListener("click", introContext.completeIntro);
       }
       }]);

@@ -13,7 +13,7 @@
             "default": "Choose if you want to limit the start or end date when the schedule is effective."
         },
         "parameters": {
-            "default": "On this screen you set all the basic parameters of this transaction: its amount, account, and description. Transfers between your own accounts require setting source and target accounts."
+            "default": "On this screen you set all the basic parameters of this transaction: its amount, account, and description. Transfers between your own accounts require setting source and target accounts. Put <code>My account</code> for account name for the sake of this walkthrough."
         }
     }
 }

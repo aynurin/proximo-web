@@ -54,7 +54,6 @@ export class Schedule {
       one.cron[1] == other.cron[1] &&
       one.cron[2] == other.cron[2] &&
       one.cron[3] == other.cron[3];
-      log.debug('equals', equals, this, other);
     return equals;
   }
 }

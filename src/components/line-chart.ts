@@ -43,7 +43,7 @@ export class LineChartCustomElement {
     this.intro.ready([{ 
       element: this.chartArea, 
       intro: `components:${COMPONENT_NAME}.intro.default`, 
-      version: 11,
+      version: 1,
       priority: 20 }]);
   }
 
@@ -90,7 +90,7 @@ export class LineChartCustomElement {
   }
 
   resetChartContext() {
-    log.debug('resetChartContext');
+    log.debug('resetChartContext', this.chartArea != null);
     if (this.chartArea == null) {
       return;
     }

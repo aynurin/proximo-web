@@ -3,16 +3,13 @@ import {
   autoinject,
   computedFrom
 } from "aurelia-framework";
-import { EventAggregator } from "aurelia-event-aggregator";
 import cronstr from "../cronstr";
 import * as moment from "moment";
 
 import { connectTo } from "aurelia-store";
-import { State } from "../../state";
 
 import { Schedule, HolidayRule } from "../../model/schedule";
 import { TranTemplate, TranScheduleWrapper } from "../../model/tran-template";
-import { TranStateActions } from "../../model/tran-actions";
 import { DialogController } from 'aurelia-dialog';
 import { LogManager } from 'aurelia-framework';
 import { IntroContainer, IntroBuildingContext, IIntroPage } from "components/intro-building-context";
@@ -26,37 +23,12 @@ const log = LogManager.getLogger(COMPONENT_NAME);
 @connectTo()
 export class ScheduleWizardCustomElement {
   @bindable tranwr: TranScheduleWrapper<TranTemplate> = new TranScheduleWrapper(new TranTemplate());
-  private scheduleWizardForm: HTMLFormElement;
-  private htmlModal: HTMLDivElement;
-  private holidayRuleNames: string[] = Object.keys(HolidayRule).filter(
-    key => typeof HolidayRule[key] === "number"
-  );
   private intro: IntroContainer;
   private introPages: IIntroPage[];
-
-  public state: State;
-
-  public flow: AddTransactionWorkflow = new AddTransactionWorkflow();
-
-  readyForIntro = (element: HTMLElement) => {
-    element = element.parentElement;
-    // todo: show next on some steps, but not others
-    // don't show "next" on steps where the user needs to interact with the UI
-    // then the controller will need to decide that the next intro step has to be shown
-    log.debug("readyForIntro", element);
-    this.introPages = this.introContext.getPagesToShow(this.intro, [
-      { element, version: 3, id: 'date.default' },
-      { element, version: 3, id: 'schedule.default' },
-      { element, version: 3, id: 'holidayrule.default' },
-      { element, version: 3, id: 'daterange.default' },
-      { element, version: 3, id: 'parameters.default' }
-    ]);
-  }
+  private flow: AddTransactionWorkflow = new AddTransactionWorkflow();
 
   public constructor(
     private dialogController: DialogController,
-    private tranActions: TranStateActions, 
-    private ea: EventAggregator,
     private introContext: IntroBuildingContext) { }
 
   activate(tran: TranTemplate) {
@@ -69,6 +41,19 @@ export class ScheduleWizardCustomElement {
     this.flow.advanceIfValid(this.tranwr.value);
   }
 
+  readyForIntro = (element: HTMLElement) => {
+    element = element.parentElement;
+    log.debug("readyForIntro", element);
+    this.introPages = this.introContext.getPagesToShow(this.intro, [
+      { element, version: 1, id: 'date.default' },
+      { element, version: 1, id: 'schedule.default' },
+      { element, version: 1, id: 'holidayrule.default' },
+      { element, version: 1, id: 'daterange.default' },
+      { element, version: 1, id: 'parameters.default' }
+    ]);
+    this.introContext.startHints(this.introPages);
+  }
+
   showIntroPage = (oldStage: ScheduleStage, newStage: ScheduleStage) => {
     // we are in race condition with readyForIntro here.
     waitFor(() => this.introPages != null, () => {
@@ -78,8 +63,6 @@ export class ScheduleWizardCustomElement {
       let page = this.introPages[pageIndex];
       if (page) {
         this.introContext.showOnePage(pageIndex, page);
-      } else {
-        log.debug(`Didn't find page for stage ${ScheduleStage[newStage]} by id (${introPageId})`);
       }
     });
   }
@@ -96,12 +79,10 @@ export class ScheduleWizardCustomElement {
 
   async addNewTran() {
     if (this.canSave) {
-      log.debug("Add new schedule", this.tranwr.value);
-      await this.tranActions.addSchedule(this.tranwr.value);
-      this.ea.publish('schedule-changed');
       this.introContext.completeIntro();
-      await this.dialogController.ok();
+      this.introContext.clear();
       this.flow.onStageChangedCallback = null;
+      await this.dialogController.ok(this.tranwr.value);
       this.tranwr = new TranScheduleWrapper(new TranTemplate());
       this.flow.reset();
     }
@@ -130,7 +111,7 @@ export class ScheduleWizardCustomElement {
   @computedFrom("tranwr.value.date")
   get allOptions(): Schedule[] {
     const date = moment(this.tranwr.value.date);
-    log.debug('allOptions', moment(date).format("MMM Do YYYY"));
+    log.debug('allOptions for', moment(date).format("MMM Do YYYY"));
     const options: Schedule[] = [];
 
     if (this.tranwr.value.date == null || this.tranwr.value.date == "") {

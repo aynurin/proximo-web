@@ -1,8 +1,5 @@
 import { autoinject } from "aurelia-framework";
 import { LogManager } from 'aurelia-framework';
-import { EventAggregator } from "aurelia-event-aggregator";
-import { PLATFORM } from 'aurelia-pal';
-
 import {
   Store,
   connectTo,
@@ -17,6 +14,8 @@ import {
   RouterEvent, 
   PipelineResult
 } from 'aurelia-router';
+import { EventAggregator } from "aurelia-event-aggregator";
+import { PLATFORM } from 'aurelia-pal';
 
 import * as environment from '../config/environment.json';
 
@@ -24,22 +23,20 @@ import { State } from './state';
 import { TranStateActions } from "model/tran-actions";
 import { IntroStateActions } from "model/intro-actions";
 
-import { ScheduleWizardCustomElement } from "components/schedule/schedule-wizard";
 import { IntroBuildingContext } from "components/intro-building-context";
+import { waitForHtmlElement } from "components/utils";
 
-const log = LogManager.getLogger('app');
+const COMPONENT_NAME = "app";
+
+const log = LogManager.getLogger(COMPONENT_NAME);
 
 @connectTo()
 @autoinject()
 export class App {
   private router: Router;
-  private disableTabs: boolean = true;
-  private showWelcome: boolean = true;
+  private state: State;
   private rehydrateCompleted: boolean = false;
   private resizeTimer: number;
-
-  public state: State;
-  public tranBuilder: ScheduleWizardCustomElement;
 
   get isProduction(): boolean { return environment.debug === false; };
 
@@ -70,7 +67,6 @@ export class App {
     await this.store.dispatch("RehydrateSate", environment.storeKey);
     this.rehydrateCompleted = true;
     this.ea.publish("state-hydrated");
-    log.debug("will call stateChanged");
     this.stateChanged();
   }
 
@@ -126,7 +122,6 @@ export class App {
   async stateChanged() {
     if (this.rehydrateCompleted) {
       let showDashboard = this.state && this.state.schedule && this.state.schedule.length > 0;
-      let showWelcome = !showDashboard;
       let originalLocationPath = document.location.pathname.trim().substr(1);
       let targetRouteName = showDashboard ? "dashboard" : "welcome";
       let allowRedirect = originalLocationPath === "" 
@@ -137,13 +132,38 @@ export class App {
         if (originalLocationPath !== targetRouteName) {
             await this.router.navigateToRoute(targetRouteName);
         } else {
-          log.debug("stateChanged no redirect necessary, showDashboard =", showDashboard, document.location.href);
+          log.debug("stateChanged: no redirect necessary, showDashboard =", showDashboard, document.location.href);
         }
       }
 
-      this.showWelcome = showWelcome;
-      this.disableTabs = showWelcome;
     }
+  }
+
+  async createSchedule(evt) {
+    log.debug("createSchedule (ea:schedule-changed)", evt.detail);
+    await this.tranActions.addSchedule(evt.detail);
+    this.ea.publish('schedule-changed');
+
+    this.showHintsIfNecessary();
+  }
+
+  showHintsIfNecessary() {
+    let intro = this.introContext.getContainer(COMPONENT_NAME);
+    waitForHtmlElement("dashboard-tab-button", element => {
+      let introPages = this.introContext.getPagesToShow(intro, [
+        { element, id: 'transaction-added.dashboard',
+          onStepEnter: (introContext: IntroBuildingContext) => {
+            log.debug("attaching dashboard-tab-button.click");
+            element.addEventListener("click", introContext.completeIntro);
+          },
+          onStepExit: (introContext: IntroBuildingContext) => {
+            log.debug("detaching dashboard-tab-button.click");
+            element.removeEventListener("click", introContext.completeIntro);
+          } 
+        },
+      ]);
+      this.introContext.startIntroWithPages(introPages);
+    });
   }
 
   configureRouter(config: RouterConfiguration, router: Router): void {
@@ -164,15 +184,6 @@ export class App {
     config.fallbackRoute('dashboard');
     config.mapUnknownRoutes('dashboard');
   }
-
-  defaultNavigation = (instruction: NavigationInstruction) => {
-    log.debug("defaultNavigation");
-    if (this.showWelcome === true) {
-      instruction.config.redirect = 'welcome';
-    } else {
-      instruction.config.redirect = 'dashboard';
-    }
-  };
 
   get mainNav() {
     return this.router.navigation.filter(nav => nav.settings.mainNav);

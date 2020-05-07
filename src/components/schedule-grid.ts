@@ -16,7 +16,7 @@ import { IntroContainer, IntroBuildingContext } from "./intro-building-context";
 import cronstr from "../components/cronstr";
 
 import * as environment from '../../config/environment.json';
-import { waitForHtmlElement, waitFor } from "./utils";
+import { waitFor } from "./utils";
 
 const COMPONENT_NAME = "schedule-grid";
 
@@ -40,6 +40,7 @@ export class ScheduleGridCustomElement {
   }
 
   attached() {
+    log.debug('attached');
     waitFor(() => this.htmlElement && this.htmlElement.rows.length > 0, this.readyForIntro);
   }
 
@@ -48,7 +49,7 @@ export class ScheduleGridCustomElement {
     this.intro.ready([{
       element: this.htmlElement,
       intro: `schedule:${COMPONENT_NAME}.intro.default`,
-      version: 12,
+      version: 1,
       priority: 0
     }]);
   }
