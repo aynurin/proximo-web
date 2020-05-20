@@ -32,12 +32,20 @@ export class TranGenerated implements ITransaction {
   balances: any = null;
   isTransfer: boolean = null;
   transferToAccount: string = null;
+  state: TranState = null;
 }
 
 export enum TranType {
   Deposit = 1,
   Withdrawal,
   Transfer
+}
+
+export enum TranState {
+  Planned = 0,
+  Processing = 1,
+  Executed = 2,
+  Deleted = 3
 }
 
 export class TranScheduleWrapper<T extends ITransaction> {

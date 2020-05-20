@@ -30,6 +30,24 @@ const COMPONENT_NAME = "app";
 
 const log = LogManager.getLogger(COMPONENT_NAME);
 
+/*
+As we progress through dates, we need to:
+1. Automatically mark some transactions as executed
+2. Generate new future transactions based on defined schedule
+3. Adjust totals
+
+On the ledger page we need to:
+1. Show latest executed transactions
+2. Allow marking executed transactions as not executed
+3. Allow marking not executed transactions as executed
+4. Delete transactions from the ledger
+
+Current totals can change whenever:
+1. Any of the manual changes to the ledger are introduced
+2. As the time goes forward
+3. When the app loads
+*/
+
 @connectTo()
 @autoinject()
 export class App {
@@ -144,10 +162,10 @@ export class App {
     await this.tranActions.addSchedule(evt.detail);
     this.ea.publish('schedule-changed');
 
-    this.showHintsIfNecessary();
+    this.showHintsAfterScheduleChanged();
   }
 
-  showHintsIfNecessary() {
+  showHintsAfterScheduleChanged() {
     let intro = this.introContext.getContainer(COMPONENT_NAME);
     waitForHtmlElement("dashboard-tab-button", element => {
       let introPages = this.introContext.getPagesToShow(intro, [

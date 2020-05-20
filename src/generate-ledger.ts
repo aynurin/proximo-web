@@ -11,7 +11,8 @@ import { State } from "./state";
 
 import { Schedule } from "model/schedule";
 import { TranStateActions } from "model/tran-actions";
-import { TranGenerated } from "model/tran-template";
+import { TranGenerated, TranState } from "model/tran-template";
+import { subarray } from "components/subarray";
 
 const log = LogManager.getLogger('generate-ledger');
 
@@ -57,6 +58,15 @@ export class GenerateLedger {
         await this.generateLedger(this.state);
     }
 
+    getPastLedger(ledger: TranGenerated[], date: Date): TranGenerated[] {
+      if (ledger == null) {
+        return [];
+      }
+      return subarray(ledger,
+        tran => tran.date >= addDays(date, -7),
+        tran => tran.date <= date);
+    }
+
     public generateLedger = async (state: State): Promise<TranGenerated[]> => {
         log.debug('generateLedger', state ? state.scheduleVersion : 'none');
         let accounts = state.accounts2.map(a => Object.assign({}, a, { inUse: false }));
@@ -81,6 +91,33 @@ export class GenerateLedger {
                     inUse: true
                 });
             }
+        }
+
+        // prone to causing duplicates. Needs a rethink.
+        let pastLedger = [
+          ...this.getPastLedger(state.pastLedger, start),
+          ...this.getPastLedger(state.ledger, start)
+        ].sort((a, b) => {
+          let diff = +a.date - +b.date;
+          if (diff == 0) {
+              diff = b.amount - a.amount;
+          }
+          return diff;
+        });
+
+        log.debug("past ledger", pastLedger);
+
+        for (let tran of pastLedger) {
+          tran.state = TranState.Executed;
+        }
+
+        if (pastLedger.length > 0) {
+          const lastTran = pastLedger[pastLedger.length - 1];
+          for (var acc of accounts) {
+            if (acc.account in lastTran.balances) {
+              acc.balance = lastTran.balances[acc.account];
+            }
+          }
         }
 
         let ledger: TranGenerated[] = [];
@@ -114,6 +151,7 @@ export class GenerateLedger {
                         schedule: tran.selectedSchedule.label,
                         isTransfer: tran.isTransfer,
                         transferToAccount: tran.transferToAccount,
+                        state: TranState.Planned,
                     };
                     ledger.push(tr);
                 } catch (e) {
@@ -148,7 +186,7 @@ export class GenerateLedger {
             gtran.balances = Object.assign({}, balances);
         }
 
-        await this.tranActions.replaceLedger(ledger);
+        await this.tranActions.replaceLedger(pastLedger, ledger);
         await this.tranActions.replaceAccounts(accounts);
         log.debug("ea:ledger-changed", ledger.length, accounts.length);
         this.ea.publish("ledger-changed", ledger);
@@ -167,4 +205,10 @@ function getBestDate(one: Date, another: Date | string) {
     } else {
         return moment(another);
     }
+}
+
+let addDays = function(date: Date, days: number) {
+  var date = new Date(date.valueOf());
+  date.setDate(date.getDate() + days);
+  return date;
 }
