@@ -14,9 +14,9 @@
     <header>
       <app-header></app-header>
       <ul class="main-menu nav nav-tabs">
-        <li class="nav-item" repeat.for="nav of mainNav"><a id="${nav.config.name}-tab-button" class="nav-link ${nav.isActive ? 'active' : ''} ${disableTabs ? 'disabled text-muted': ''}" href.bind="nav.href">${nav.title}</a></li>
+        <li class="nav-item" repeat.for="nav of mainNav"><a id="${nav.config.name}-tab-button" class="nav-link ${nav.isActive ? 'active' : ''} ${router.currentInstruction.config.name == 'welcome' ? 'disabled text-muted': ''}" href.bind="nav.href">${nav.title}</a></li>
       </ul>
-      <schedule-wizard-button if.bind="!disableTabs" id="scheduleWizardButton" create.delegate="createSchedule($event)"></schedule-wizard-button>
+      <schedule-wizard-button if.bind="router.currentInstruction.config.name != 'welcome'" id="scheduleWizardButton" create.delegate="createSchedule($event)"></schedule-wizard-button>
       <div style="flex: 1">&nbsp;</div>
       <ul class="secondary-menu nav">
         <li class="nav-item" repeat.for="nav of secondaryNav"><a class="nav-link ${nav.isActive ? 'active' : ''}" href.bind="nav.href">${nav.title}</a></li>
