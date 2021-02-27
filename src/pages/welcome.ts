@@ -84,7 +84,7 @@ export class WelcomeCustomElement {
     template.amount = parseInt(tran.amount);
     template.date = date.format("YYYY-MM-DD");
     template.description = tran.description;
-    template.selectedSchedule = new Schedule("Monthly, on the " + date.format("Do"), {
+    template.selectedSchedule = new Schedule(date, "Monthly, on the " + date.format("Do"), {
         day: date.date()
       });
     return template;

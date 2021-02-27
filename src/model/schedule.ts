@@ -16,10 +16,11 @@ export class Schedule {
   label: string;
   // allowHolidayRule: boolean;
   holidayRule: HolidayRule = HolidayRule.on;
-  dateSince: string;
-  dateTill: string;
+  dateSince: moment.Moment;
+  dateTill: moment.Moment;
 
   constructor(dateSince: moment.Moment, label: string, cron: CronParts) {
+    this.dateSince = dateSince;
     const isNullOrNaN = (n: number) => n == null || n === NaN;
     this.cron = [
       isNullOrNaN(cron.day) ? "*" : cron.day.toString(),
@@ -28,7 +29,7 @@ export class Schedule {
         ? "*"
         : isNullOrNaN(cron.nthDayOfWeek)
         ? cron.dayOfWeek.toString()
-        : `${cron.dayOfWeek}#${cron.nthDayOfWeek}`,
+        : `${cron.dayOfWeek}/${cron.nthDayOfWeek}`,
         isNullOrNaN(cron.year) ? "*" : cron.year.toString()
     ];
     this.label = label;

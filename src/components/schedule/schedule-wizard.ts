@@ -314,22 +314,18 @@ class AddTransactionWorkflow {
     } else if (this.stage == ScheduleStage.DateRange) {
       if (tran.selectedSchedule != null) {
         if (
-          (tran.selectedSchedule.dateSince == null ||
-            tran.selectedSchedule.dateSince.trim() == "") &&
-          (tran.selectedSchedule.dateTill == null ||
-            tran.selectedSchedule.dateTill.trim() == "")
+          (tran.selectedSchedule.dateSince == null) &&
+          (tran.selectedSchedule.dateTill == null)
         ) {
           this.advance(tran);
         } else {
           let since =
             tran.selectedSchedule.dateSince != null &&
-              tran.selectedSchedule.dateSince.trim() != "" &&
               moment(tran.selectedSchedule.dateSince).isValid
               ? moment(tran.selectedSchedule.dateSince)
               : null;
           let till =
             tran.selectedSchedule.dateTill != null &&
-              tran.selectedSchedule.dateTill.trim() != "" &&
               moment(tran.selectedSchedule.dateTill).isValid
               ? moment(tran.selectedSchedule.dateTill)
               : null;

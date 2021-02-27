@@ -121,8 +121,8 @@ export class GenerateLedger {
       }
 
       const thisOptions = Object.assign({}, options);
-      const since = getBestDate(start, tran.selectedSchedule.dateSince);
-      const till = getBestDate(end, tran.selectedSchedule.dateTill);
+      const since = getBestDate(start, tran.selectedSchedule.dateSince?.toDate());
+      const till = getBestDate(end, tran.selectedSchedule.dateTill?.toDate());
       if (since > moment(thisOptions.currentDate)) {
         thisOptions.currentDate = since.add(-1, 'days').toDate();
       }
@@ -204,7 +204,7 @@ function cronexpr(sched: Schedule): string {
   return ["0", "0", ...sched.cron.slice(0, 3)].join(" ");
 }
 
-function getBestDate(one: Date, another: Date | string) {
+function getBestDate(one: Date, another: Date) {
   if (another == null || another.toString().trim() == "") {
     return moment(one);
   } else {
