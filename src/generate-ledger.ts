@@ -19,195 +19,200 @@ const log = LogManager.getLogger('generate-ledger');
 @noView()
 @autoinject()
 export class GenerateLedger {
-    @observable public state: State;
-    private subscription: Subscription;
+  @observable public state: State;
+  private subscription: Subscription;
 
-    private ledger: TranGenerated[] = null;
+  private ledger: TranGenerated[] = null;
 
-    public constructor(
-        public store: Store<State>,
-        private ea: EventAggregator,
-        private tranActions: TranStateActions) {
-        ea.subscribe('schedule-changed', this.scheduleChanged);
-        ea.subscribe('accounts-changed', this.accountsChanged);
-        ea.subscribe('state-hydrated', this.stateHydrated);
+  public constructor(
+    public store: Store<State>,
+    private ea: EventAggregator,
+    private tranActions: TranStateActions) {
+    ea.subscribe('schedule-changed', this.scheduleChanged);
+    ea.subscribe('accounts-changed', this.accountsChanged);
+    ea.subscribe('state-hydrated', this.stateHydrated);
+  }
+
+  public bind() {
+    this.subscription = this.store.state.subscribe(
+      (state) => this.state = state
+    );
+  }
+
+  public unbind() {
+    this.subscription.unsubscribe();
+  }
+
+  private stateHydrated = async () => {
+    log.debug('stateRehydrated');
+    await this.generateLedger(this.state);
+  }
+
+  private scheduleChanged = async () => {
+    log.debug('scheduleChanged');
+    await this.generateLedger(this.state);
+  }
+
+  private accountsChanged = async () => {
+    log.debug('accountsChanged');
+    await this.generateLedger(this.state);
+  }
+
+  getPastLedger(ledger: TranGenerated[], date: Date): TranGenerated[] {
+    if (ledger == null) {
+      return [];
     }
+    return subarray(ledger,
+      tran => moment(tran.date) >= moment(addDays(date, -7)),
+      tran => moment(tran.date) <= moment(date));
+  }
 
-    public bind() {
-        this.subscription = this.store.state.subscribe(
-            (state) => this.state = state
-        );
-    }
+  public generateLedger = async (state: State): Promise<TranGenerated[]> => {
+    log.debug('generateLedger', state ? state.scheduleVersion : 'none');
+    let accounts = state.accounts2.map(a => Object.assign({}, a, { inUse: false }));
+    let start = new Date();
+    let end = new Date();
+    end.setFullYear(end.getFullYear() + 1);
 
-    public unbind() {
-        this.subscription.unsubscribe();
-    }
+    var options = {
+      currentDate: start,
+      endDate: end
+    };
 
-    private stateHydrated = async () => {
-        log.debug('stateRehydrated');
-        await this.generateLedger(this.state);
-    }
-
-    private scheduleChanged = async () => {
-        log.debug('scheduleChanged');
-        await this.generateLedger(this.state);
-    }
-
-    private accountsChanged = async () => {
-        log.debug('accountsChanged');
-        await this.generateLedger(this.state);
-    }
-
-    getPastLedger(ledger: TranGenerated[], date: Date): TranGenerated[] {
-      if (ledger == null) {
-        return [];
+    const ensureAccount = (accountName: string) => {
+      let a = accounts.find(a => a.account === accountName);
+      if (a != null) {
+        a.inUse = true;
+      } else {
+        accounts.push({
+          account: accountName,
+          date: new Date(),
+          balance: 0,
+          inUse: true
+        });
       }
-      return subarray(ledger,
-        tran => tran.date >= addDays(date, -7),
-        tran => tran.date <= date);
     }
 
-    public generateLedger = async (state: State): Promise<TranGenerated[]> => {
-        log.debug('generateLedger', state ? state.scheduleVersion : 'none');
-        let accounts = state.accounts2.map(a => Object.assign({}, a, { inUse: false }));
-        let start = new Date();
-        let end = new Date();
-        end.setFullYear(end.getFullYear() + 1);
+    // prone to causing duplicates. Needs a rethink.
+    let ledger = this.getPastLedger(state.ledger, start);
+    let pastTranCount = ledger.length;
 
-        var options = {
-            currentDate: start,
-            endDate: end
-        };
+    if (ledger.length > 0) {
+      for (let i = 0; i < ledger.length; i++) {
+        ledger[i].sort = i - ledger.length;
+        ledger[i].state = TranState.Executed;
+      }
 
-        const ensureAccount = (accountName: string) => {
-            let a = accounts.find(a => a.account === accountName);
-            if (a != null) {
-                a.inUse = true;
-            } else {
-                accounts.push({
-                    account: accountName,
-                    date: new Date(),
-                    balance: 0,
-                    inUse: true
-                });
-            }
+      const lastTran = ledger[ledger.length - 1];
+      for (var acc of accounts) {
+        if (acc.account in lastTran.balances) {
+          acc.balance = lastTran.balances[acc.account];
         }
-
-        // prone to causing duplicates. Needs a rethink.
-        let pastLedger = [
-          ...this.getPastLedger(state.pastLedger, start),
-          ...this.getPastLedger(state.ledger, start)
-        ].sort((a, b) => {
-          let diff = +a.date - +b.date;
-          if (diff == 0) {
-              diff = b.amount - a.amount;
-          }
-          return diff;
-        });
-
-        log.debug("past ledger", pastLedger);
-
-        for (let tran of pastLedger) {
-          tran.state = TranState.Executed;
-        }
-
-        if (pastLedger.length > 0) {
-          const lastTran = pastLedger[pastLedger.length - 1];
-          for (var acc of accounts) {
-            if (acc.account in lastTran.balances) {
-              acc.balance = lastTran.balances[acc.account];
-            }
-          }
-        }
-
-        let ledger: TranGenerated[] = [];
-        for (const tran of state.schedule) {
-            ensureAccount(tran.account);
-            if (tran.isTransfer) {
-                ensureAccount(tran.transferToAccount);
-            }
-
-            const thisOptions = Object.assign({}, options);
-            const since = getBestDate(start, tran.selectedSchedule.dateSince);
-            const till = getBestDate(end, tran.selectedSchedule.dateTill);
-            if (since > moment(thisOptions.currentDate)) {
-                thisOptions.currentDate = since.add(-1, 'days').toDate();
-            }
-            if (till < moment(thisOptions.endDate)) {
-                thisOptions.endDate = till.toDate();
-            }
-            const interval = CronParser.parseExpression(
-                cronexpr(tran.selectedSchedule),
-                thisOptions
-            );
-            while (true) {
-                try {
-                    let tr = {
-                        date: interval.next().toDate(),
-                        account: tran.account,
-                        amount: tran.amount,
-                        balances: {},
-                        description: tran.description,
-                        schedule: tran.selectedSchedule.label,
-                        isTransfer: tran.isTransfer,
-                        transferToAccount: tran.transferToAccount,
-                        state: TranState.Planned,
-                    };
-                    ledger.push(tr);
-                } catch (e) {
-                    break;
-                }
-            }
-        }
-
-        let balances = {};
-        for (let acc of accounts.filter(a => a.inUse)) {
-            balances[acc.account] = +acc.balance;
-        }
-
-        ledger.sort((a, b) => {
-            let diff = +a.date - +b.date;
-            if (diff == 0) {
-                diff = b.amount - a.amount;
-            }
-            return diff;
-        });
-
-        for (let gtran of ledger) {
-            // if there is an inconsistency where the state does not have this transaction's account,
-            // this code will break. May it break, so we can find a root cause.
-            if (gtran.isTransfer) {
-                let amount = Math.abs(+gtran.amount);
-                balances[gtran.account] -= amount;
-                balances[gtran.transferToAccount] += amount;
-            } else {
-                balances[gtran.account] += +gtran.amount;
-            }
-            gtran.balances = Object.assign({}, balances);
-        }
-
-        await this.tranActions.replaceLedger(pastLedger, ledger);
-        await this.tranActions.replaceAccounts(accounts);
-        log.debug("ea:ledger-changed", ledger.length, accounts.length);
-        this.ea.publish("ledger-changed", ledger);
-        return this.ledger;
+      }
     }
+
+    log.debug("past ledger", pastTranCount, ledger);
+    log.debug("accounts", accounts);
+
+    for (const tran of state.schedule) {
+      ensureAccount(tran.account);
+      if (tran.isTransfer) {
+        ensureAccount(tran.transferToAccount);
+      }
+
+      const thisOptions = Object.assign({}, options);
+      const since = getBestDate(start, tran.selectedSchedule.dateSince);
+      const till = getBestDate(end, tran.selectedSchedule.dateTill);
+      if (since > moment(thisOptions.currentDate)) {
+        thisOptions.currentDate = since.add(-1, 'days').toDate();
+      }
+      if (till < moment(thisOptions.endDate)) {
+        thisOptions.endDate = till.toDate();
+      }
+      const interval = CronParser.parseExpression(
+        cronexpr(tran.selectedSchedule),
+        thisOptions
+      );
+      while (true) {
+        try {
+          let tr = {
+            sort: null,
+            date: interval.next().toDate(),
+            account: tran.account,
+            amount: tran.amount,
+            balances: {},
+            description: tran.description,
+            schedule: tran.selectedSchedule.label,
+            isTransfer: tran.isTransfer,
+            transferToAccount: tran.transferToAccount,
+            state: TranState.Planned,
+          };
+          ledger.push(tr);
+        } catch (e) {
+          break;
+        }
+      }
+    }
+
+    let balances = {};
+    for (let acc of accounts.filter(a => a.inUse)) {
+      balances[acc.account] = +acc.balance;
+    }
+
+    ledger.sort((a, b) => {
+      let diff = +a.date - +b.date;
+      if (diff == 0) {
+        diff = b.amount - a.amount;
+      }
+      return diff;
+    });
+
+    for (let gtran of ledger) {
+      if (gtran.sort >= 0) {
+        // if there is an inconsistency where the state does not have this transaction's account,
+        // this code will break. May it break, so we can find a root cause.
+        if (gtran.isTransfer) {
+          if (typeof gtran.transferToAccount != "string" || gtran.transferToAccount.length == 0) {
+            log.error("Target account is not set for a transfer transaction: ", gtran);
+          }
+          let amount = Math.abs(+gtran.amount);
+          balances[gtran.account] -= amount;
+          balances[gtran.transferToAccount] += amount;
+        } else {
+          balances[gtran.account] += +gtran.amount;
+        }
+        gtran.balances = Object.assign({}, balances);
+      }
+    }
+
+    for (let i = pastTranCount; i < ledger.length; i++) {
+      ledger[i].sort = (i - pastTranCount + 1);
+    }
+
+    log.debug("ledger generated", ledger);
+
+    await this.tranActions.replaceLedger(ledger);
+    await this.tranActions.replaceAccounts(accounts);
+    log.debug("ea:ledger-changed", ledger.length, accounts.length);
+    this.ea.publish("ledger-changed", ledger);
+    return this.ledger;
+  }
 
 }
 
 function cronexpr(sched: Schedule): string {
-    return ["0", "0", ...sched.cron.slice(0, 3)].join(" ");
+  return ["0", "0", ...sched.cron.slice(0, 3)].join(" ");
 }
 
 function getBestDate(one: Date, another: Date | string) {
-    if (another == null || another.toString().trim() == "") {
-        return moment(one);
-    } else {
-        return moment(another);
-    }
+  if (another == null || another.toString().trim() == "") {
+    return moment(one);
+  } else {
+    return moment(another);
+  }
 }
 
-let addDays = function(date: Date, days: number) {
+let addDays = function (date: Date, days: number) {
   var date = new Date(date.valueOf());
   date.setDate(date.getDate() + days);
   return date;

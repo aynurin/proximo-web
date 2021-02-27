@@ -32,6 +32,7 @@ export function subarray<T>(arr: Array<T>, lowEdge: (item: T) => boolean, highEd
  */
 export function edgeSearch<T>(arr: Array<T>, comparer: (ob: T) => boolean, startIndex: number = 0, endIndex: number = -1) {
   if (arr == null) {
+    // console.debug("arr == null");
     return -1;
   }
   if (endIndex < 0 || endIndex >= arr.length) {
@@ -41,13 +42,16 @@ export function edgeSearch<T>(arr: Array<T>, comparer: (ob: T) => boolean, start
     startIndex = 0;
   }
   if (startIndex >= arr.length) {
+    // console.debug("startIndex >= arr.length");
     return -1;
   }
   let zeroCheck = comparer(arr[startIndex]);
   let maxiCheck = comparer(arr[endIndex - 1]);
   if (zeroCheck === false && maxiCheck === false) {
+    // console.debug("zeroCheck === false && maxiCheck === false");
     return -1; // no edge and all is false
   } else if (zeroCheck === true && maxiCheck === true) {
+    // console.debug("zeroCheck === true && maxiCheck === true");
     return -2; // no edge and all is true
   }
   let step = Math.trunc((endIndex - startIndex) / 10);
@@ -71,5 +75,6 @@ export function edgeSearch<T>(arr: Array<T>, comparer: (ob: T) => boolean, start
       }
     }
   }
+  // console.debug("over and out");
   return -1;
 }

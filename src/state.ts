@@ -7,7 +7,6 @@ export interface State {
   scheduleVersion: number;
   accounts2: AccountBalance[];
   ledger: TranGenerated[];
-  pastLedger: TranGenerated[];
   introContainers: IContainerInfo[];
 }
 
@@ -16,6 +15,5 @@ export const initialState: State = {
   scheduleVersion: 0,
   accounts2: [],
   ledger: [],
-  pastLedger: [],
   introContainers: [],
 };

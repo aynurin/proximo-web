@@ -25,6 +25,7 @@ export class TranTemplate implements ITransaction {
 }
 
 export class TranGenerated implements ITransaction {
+  sort: number = null;
   date: Date = null;
   amount: number = null;
   account: string = null;

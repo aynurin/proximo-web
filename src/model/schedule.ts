@@ -19,16 +19,17 @@ export class Schedule {
   dateSince: string;
   dateTill: string;
 
-  constructor(label: string, cron: CronParts) {
+  constructor(dateSince: moment.Moment, label: string, cron: CronParts) {
+    const isNullOrNaN = (n: number) => n == null || n === NaN;
     this.cron = [
-      cron.day == null || cron.day === NaN ? "*" : cron.day.toString(),
-      cron.month == null || cron.month === NaN ? "*" : cron.month.toString(),
-      cron.dayOfWeek == null || cron.dayOfWeek === NaN
+      isNullOrNaN(cron.day) ? "*" : cron.day.toString(),
+      isNullOrNaN(cron.month) ? "*" : cron.month.toString(),
+      isNullOrNaN(cron.dayOfWeek)
         ? "*"
-        : cron.nthDayOfWeek == null || cron.nthDayOfWeek === NaN
+        : isNullOrNaN(cron.nthDayOfWeek)
         ? cron.dayOfWeek.toString()
         : `${cron.dayOfWeek}#${cron.nthDayOfWeek}`,
-      cron.year == null || cron.year === NaN ? "*" : cron.year.toString()
+        isNullOrNaN(cron.year) ? "*" : cron.year.toString()
     ];
     this.label = label;
     // this.allowHolidayRule = allowHolidayRule;

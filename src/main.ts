@@ -21,6 +21,7 @@ export function configure(aurelia: Aurelia) {
     .plugin(PLATFORM.moduleName('aurelia-store'), { initialState })
     .plugin(PLATFORM.moduleName('aurelia-plugins-tabs'))
     .plugin(PLATFORM.moduleName('aurelia-dialog'))
+    .plugin(PLATFORM.moduleName('aurelia-sortablejs'))
     .plugin(PLATFORM.moduleName('aurelia-i18n'), (instance) => {
       let aliases = ['t', 'i18n'];
       // add aliases for 't' attribute

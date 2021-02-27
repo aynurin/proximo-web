@@ -119,26 +119,33 @@ export class ScheduleWizardCustomElement {
     }
 
     options.push(
-      new Schedule("Every " + moment(date).format("dddd"), {
+      new Schedule(date, "Every " + moment(date).format("dddd"), {
         dayOfWeek: date.day()
       })
     );
 
     options.push(
-      new Schedule("Monthly, on the " + moment(date).format("Do"), {
+      new Schedule(date, "Every other " + moment(date).format("dddd"), {
+        dayOfWeek: date.day(),
+        nthDayOfWeek: 2
+      })
+    );
+
+    options.push(
+      new Schedule(date, "Monthly, on the " + moment(date).format("Do"), {
         day: date.date()
       })
     );
 
     options.push(
-      new Schedule("Once a year, on " + moment(date).format("MMM Do"), {
+      new Schedule(date, "Once a year, on " + moment(date).format("MMM Do"), {
         day: date.date(),
         month: date.month() + 1
       })
     );
 
     options.push(
-      new Schedule("Once, on " + moment(date).format("MMM Do YYYY"), {
+      new Schedule(date, "Once, on " + moment(date).format("MMM Do YYYY"), {
         day: date.date(),
         month: date.month() + 1,
         year: date.year()

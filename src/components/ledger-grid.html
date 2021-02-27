@@ -1,7 +1,9 @@
 <template>
-  <table class="table table-sm table-hover" if.bind="state.pastLedger.length > 0" ref="htmlElement">
+  <require from="./ledger-grid.scss"></require>
+  <table class="table table-sm table-hover" if.bind="ledger.length > 0" ref="ledgerTable">
     <thead>
       <tr>
+        <th>&nbsp;</th>
         <th>Date</th>
         <th>Description</th>
         <th>Account</th>
@@ -9,29 +11,20 @@
         <th class="money" repeat.for="acc of accountsInUse">${acc.account}</th>
       </tr>
     </thead>
-    <tbody>
-      <tr repeat.for="tran of state.pastLedger" class="${getRowStyleForTran(tran)}">
+    <tbody sortable.bind="sortableOptions">
+      <tr repeat.for="tran of pastLedger" class="draggable ${getRowStyleForTran(tran)}">
+        <td class="drag-handle"><i class="fa fa-ellipsis-v"></i></td>
         <td><span title.bind="tran.schedule">${tran.date | dateFormat}</span></td>
         <td>${tran.description}</td>
         <td innerhtml.bind="accountLabel(tran)"></td>
         <td class="money">${tran.amount | textToMoney}</td>
         <td class="money" repeat.for="balance of objectValues(tran.balances)">${balance | textToMoney}</td>
       </tr>
-    </tbody>
-  </table>
-  <hr />
-  <table class="table table-sm table-hover" if.bind="state.ledger.length > 0" ref="htmlElement">
-    <thead>
-      <tr>
-        <th>Date</th>
-        <th>Description</th>
-        <th>Account</th>
-        <th class="money">Amount</th>
-        <th class="money" repeat.for="acc of accountsInUse">${acc.account}</th>
+      <tr class="draggable drag-handle">
+        <td colspan="${accountsInUse.length + 5}"><hr></td>
       </tr>
-    </thead>
-    <tbody>
-      <tr repeat.for="tran of state.ledger" class="${getRowStyleForTran(tran)}">
+      <tr repeat.for="tran of futureLedger" class="draggable ${getRowStyleForTran(tran)}">
+        <td class="drag-handle"><i class="fa fa-ellipsis-v"></i></td>
         <td><span title.bind="tran.schedule">${tran.date | dateFormat}</span></td>
         <td>${tran.description}</td>
         <td innerhtml.bind="accountLabel(tran)"></td>

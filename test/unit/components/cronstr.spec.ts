@@ -78,4 +78,11 @@ describe("Cron String Converter", () => {
     expect(actual).toBe(expected);
     done();
   });
+  it("Every other Thursday", done => {
+    const given = ['*', '*', '4/2', '*'];
+    const expected = 'Every other Thursday';
+    const actual = cronstr(given);
+    expect(actual).toBe(expected);
+    done();
+  });
 });

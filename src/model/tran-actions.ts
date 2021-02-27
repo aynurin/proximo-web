@@ -38,8 +38,8 @@ export class TranStateActions {
     await this.store.dispatch('saveAccount', account);
   }
 
-  public async replaceLedger(pastLedger: TranGenerated[], ledger: TranGenerated[]) {
-    await this.store.dispatch('replaceLedger', pastLedger, ledger);
+  public async replaceLedger(ledger: TranGenerated[]) {
+    await this.store.dispatch('replaceLedger', ledger);
   }
 
   public async replaceAccounts(accounts: AccountBalance[]) {
@@ -128,9 +128,8 @@ const saveAccountAction = (state: State, account: AccountBalance) => {
   return newState;
 }
 
-const replaceLedgerAction = (state: State, pastLedger: TranGenerated[], ledger: TranGenerated[]) => {
+const replaceLedgerAction = (state: State, ledger: TranGenerated[]) => {
   const newState = Object.assign({}, state);
-  newState.pastLedger = pastLedger;
   newState.ledger = ledger;
   return newState;
 }

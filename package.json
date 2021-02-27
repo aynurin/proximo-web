@@ -14,6 +14,7 @@
     "aurelia-google-analytics": "^2.5.0",
     "aurelia-i18n": "^3.0.0",
     "aurelia-plugins-tabs": "^2.6.2",
+    "aurelia-sortablejs": "^1.1.0",
     "aurelia-store": "^1.5.0",
     "bootstrap": "^4.4.1",
     "chart.js": "^2.9.3",
@@ -23,7 +24,8 @@
     "intro.js": "^2.9.3",
     "moment": "^2.24.0",
     "numeral": "^2.0.6",
-    "rxjs": "^6.5.4"
+    "rxjs": "^6.5.4",
+    "sortablejs": "^1.10.2"
   },
   "devDependencies": {
     "@types/i18next": "^13.0.0",
