@@ -16,7 +16,7 @@
     "aurelia-plugins-tabs": "^2.6.2",
     "aurelia-store": "^1.5.0",
     "bootstrap": "^4.4.1",
-    "chart.js": "^2.9.3",
+    "chart.js": "^2.9.4",
     "cron-parser": "^2.13.0",
     "font-awesome": "^4.7.0",
     "i18next-xhr-backend": "^3.2.2",
