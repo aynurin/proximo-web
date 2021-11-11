@@ -94,6 +94,7 @@ export class GenerateLedger {
     }
 
     // prone to causing duplicates. Needs a rethink.
+    // TODO: Get last execution time of each schedule from the past ledger?
     let ledger = this.getPastLedger(state.ledger, start);
     let pastTranCount = ledger.length;
 
@@ -121,8 +122,9 @@ export class GenerateLedger {
       }
 
       const thisOptions = Object.assign({}, options);
-      const since = getBestDate(start, tran.selectedSchedule.dateSince?.toDate());
-      const till = getBestDate(end, tran.selectedSchedule.dateTill?.toDate());
+      log.debug("tran.selectedSchedule", tran.selectedSchedule);
+      const since = getBestDate(start, tran.selectedSchedule.dateSince == null? null : moment(tran.selectedSchedule.dateSince).toDate());
+      const till = getBestDate(end, tran.selectedSchedule.dateTill == null? null : moment(tran.selectedSchedule.dateTill).toDate());
       if (since > moment(thisOptions.currentDate)) {
         thisOptions.currentDate = since.add(-1, 'days').toDate();
       }
