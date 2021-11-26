@@ -1,5 +1,5 @@
 {
-  "name": "aurelia-app",
+  "name": "proximo-web",
   "type": "project:application",
   "paths": {
     "root": "src",

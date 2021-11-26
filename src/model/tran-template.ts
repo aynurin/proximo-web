@@ -12,6 +12,7 @@ export interface ITransaction {
 }
 
 export class TranTemplate implements ITransaction {
+  // TODO: why is this a string? make date
   date: string = null;
   selectedSchedule: Schedule = null;
 

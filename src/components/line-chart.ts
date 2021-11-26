@@ -3,14 +3,16 @@ import { LogManager } from 'aurelia-framework';
 import { EventAggregator } from "aurelia-event-aggregator";
 import { connectTo } from 'aurelia-store';
 
-import * as moment from "moment";
-import numeral from "numeral";
+// import * as moment from "moment";
+// import numeral from "numeral";
+import { DateFormat } from './date-format';
 
 import { State } from 'state';
 import { TranGenerated } from "model/tran-template";
 
 import Chart from "./alt-chartjs";
 import { IntroContainer, IntroBuildingContext } from "./intro-building-context";
+import { NumberFormat } from "./number-format";
 
 const COMPONENT_NAME = "line-chart";
 
@@ -25,6 +27,8 @@ export class LineChartCustomElement {
   private datasets: any[] = [];
   private state: State;
   private lastVersion: number;
+  private numberFormatter = new NumberFormat();
+  private dateFormatter = new DateFormat();
 
   private intro: IntroContainer;
 
@@ -101,27 +105,28 @@ export class LineChartCustomElement {
   makeChart() {
     log.debug('makeChart', this.state && this.state.ledger ? this.state.ledger.length : 'none', this.datasets.length);
     this.lineChart = new Chart(this.canvas, {
-      type: "lineAlt",
+      // type: "lineAlt",
+      type: "line",
       data: { datasets: this.datasets },
       options: {
         responsive: true,
-        tooltips: {
-					// intersect: false,
-					// mode: 'index',
-					callbacks: {
-						label: function(tooltipItem, myData) {
-							var label = myData.datasets[tooltipItem.datasetIndex].label || '';
-							if (label) {
-								label += ': ';
-							}
-							label += numeral(tooltipItem.value).format('0,0.00');
-							return label;
-            },
-            title: function(tooltipItems, myData) {
-              return moment(tooltipItems[0].label).format("MMMM Do, YYYY");
-            }
-					}
-        },
+        // tooltips: {
+				// 	// intersect: false,
+				// 	// mode: 'index',
+				// 	callbacks: {
+				// 		label: function(tooltipItem, myData) {
+				// 			var label = myData.datasets[tooltipItem.datasetIndex].label || '';
+				// 			if (label) {
+				// 				label += ': ';
+				// 			}
+				// 			label += numberFormatter.format(tooltipItem.value);
+				// 			return label;
+        //     },
+        //     title: function(tooltipItems, myData) {
+        //       return this.dateFormatter.format(tooltipItems[0].label);//.format("MMMM Do, YYYY");
+        //     }
+				// 	}
+        // },
         hover: {
           mode: "nearest",
           intersect: true
@@ -132,15 +137,14 @@ export class LineChartCustomElement {
           }
         },
         scales: {
-          xAxes: [
+          xAxes: 
             {
               type: "time",
-              distribution: "series",
+              // distribution: "series",
               offset: true,
               ticks: {
                 major: {
-                  enabled: true,
-                  fontStyle: "bold"
+                  enabled: true
                 },
                 source: "data",
                 autoSkip: true,
@@ -149,21 +153,21 @@ export class LineChartCustomElement {
                 sampleSize: 100
               },
               display: true,
-              scaleLabel: {
-                display: true,
-                labelString: "Month"
-              }
+              // scaleLabel: {
+              //   display: true,
+              //   labelString: "Month"
+              // }
             }
-          ],
-          yAxes: [
+          ,
+          yAxes: 
             {
               display: true,
-              scaleLabel: {
-                display: true,
-                labelString: "Value"
-              }
+              // scaleLabel: {
+              //   display: true,
+              //   labelString: "Value"
+              // }
             }
-          ]
+          
         }
       }
     });
@@ -214,7 +218,7 @@ function generateDatasets(ledger: TranGenerated[]): any[] {
     if (!(accountName in datasets)) {
       datasets[accountName] = newDataset(accountName);
     }
-    datasets[accountName].data.push({ x: moment(tran.date).format("YYYY-MM-DD"), y: tran.balances[tran.account] });
+    datasets[accountName].data.push({ x: this.dateFormatter.toISODate(tran.date), y: tran.balances[tran.account] });
   }
   for (let tran of ledger) {
     addTran(tran.account, tran);

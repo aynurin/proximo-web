@@ -1,9 +1,9 @@
 import { Aurelia } from 'aurelia-framework'
-import * as environment from '../config/environment.json';
+import environment from '../config/environment.json';
 import { PLATFORM } from 'aurelia-pal';
 import { initialState } from './state';
 import { I18N, TCustomAttribute } from 'aurelia-i18n';
-import Backend from 'i18next-xhr-backend';
+import Backend from 'i18next-http-backend';
 import 'font-awesome/css/font-awesome.css';
 
 export function configure(aurelia: Aurelia) {

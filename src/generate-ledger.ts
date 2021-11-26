@@ -4,7 +4,7 @@ import { EventAggregator } from "aurelia-event-aggregator";
 import { Store } from "aurelia-store";
 
 import * as CronParser from "cron-parser";
-import * as moment from "moment";
+import { DateFormat } from "components/date-format";
 import { Subscription } from "rxjs";
 
 import { State } from "./state";
@@ -21,7 +21,7 @@ const log = LogManager.getLogger('generate-ledger');
 export class GenerateLedger {
   @observable public state: State;
   private subscription: Subscription;
-
+  private dateFormatter = new DateFormat();
   private ledger: TranGenerated[] = null;
 
   public constructor(
@@ -63,8 +63,8 @@ export class GenerateLedger {
       return [];
     }
     return subarray(ledger,
-      tran => moment(tran.date) >= moment(addDays(date, -7)),
-      tran => moment(tran.date) <= moment(date));
+      tran => tran.date >= addDays(date, -7),
+      tran => tran.date <= date);
   }
 
   public generateLedger = async (state: State): Promise<TranGenerated[]> => {
@@ -123,13 +123,13 @@ export class GenerateLedger {
 
       const thisOptions = Object.assign({}, options);
       log.debug("tran.selectedSchedule", tran.selectedSchedule);
-      const since = getBestDate(start, tran.selectedSchedule.dateSince == null? null : moment(tran.selectedSchedule.dateSince).toDate());
-      const till = getBestDate(end, tran.selectedSchedule.dateTill == null? null : moment(tran.selectedSchedule.dateTill).toDate());
-      if (since > moment(thisOptions.currentDate)) {
-        thisOptions.currentDate = since.add(-1, 'days').toDate();
+      const since = tran.selectedSchedule.dateSince ?? start;
+      const till = tran.selectedSchedule.dateTill ?? end;
+      if (since > thisOptions.currentDate) {
+        thisOptions.currentDate = addDays(since, -1);
       }
-      if (till < moment(thisOptions.endDate)) {
-        thisOptions.endDate = till.toDate();
+      if (till < thisOptions.endDate) {
+        thisOptions.endDate = till;
       }
       const interval = CronParser.parseExpression(
         cronexpr(tran.selectedSchedule),
@@ -204,14 +204,6 @@ export class GenerateLedger {
 
 function cronexpr(sched: Schedule): string {
   return ["0", "0", ...sched.cron.slice(0, 3)].join(" ");
-}
-
-function getBestDate(one: Date, another: Date) {
-  if (another == null || another.toString().trim() == "") {
-    return moment(one);
-  } else {
-    return moment(another);
-  }
 }
 
 let addDays = function (date: Date, days: number) {

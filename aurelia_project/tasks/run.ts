@@ -10,7 +10,7 @@ function run() {
   return npm.run('start', ['--', ... cleanArgs(args)]);
 }
 
-// Cleanup --env prod to --env.production
+// Cleanup --env prod to --env production
 // for backwards compatibility
 function cleanArgs(args) {
   let host;
@@ -20,13 +20,16 @@ function cleanArgs(args) {
     if (args[i] === '--env' && i < ii - 1) {
       const env = args[++i].toLowerCase();
       if (env.startsWith('prod')) {
-        cleaned.push('--env.production');
-      } else if (env.startsWith('test')) {
-        cleaned.push('--tests');
+        cleaned.push('--env production');
       }
     } else if (args[i] === '--host' && i < ii -1) {
       host = args[++i];
-    } else {
+    } else if (args[i].startsWith('--')){
+      // webpack 5 validates options
+      if (['--analyze', '--hmr', '--open', '--port'].includes(args[i])) {
+        cleaned.push(args[i]);
+      }
+    } else{
       cleaned.push(args[i]);
     }
   }
@@ -38,10 +41,10 @@ function cleanArgs(args) {
   return cleaned;
 }
 
-const shutdownAppServer = () => {
+const shutdownDevServer = () => {
   if (npm && npm.proc) {
     kill(npm.proc.pid);
   }
 };
 
-export { run as default, shutdownAppServer };
+export { run as default, shutdownDevServer };

@@ -16,7 +16,7 @@ export function waitForDelay(delayMs: number, action: () => any) {
 
 export function waitFor(checker: () => boolean, action: () => any) {
     if (checker()) {
-        setImmediate(action);
+        setTimeout(action,0);
     } else {
         window.setTimeout(() => {
             waitFor(checker, action);

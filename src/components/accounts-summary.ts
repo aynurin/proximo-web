@@ -6,7 +6,7 @@ import { LogManager } from 'aurelia-framework';
 import { EventAggregator } from "aurelia-event-aggregator";
 import { connectTo } from 'aurelia-store';
 
-import * as moment from "moment";
+import { DateFormat } from "./date-format";
 
 import { State } from '../state';
 import { IntroBuildingContext, IntroContainer } from "./intro-building-context";
@@ -22,6 +22,7 @@ export class AccountsSummaryCustomElement {
   newAccForm: HTMLFormElement;
   @bindable newAccount: AccountBalance;
   public state: State;
+  private dateFormatter = new DateFormat();
 
   public byMonths: AccountByMonths[];
   public months: string[];
@@ -73,7 +74,7 @@ export class AccountsSummaryCustomElement {
     const l_totals: AccountByMonths = { account: "totals", months: {}, endingBalance: -1 };
 
     const l_byMonth = state.ledger.reduce((x: { [account: string]: AccountByMonths }, item) => {
-      let month = moment(item.date).format("YYYY-MM-02");
+      let month = this.dateFormatter.toMonthKey(item.date);
       if (l_months.length == 0 || l_months[l_months.length - 1] != month) {
         l_months.push(month);
       }
@@ -122,7 +123,7 @@ export class AccountsSummaryCustomElement {
   }
 
   monthName(month: string) {
-    return moment(month).format("MMM");
+    return month.substr(0, 3);
   }
 }
 

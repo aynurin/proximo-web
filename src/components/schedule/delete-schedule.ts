@@ -5,7 +5,7 @@ import {
 } from "aurelia-framework";
 import { EventAggregator } from "aurelia-event-aggregator";
 import cronstr from "../cronstr";
-import * as moment from "moment";
+import { DateFormat } from "components/date-format";
 
 import { Store, connectTo } from "aurelia-store";
 import { State } from "../../state";
@@ -21,6 +21,7 @@ export class DeleteScheduleCustomElement {
   @bindable tran: TranTemplate;
   scheduleForm: HTMLFormElement;
   public state: State;
+  private dateFormatter = new DateFormat();
 
   public constructor(
     private dialogController: DialogController,
@@ -52,14 +53,14 @@ export class DeleteScheduleCustomElement {
     if (sched.dateSince && sched.dateTill) {
       label +=
         ", between " +
-        moment(sched.dateSince).format("MMMM Do YYYY") +
+        this.dateFormatter.toHumanReadableShort(sched.dateSince) +
         " and " +
-        moment(sched.dateTill).format("MMMM Do YYYY");
+        this.dateFormatter.toHumanReadableShort(sched.dateTill);
     } else if (sched.dateSince) {
       label +=
-        ", starting from " + moment(sched.dateSince).format("MMMM Do YYYY");
+        ", starting from " + this.dateFormatter.toHumanReadableShort(sched.dateSince);
     } else if (sched.dateTill) {
-      label += ", until " + moment(sched.dateTill).format("MMMM Do YYYY");
+      label += ", until " + this.dateFormatter.toHumanReadableShort(sched.dateTill);
     }
     return label;
   }

@@ -17,7 +17,7 @@ import {
 import { EventAggregator } from "aurelia-event-aggregator";
 import { PLATFORM } from 'aurelia-pal';
 
-import * as environment from '../config/environment.json';
+import environment from '../config/environment.json';
 
 import { State } from './state';
 import { TranStateActions } from "model/tran-actions";

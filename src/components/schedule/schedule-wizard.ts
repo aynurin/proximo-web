@@ -4,7 +4,7 @@ import {
   computedFrom
 } from "aurelia-framework";
 import cronstr from "../cronstr";
-import * as moment from "moment";
+import { DateFormat } from "components/date-format";
 
 import { connectTo } from "aurelia-store";
 
@@ -26,6 +26,7 @@ export class ScheduleWizardCustomElement {
   private intro: IntroContainer;
   private introPages: IIntroPage[];
   private flow: AddTransactionWorkflow = new AddTransactionWorkflow();
+  private dateFormatter = new DateFormat();
 
   public constructor(
     private dialogController: DialogController,
@@ -89,7 +90,7 @@ export class ScheduleWizardCustomElement {
   }
 
   get minDateTill(): string {
-    return moment(this.tranwr.value.selectedSchedule.dateSince).format("YYYY-MM-DD");
+    return this.dateFormatter.toISODate(this.tranwr.value.selectedSchedule.dateSince);
   }
 
   @computedFrom("tranwr.value.selectedSchedule")
@@ -110,8 +111,8 @@ export class ScheduleWizardCustomElement {
 
   @computedFrom("tranwr.value.date")
   get allOptions(): Schedule[] {
-    const date = moment(this.tranwr.value.date);
-    log.debug('allOptions for', moment(date).format("MMM Do YYYY"));
+    const date = this.dateFormatter.parse(this.tranwr.value.date);
+    log.debug('allOptions for', this.dateFormatter.toHumanReadableShort(date));
     const options: Schedule[] = [];
 
     if (this.tranwr.value.date == null || this.tranwr.value.date == "") {
@@ -119,36 +120,36 @@ export class ScheduleWizardCustomElement {
     }
 
     options.push(
-      new Schedule(date, "Every " + moment(date).format("dddd"), {
-        dayOfWeek: date.day()
+      new Schedule(date, "Every " + this.dateFormatter.toDayOfWeek(date), {
+        dayOfWeek: date.getDay()
       })
     );
 
     options.push(
-      new Schedule(date, "Every other " + moment(date).format("dddd"), {
-        dayOfWeek: date.day(),
+      new Schedule(date, "Every other " + this.dateFormatter.toDayOfWeek(date), {
+        dayOfWeek: date.getDay(),
         nthDayOfWeek: 2
       })
     );
 
     options.push(
-      new Schedule(date, "Monthly, on the " + moment(date).format("Do"), {
-        day: date.date()
+      new Schedule(date, "Monthly, on the " + this.dateFormatter.toDate(date), {
+        day: date.getDate()
       })
     );
 
     options.push(
-      new Schedule(date, "Once a year, on " + moment(date).format("MMM Do"), {
-        day: date.date(),
-        month: date.month() + 1
+      new Schedule(date, "Once a year, on " + this.dateFormatter.toMonthDate(date), {
+        day: date.getDate(),
+        month: date.getMonth() + 1
       })
     );
 
     options.push(
-      new Schedule(date, "Once, on " + moment(date).format("MMM Do YYYY"), {
-        day: date.date(),
-        month: date.month() + 1,
-        year: date.year()
+      new Schedule(date, "Once, on " + this.dateFormatter.toHumanReadableShort(date), {
+        day: date.getDate(),
+        month: date.getMonth() + 1,
+        year: date.getFullYear()
       })
     );
 
@@ -173,14 +174,14 @@ export class ScheduleWizardCustomElement {
     if (sched.dateSince && sched.dateTill) {
       label +=
         ", between " +
-        moment(sched.dateSince).format("MMMM Do YYYY") +
+        this.dateFormatter.toHumanReadableShort(sched.dateSince) +
         " and " +
-        moment(sched.dateTill).format("MMMM Do YYYY");
+        this.dateFormatter.toHumanReadableShort(sched.dateTill);
     } else if (sched.dateSince) {
       label +=
-        ", starting from " + moment(sched.dateSince).format("MMMM Do YYYY");
+        ", starting from " + this.dateFormatter.toHumanReadableShort(sched.dateSince);
     } else if (sched.dateTill) {
-      label += ", until " + moment(sched.dateTill).format("MMMM Do YYYY");
+      label += ", until " + this.dateFormatter.toHumanReadableShort(sched.dateTill);
     }
     return label;
   }
@@ -200,6 +201,7 @@ class AddTransactionWorkflow {
   public initialStage: ScheduleStage = ScheduleStage.Initial;
   public complete: () => {} = null;
   public onStageChangedCallback: (oldStage: ScheduleStage, newStage: ScheduleStage) => any;
+  private dateFormatter = new DateFormat();
 
   get isInitial(): boolean {
     return this.stage <= this.initialStage;
@@ -271,7 +273,7 @@ class AddTransactionWorkflow {
       if (
         tran.date != null &&
         tran.date.trim() != "" &&
-        moment(tran.date).isValid
+        this.dateFormatter.isValidDate(tran.date)
       ) {
         this.advance(tran);
       } else {
@@ -319,17 +321,7 @@ class AddTransactionWorkflow {
         ) {
           this.advance(tran);
         } else {
-          let since =
-            tran.selectedSchedule.dateSince != null &&
-              moment(tran.selectedSchedule.dateSince).isValid
-              ? moment(tran.selectedSchedule.dateSince)
-              : null;
-          let till =
-            tran.selectedSchedule.dateTill != null &&
-              moment(tran.selectedSchedule.dateTill).isValid
-              ? moment(tran.selectedSchedule.dateTill)
-              : null;
-          if (since == null || till == null || since < till) {
+          if (tran.selectedSchedule.dateSince == null || tran.selectedSchedule.dateTill == null || tran.selectedSchedule.dateSince < tran.selectedSchedule.dateTill) {
             this.advance(tran);
           } else {
             log.debug(

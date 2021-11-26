@@ -1,13 +1,15 @@
-import numeral from 'numeral';
+import { NumberFormat } from "../../components/number-format";
 
 export class TextToMoneyValueConverter {
+  private _parser = new NumberFormat();
+  
   toView(val: number) {
     if (val == null) return null;
-    return numeral(val).format('0,0.00');
+    return this._parser.format(val);
   }
 
   fromView(val: string) {
     if (!val) return null;
-    return numeral(val).value();
+    return this._parser.parse(val);
   }
 }

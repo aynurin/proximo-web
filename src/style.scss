@@ -106,7 +106,7 @@ ux-dialog-overlay {
 flow-stage {
   display: block;
   max-width: 450px;
-  @extend .form-group;
+  @extend fieldset;
 
   stage-title {
     display: block;

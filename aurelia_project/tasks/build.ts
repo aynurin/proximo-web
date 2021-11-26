@@ -6,7 +6,7 @@ export default function() {
   return (new NPM()).run('run', ['build:dev', '--', ... cleanArgs(args)]);
 }
 
-// Cleanup --env prod to --env.production
+// Cleanup --env prod to --env production
 // for backwards compatibility
 function cleanArgs(args) {
   const cleaned = [];
@@ -14,9 +14,7 @@ function cleanArgs(args) {
     if (args[i] === '--env' && i < ii - 1) {
       const env = args[++i].toLowerCase();
       if (env.startsWith('prod')) {
-        cleaned.push('--env.production');
-      } else if (env.startsWith('test')) {
-        cleaned.push('--tests');
+        cleaned.push('--env production');
       }
     } else {
       cleaned.push(args[i]);

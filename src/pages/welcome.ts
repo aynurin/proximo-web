@@ -3,7 +3,7 @@ import { LogManager } from 'aurelia-framework';
 import { EventAggregator } from "aurelia-event-aggregator";
 import { connectTo } from "aurelia-store";
 
-import * as moment from "moment";
+import { DateFormat } from "components/date-format";
 
 import { State } from "../state";
 
@@ -24,6 +24,7 @@ export class WelcomeCustomElement {
   addedTrans: FormRowTranTemplate[] = [];
   welcomeForm: HTMLFormElement;
   public state: State;
+  private dateFormatter = new DateFormat();
 
   public constructor(
     private tranActions: TranStateActions,
@@ -78,14 +79,14 @@ export class WelcomeCustomElement {
   }
 
   createSchedule(tran: FormRowTranTemplate): TranTemplate {
-    const date = moment().date(parseInt(tran.monthDate));
+    const date = this.dateFormatter.dateFromCurrentMonth(tran.monthDate);
     const template = new TranTemplate();
     template.account = "My account";
     template.amount = parseInt(tran.amount);
-    template.date = date.format("YYYY-MM-DD");
+    template.date = this.dateFormatter.toISODate(date);
     template.description = tran.description;
-    template.selectedSchedule = new Schedule(date, "Monthly, on the " + date.format("Do"), {
-        day: date.date()
+    template.selectedSchedule = new Schedule(date, "Monthly, on the " + this.dateFormatter.toDate(date), {
+        day: date.getDate()
       });
     return template;
   }

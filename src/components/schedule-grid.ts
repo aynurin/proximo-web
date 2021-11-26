@@ -5,7 +5,7 @@ import { LogManager } from 'aurelia-framework';
 import { EventAggregator } from "aurelia-event-aggregator";
 import { connectTo } from "aurelia-store";
 
-import * as moment from "moment";
+import { DateFormat } from "./date-format";
 
 import { HolidayRule, Schedule } from "../model/schedule";
 import { TranTemplate, TranScheduleWrapper } from "../model/tran-template";
@@ -15,7 +15,7 @@ import { State } from "../state";
 import { IntroContainer, IntroBuildingContext } from "./intro-building-context";
 import cronstr from "../components/cronstr";
 
-import * as environment from '../../config/environment.json';
+import environment from '../../config/environment.json';
 import { waitFor } from "./utils";
 
 const COMPONENT_NAME = "schedule-grid";
@@ -28,6 +28,7 @@ export class ScheduleGridCustomElement {
   public state: State;
   private htmlElement: HTMLTableElement;
   private intro: IntroContainer;
+  private dateFormatter = new DateFormat();
 
   public constructor(
     private tranActions: TranStateActions,
@@ -70,14 +71,14 @@ export class ScheduleGridCustomElement {
     if (sched.dateSince && sched.dateTill) {
       label +=
         ", between " +
-        moment(sched.dateSince).format("MMMM Do YYYY") +
+        this.dateFormatter.toHumanReadableShort(sched.dateSince) +
         " and " +
-        moment(sched.dateTill).format("MMMM Do YYYY");
+        this.dateFormatter.toHumanReadableShort(sched.dateTill);
     } else if (sched.dateSince) {
       label +=
-        ", starting from " + moment(sched.dateSince).format("MMMM Do YYYY");
+        ", starting from " + this.dateFormatter.toHumanReadableShort(sched.dateSince);
     } else if (sched.dateTill) {
-      label += ", until " + moment(sched.dateTill).format("MMMM Do YYYY");
+      label += ", until " + this.dateFormatter.toHumanReadableShort(sched.dateTill);
     }
     return label;
   }
