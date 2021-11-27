@@ -1,4 +1,4 @@
-import cronstr from "../../../src/components/cronstr";
+import cronstr from "../../../src/lib/cronstr";
 
 describe("Cron String Converter", () => {
   it("17th of February", done => {

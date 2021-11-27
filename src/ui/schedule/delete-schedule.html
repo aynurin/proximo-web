@@ -1,0 +1,20 @@
+<!--
+  Option to add your own schedule (dynamically rendered using cronstrue).
+  Try moving allOptions into CustomElement
+-->
+<template bindable="displayStartButton">
+    <dialogue-frame>
+        <require from="../../lib/schedule-view-engine-hooks"></require>
+        <!-- Modal -->
+        <flow-stage>
+            <p>Deleting schedule that runs the following transaction ${scheduleLabel}:</p>
+            <p>${tran.amount | textToMoney}, ${tran.description | trimSpace}, on account ${tran.account | trimSpace}</p>
+            <p>This operation cannot be undone. Do you confirm deletion?</p>
+            <div class="form-group flowButtons">
+                <button class="btn btn-light" type="button" click.delegate="cancelForm()">cancel</button>
+                <button class="btn btn-danger" type="button" click.delegate="deleteSchedule()">yes, delete the
+                    transaction&nbsp;<i class="fa fa-trash"></i></button>
+            </div>
+        </flow-stage>
+    </dialogue-frame>
+</template>

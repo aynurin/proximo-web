@@ -1,0 +1,33 @@
+<template>
+  <require from="./edit-schedule-button"></require>
+  <require from="./delete-schedule-button"></require>
+  <table ref="htmlElement" class="table table-sm table-hover" if.bind="state.schedule.length > 0">
+    <thead>
+      <tr>
+        <th>Schedule</th>
+        <th>Description</th>
+        <th class="money">Amount</th>
+        <th>Account</th>
+        <th></th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr repeat.for="tran of state.schedule">
+        <td>${tran.selectedSchedule | scheduleLabel}</td>
+        <td>${tran.description}</td>
+        <td class="money">${tran.amount | textToMoney}</td>
+        <td innerhtml.bind="accountLabel(tran)"></td>
+        <td>
+          <div class="btn-group" role="group" aria-label="Transaction controls">
+            <edit-schedule-button tran.bind="tran"></edit-schedule-button>
+            <delete-schedule-button tran.bind="tran"></delete-schedule-button>
+          </div>
+        </td>
+      </tr>
+    </tbody>
+  </table>
+  <!-- Event snippet for Created a schedule conversion page -->
+  <script if.bind="isProduction">
+      gtag('event', 'conversion', { 'send_to': 'AW-809237872/zhmtCIOM1MkBEPD674ED' });
+  </script>
+</template>

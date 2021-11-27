@@ -1,0 +1,20 @@
+<template>
+    <require from="./line-chart"></require>
+    <require from="./accounts"></require>
+    <require from="./accounts-summary"></require>
+    <board>
+        <div class="main-column">
+            <div class="line-chart">
+                <line-chart></line-chart>
+            </div>
+            <div>
+                <accounts-summary></accounts-summary>
+            </div>
+        </div>
+        <div class="right-column">
+            <div class="accounts">
+                <accounts></accounts>
+            </div>
+        </div>
+    </board>
+</template>

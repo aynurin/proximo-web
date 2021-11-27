@@ -1,0 +1,27 @@
+
+@import "../../base.scss";
+
+$danger-bg: scale-color($danger, $lightness: 60%);
+$warning-bg: scale-color($warning, $lightness: 60%);
+
+ledger-grid {
+  cursor: default;
+
+  .executed {
+    font-style: italic;
+  }
+
+  .danger {
+    color: $danger;
+  }
+
+  .warning {
+    color: $warning;
+  }
+
+  .drag-handle {
+    cursor: pointer;
+    width: 1em;
+    text-align: center;
+  }
+}

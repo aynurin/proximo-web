@@ -1,7 +1,7 @@
 import { Aurelia } from 'aurelia-framework'
 import environment from '../config/environment.json';
 import { PLATFORM } from 'aurelia-pal';
-import { initialState } from './state';
+import { initialState } from './lib/state';
 import { I18N, TCustomAttribute } from 'aurelia-i18n';
 import Backend from 'i18next-http-backend';
 import 'font-awesome/css/font-awesome.css';
@@ -9,7 +9,7 @@ import 'font-awesome/css/font-awesome.css';
 export function configure(aurelia: Aurelia) {
   aurelia.use
     .standardConfiguration()
-    .feature(PLATFORM.moduleName('resources/index'));
+    .feature(PLATFORM.moduleName('au/index'));
 
   aurelia.use.developmentLogging(environment.debug ? 'debug' : 'warn');
 
@@ -34,13 +34,13 @@ export function configure(aurelia: Aurelia) {
       // make sure to return the promise of the setup method, in order to guarantee proper loading
       return instance.setup({
         backend: {                                  // <-- configure backend settings
-          loadPath: './locale/{{lng}}/{{ns}}.json', // <-- XHR settings for where to get the files from
+          loadPath: './ui/{{ns}}/{{ns}}-locale-{{lng}}.json', // <-- XHR settings for where to get the files from
         },
         attributes: aliases,
         lng: 'en',
         fallbackLng: 'en',
         debug: environment.debug,
-        ns: ['components', 'app', 'dashboard', 'ledger', 'schedule', 'schedule-wizard'],
+        ns: ['welcome', 'dashboard', 'ledger', 'schedule'],
         skipTranslationOnMissingKey: true
       });
     });

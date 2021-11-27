@@ -19,12 +19,12 @@ import { PLATFORM } from 'aurelia-pal';
 
 import environment from '../config/environment.json';
 
-import { State } from './state';
-import { TranStateActions } from "model/tran-actions";
-import { IntroStateActions } from "model/intro-actions";
+import { State } from 'lib/state';
+import { TranStateActions } from "lib/model/tran-actions";
+import { IntroStateActions } from "lib/model/intro-actions";
 
-import { IntroBuildingContext } from "components/intro-building-context";
-import { waitForHtmlElement } from "components/utils";
+import { IntroBuildingContext } from "lib/intro-building-context";
+import { waitForHtmlElement } from "lib/utils";
 
 const COMPONENT_NAME = "app";
 
@@ -166,7 +166,7 @@ export class App {
   }
 
   showHintsAfterScheduleChanged() {
-    let intro = this.introContext.getContainer(COMPONENT_NAME);
+    let intro = this.introContext.getContainer("welcome");
     waitForHtmlElement("dashboard-tab-button", element => {
       let introPages = this.introContext.getPagesToShow(intro, [
         { element, id: 'transaction-added.dashboard',
@@ -191,13 +191,13 @@ export class App {
     config.options.pushState = true;
     config.options.root = '/';
     config.map([
-      { route: '', name: 'default', moduleId: PLATFORM.moduleName('./pages/loading.html'), nav: false, title: 'Loading...' },
-      { route: 'dashboard', name: 'dashboard', moduleId: PLATFORM.moduleName('./pages/dashboard'), nav: true, title: 'Dashboard', settings: {mainNav: true} },
-      { route: 'schedule', name: 'schedule', moduleId: PLATFORM.moduleName('./pages/schedule'), nav: true, title: 'Schedule', settings: {mainNav: true} },
-      { route: 'ledger', name: 'ledger', moduleId: PLATFORM.moduleName('./pages/ledger'), nav: true, title: 'Ledger', settings: {mainNav: true} },
-      { route: 'welcome', name: 'welcome', moduleId: PLATFORM.moduleName('./pages/welcome'), nav: false, title: 'Welcome to Proximo!' },
-      { route: 'feedback', name: 'feedback', moduleId: PLATFORM.moduleName('./pages/feedback.html'), nav: true, title: 'feedback', settings: {secondaryNav: true} },
-      { route: 'about', name: 'about', moduleId: PLATFORM.moduleName('./pages/about.html'), nav: true, title: 'about', settings: {secondaryNav: true} },
+      { route: '', name: 'default', moduleId: PLATFORM.moduleName('./ui/welcome/loading.html'), nav: false, title: 'Loading...' },
+      { route: 'dashboard', name: 'dashboard', moduleId: PLATFORM.moduleName('./ui/dashboard/dashboard'), nav: true, title: 'Dashboard', settings: {mainNav: true} },
+      { route: 'schedule', name: 'schedule', moduleId: PLATFORM.moduleName('./ui/schedule/schedule'), nav: true, title: 'Schedule', settings: {mainNav: true} },
+      { route: 'ledger', name: 'ledger', moduleId: PLATFORM.moduleName('./ui/ledger/ledger'), nav: true, title: 'Ledger', settings: {mainNav: true} },
+      { route: 'welcome', name: 'welcome', moduleId: PLATFORM.moduleName('./ui/welcome/welcome'), nav: false, title: 'Welcome to Proximo!' },
+      { route: 'feedback', name: 'feedback', moduleId: PLATFORM.moduleName('./ui/feedback/feedback.html'), nav: true, title: 'feedback', settings: {secondaryNav: true} },
+      { route: 'about', name: 'about', moduleId: PLATFORM.moduleName('./ui/about/about.html'), nav: true, title: 'about', settings: {secondaryNav: true} },
     ]);
     config.fallbackRoute('dashboard');
     config.mapUnknownRoutes('dashboard');

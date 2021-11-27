@@ -973,6 +973,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@types/intro.js@npm:^3.0.2":
+  version: 3.0.2
+  resolution: "@types/intro.js@npm:3.0.2"
+  checksum: b659b9a5806d447715d494cc50a3cdfad29d813c1369629d406bc825476e8a5062a8ce894f4064590479641db46d7947005c0349a5748735fda7f72b8add5302
+  languageName: node
+  linkType: hard
+
 "@types/istanbul-lib-coverage@npm:*, @types/istanbul-lib-coverage@npm:^2.0.0, @types/istanbul-lib-coverage@npm:^2.0.1":
   version: 2.0.3
   resolution: "@types/istanbul-lib-coverage@npm:2.0.3"
@@ -9942,10 +9949,11 @@ __metadata:
   languageName: node
   linkType: hard
 
-"proximo-web-2@workspace:.":
+"proximo-web@workspace:.":
   version: 0.0.0-use.local
-  resolution: "proximo-web-2@workspace:."
+  resolution: "proximo-web@workspace:."
   dependencies:
+    "@types/intro.js": ^3.0.2
     "@types/jest": ^27.0.2
     "@types/node": ^16.11.6
     "@types/webpack": ^5.28.0
