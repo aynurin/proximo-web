@@ -74,7 +74,7 @@ export class ScheduleWizardCustomElement {
   }
 
   startOver() {
-    this.tranwr.value.date = "";
+    this.tranwr.value.date = null;
     this.flow.reset();
   }
 
@@ -111,11 +111,11 @@ export class ScheduleWizardCustomElement {
 
   @computedFrom("tranwr.value.date")
   get allOptions(): Schedule[] {
-    const date = this.dateFormatter.parse(this.tranwr.value.date);
+    const date = this.tranwr.value.date;
     log.debug('allOptions for', this.dateFormatter.toHumanReadableShort(date));
     const options: Schedule[] = [];
 
-    if (this.tranwr.value.date == null || this.tranwr.value.date == "") {
+    if (this.tranwr.value.date == null) {
       return options;
     }
 
@@ -139,7 +139,7 @@ export class ScheduleWizardCustomElement {
     );
 
     options.push(
-      new Schedule(date, "Once a year, on " + this.dateFormatter.toMonthDate(date), {
+      new Schedule(date, "Once a year, on " + this.dateFormatter.toDateOfMonth(date), {
         day: date.getDate(),
         month: date.getMonth() + 1
       })
@@ -267,14 +267,10 @@ class AddTransactionWorkflow {
       }`, tran
     );
     if (this.stage == ScheduleStage.Initial) {
-      tran.date = "";
+      tran.date = null;
       this.advance(tran);
     } else if (this.stage == ScheduleStage.Date) {
-      if (
-        tran.date != null &&
-        tran.date.trim() != "" &&
-        this.dateFormatter.isValidDate(tran.date)
-      ) {
+      if (tran.date != null) {
         this.advance(tran);
       } else {
         log.debug(

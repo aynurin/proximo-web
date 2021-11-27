@@ -4,16 +4,15 @@ export class NumberFormat {
   private _decimal: RegExp;
   private _numeral: RegExp;
   private _index: (substring: string, ...args: any[]) => string;
-  private _locale: string;
+  private _locales: string[];
   private _formatter: Intl.NumberFormat;
 
-  constructor(locale = null) {
-    this._locale = locale ?? getLocale();
-    this._formatter = new Intl.NumberFormat(this._locale);
+  constructor(locales: string[] = null) {
+    this._locales = locales ?? [];
+    this._formatter = new Intl.NumberFormat(this._locales, { notation: "standard", maximumFractionDigits: 2 });
 
-    const format = new Intl.NumberFormat(this._locale);
-    const parts = format.formatToParts(12345.6);
-    const numerals = Array.from({ length: 10 }).map((_, i) => format.format(i));
+    const parts = this._formatter.formatToParts(12345.6);
+    const numerals = Array.from({ length: 10 }).map((_, i) => this._formatter.format(i));
     const index = new Map(numerals.map((d, i) => [d, i]));
     
     this._group = new RegExp(`[${parts.find(d => d.type === "group").value}]`, "g");
@@ -32,8 +31,4 @@ export class NumberFormat {
   format(val: number) {
     return this._formatter.format(val);
   }
-}
-
-function getLocale() {
-  return navigator.languages[0];
 }

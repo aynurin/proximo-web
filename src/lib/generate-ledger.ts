@@ -13,6 +13,7 @@ import { Schedule } from "lib/model/schedule";
 import { TranStateActions } from "lib/model/tran-actions";
 import { TranGenerated, TranState } from "lib/model/tran-template";
 import { subarray } from "lib/subarray";
+import migrateStateDates20211127 from "./migrations/StateDatesMigration20211127";
 
 const log = LogManager.getLogger('generate-ledger');
 
@@ -45,6 +46,7 @@ export class GenerateLedger {
 
   private stateHydrated = async () => {
     log.debug('stateRehydrated');
+    migrateStateDates20211127(this.state);
     await this.generateLedger(this.state);
   }
 
@@ -112,9 +114,6 @@ export class GenerateLedger {
       }
     }
 
-    log.debug("past ledger", pastTranCount, ledger);
-    log.debug("accounts", accounts);
-
     for (const tran of state.schedule) {
       ensureAccount(tran.account);
       if (tran.isTransfer) {
@@ -122,7 +121,6 @@ export class GenerateLedger {
       }
 
       const thisOptions = Object.assign({}, options);
-      log.debug("tran.selectedSchedule", tran.selectedSchedule);
       const since = tran.selectedSchedule.dateSince ?? start;
       const till = tran.selectedSchedule.dateTill ?? end;
       if (since > thisOptions.currentDate) {

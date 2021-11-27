@@ -1,4 +1,4 @@
-import { subarray, edgeSearch } from "../../../src/lib/subarray";
+import { subarray, edgeSearch } from "lib/subarray";
 
 describe("SubArray", () => {
   it("subarray-100: subarray regular case", done => {

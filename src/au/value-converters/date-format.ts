@@ -2,11 +2,8 @@ import { DateFormat } from 'lib/date-format';
 
 export class DateFormatValueConverter {
   private dateFormatter = new DateFormat();
-  toView(val: Date, format?: string) {
+  toView(val: Date) {
     if (!val) return null;
-    if (format == null || format.trim() == "") {
-      format = "MMMM Do YYYY";
-    }
     return this.dateFormatter.toHumanReadableShort(val);
   }
 }

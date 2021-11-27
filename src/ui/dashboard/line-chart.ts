@@ -17,6 +17,20 @@ const COMPONENT_NAME = "line-chart";
 
 const log = LogManager.getLogger(COMPONENT_NAME);
 
+const __colors = [
+  "#45A831",
+  "#EBBB07",
+  "#B81AE8",
+  "#2685FF",
+
+  "#82E5FF",
+  "#7AE876",
+  "#F79B72",
+  "#EF61FF",
+];
+let __lastUsedColor = -1;
+const __accountColors = {}
+
 @autoinject()
 @connectTo()
 export class LineChartCustomElement {
@@ -68,7 +82,7 @@ export class LineChartCustomElement {
     log.debug('generateChart', state ? state.scheduleVersion : 'none');
     let newDataSets = [];
     if (state.ledger) {
-      newDataSets = generateDatasets(state.ledger);
+      newDataSets = this.generateDatasets(state.ledger);
     } else {
       newDataSets = [];
     }
@@ -172,72 +186,65 @@ export class LineChartCustomElement {
     };
     this.lineChart = new Chart(this.canvas, chartConfig);
   }
-}
 
-const __colors = [
-  "#45A831",
-  "#EBBB07",
-  "#B81AE8",
-  "#2685FF",
 
-  "#82E5FF",
-  "#7AE876",
-  "#F79B72",
-  "#EF61FF",
-];
-let __lastUsedColor = -1;
-const __accountColors = {}
-
-function accountColor(acc: string): string {
-  if (!(acc in __accountColors)) {
-    __lastUsedColor++;
-    if (__lastUsedColor == __colors.length) {
-      __lastUsedColor = 0;
+  accountColor(acc: string): string {
+    if (!(acc in __accountColors)) {
+      __lastUsedColor++;
+      if (__lastUsedColor == __colors.length) {
+        __lastUsedColor = 0;
+      }
+      __accountColors[acc] = __colors[__lastUsedColor];
     }
-    __accountColors[acc] = __colors[__lastUsedColor];
+    return __accountColors[acc];
   }
-  return __accountColors[acc];
-}
 
-function newDataset(acc: string): any {
-  return {
-    label: acc,
-    borderColor: accountColor(acc),
-    data: [],
+  newDataset(acc: string): any {
+    return {
+      label: acc,
+      borderColor: this.accountColor(acc),
+      data: [],
 
-    backgroundColor: "rgba(255,255,255,0)",
-    fill: false,
-    lineTension: 0.2,
-    borderWidth: 2
-  }
-}
-
-function generateDatasets(ledger: TranGenerated[]): any[] {
-  // const data = {
-  //   labels: ['Day 1', 'Day 2', 'Day 3', 'Day 4', 'Day 5', 'Day 6'],
-  //   datasets: [
-  //     {
-  //       label: 'Dataset',
-  //       data: Utils.numbers({count: 6, min: -100, max: 100}),
-  //       borderColor: Utils.CHART_COLORS.red,
-  //       fill: false,
-  //       stepped: true,
-  //     }
-  //   ]
-  // };
-
-  let datasets: { [account: string]: any } = {};
-  const addTran = (accountName: string, tran: TranGenerated) => {
-    if (!(accountName in datasets)) {
-      datasets[accountName] = newDataset(accountName);
-    }
-    datasets[accountName].data.push({ x: tran.date, y: tran.balances[tran.account] });
-  }
-  for (let tran of ledger) {
-    addTran(tran.account, tran);
-    if (tran.isTransfer) {
-      addTran(tran.transferToAccount, Object.assign({}, tran, { account: tran.transferToAccount }));
+      backgroundColor: "rgba(255,255,255,0)",
+      fill: false,
+      lineTension: 0.2,
+      borderWidth: 2
     }
   }
-  return Object.values(datasets);
+
+  generateDatasets(ledger: TranGenerated[]): any[] {
+    // const data = {
+    //   labels: ['Day 1', 'Day 2', 'Day 3', 'Day 4', 'Day 5', 'Day 6'],
+    //   datasets: [
+    //     {
+    //       label: 'Dataset',
+    //       data: Utils.numbers({count: 6, min: -100, max: 100}),
+    //       borderColor: Utils.CHART_COLORS.red,
+    //       fill: false,
+    //       stepped: true,
+    //     }
+    //   ]
+    // };
+
+    let datasets: { [account: string]: any } = {};
+    const addTran = (accountName: string, tran: TranGenerated) => {
+      if (!(accountName in datasets)) {
+        datasets[accountName] = this.newDataset(accountName);
+      }
+      console.log('tran.date', tran.date, typeof tran.date);
+      let tranDate: Date = null;
+      if (typeof tran.date === "string") {
+        tranDate = new Date(tran.date);
+      }
+      datasets[accountName].data.push({ x: tranDate, y: tran.balances[tran.account] });
+    }
+    for (let tran of ledger) {
+      addTran(tran.account, tran);
+      if (tran.isTransfer) {
+        addTran(tran.transferToAccount, Object.assign({}, tran, { account: tran.transferToAccount }));
+      }
+    }
+    return Object.values(datasets);
+  }
+
 }

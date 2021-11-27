@@ -79,10 +79,10 @@ export class EditScheduleCustomElement {
 
   @computedFrom("tranwr.value.date")
   get allOptions(): Schedule[] {
-    const date = this.dateFormatter.parse(this.tranwr.value.date);
+    const date = this.tranwr.value.date;
     const options: Schedule[] = [];
 
-    if (this.tranwr.value.date == null || this.tranwr.value.date == "") {
+    if (this.tranwr.value.date == null) {
       return options;
     }
 
@@ -99,7 +99,7 @@ export class EditScheduleCustomElement {
     );
 
     options.push(
-      new Schedule(date, "Once a year, on " + this.dateFormatter.toMonthDate(date), {
+      new Schedule(date, "Once a year, on " + this.dateFormatter.toDateOfMonth(date), {
         day: date.getDate(),
         month: date.getMonth() + 1
       })

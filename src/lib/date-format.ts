@@ -2,44 +2,53 @@
 
 // https://dockyard.com/blog/2020/02/14/you-probably-don-t-need-moment-js-anymore
 export class DateFormat {
+  private _locales: string[];
   private _formatter: Intl.DateTimeFormat;
 
-  constructor(locale = null) {
-    this._formatter = new Intl.DateTimeFormat(locale ?? getLocale());
+  constructor(locales: string[] = null) {
+    this._locales = locales ?? [];
+    this._formatter = this.formatter();
+  }
+  
+  private formatter(options: Intl.DateTimeFormatOptions = null): Intl.DateTimeFormat {
+    options = options ?? { dateStyle: "medium" };
+    return new Intl.DateTimeFormat(this._locales, options);
   }
 
   toHumanReadableShort(date: Date): string {
+    console.debug('DateFormat.toHumanReadableShort', date, typeof date);
     return this._formatter.format(date);
   }
 
   toISODate(date: Date): string {
-    return date.toISOString();
+    if (date == null) {
+      return "";
+    }
+    return date.toISOString().substring(0, 10);
   }
 
   toMonthKey(date: Date): string {
-    return date.getFullYear().toString() + date.getMonth().toString().padStart(2, '0');
+    return this.formatter({
+      year: "numeric",
+      month: "short"
+    }).format(date);
   }
-
-  parse(date: string): Date {
-    throw new Error("Method not implemented.");
-  }
-  isValidDate(date: string): boolean {
-    throw new Error("Method not implemented.");
-  }
-  toMonthDate(date: Date): string {
-    throw new Error("Method not implemented.");
+  toDateOfMonth(date: Date): string {
+    return this.formatter({
+      month: "long",
+      day: "numeric"
+    }).format(date);
   }
   toDate(date: Date): string {
-    throw new Error("Method not implemented.");
+    return date.getDate().toString();
   }
   toDayOfWeek(date: Date): string {
-    throw new Error("Method not implemented.");
+    return this.formatter({
+      weekday: "long"
+    }).format(date);
   }
-  dateFromCurrentMonth(monthDate: string): Date {
-    throw new Error("Method not implemented.");
+  fromDateOfMonth(dateOfMonth: number): Date {
+    var ref = new Date();
+    return new Date(ref.getFullYear(), ref.getMonth(), dateOfMonth);
   }
-}
-
-function getLocale() {
-  return navigator.languages[0];
 }

@@ -36,12 +36,10 @@ export class ScheduleGridCustomElement {
     private introContext: IntroBuildingContext) { }
 
   created() {
-    log.debug('created');
     this.intro = this.introContext.getContainer(COMPONENT_NAME);
   }
 
   attached() {
-    log.debug('attached');
     waitFor(() => this.htmlElement && this.htmlElement.rows.length > 0, this.readyForIntro);
   }
 

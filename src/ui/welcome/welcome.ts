@@ -79,11 +79,11 @@ export class WelcomeCustomElement {
   }
 
   createSchedule(tran: FormRowTranTemplate): TranTemplate {
-    const date = this.dateFormatter.dateFromCurrentMonth(tran.monthDate);
+    const date = this.dateFormatter.fromDateOfMonth(parseInt(tran.monthDate));
     const template = new TranTemplate();
     template.account = "My account";
     template.amount = parseInt(tran.amount);
-    template.date = this.dateFormatter.toISODate(date);
+    template.date = date;
     template.description = tran.description;
     template.selectedSchedule = new Schedule(date, "Monthly, on the " + this.dateFormatter.toDate(date), {
         day: date.getDate()

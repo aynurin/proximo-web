@@ -71,7 +71,7 @@
   },
   "scripts": {
     "build": "webpack --env production",
-    "start": "webpack server",
+    "start": "webpack server --env development",
     "build:dev": "webpack",
     "analyze": "webpack --env production --analyze",
     "test": "au test"
