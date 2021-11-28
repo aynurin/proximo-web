@@ -216,7 +216,7 @@ export class IntroBuildingContext {
             let containerState = this.getOrCreateContainerState(container.name);
             if (container.maxPageVersion > 0) {
                 containerState.versionCompleted = container.maxPageVersion;
-                containerState.completedDate = new Date().toISOString();
+                containerState.completedDate = new Date(Date.now());
                 log.debug(`container ${containerState.name} completed, versionCompleted =`, containerState.versionCompleted);
                 await this.introStateActions.addOrUpdateContainer(containerState);
             } else {

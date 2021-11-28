@@ -26,7 +26,7 @@ describe("DateFormat", () => {
   });
   it("toMonthKey", done => {
     const given = new Date(2021, 3, 28);
-    const expected = '202104';
+    const expected = 'Apr 2021';
     const actual = formatter.toMonthKey(given);
     expect(actual).toBe(expected);
     done();
