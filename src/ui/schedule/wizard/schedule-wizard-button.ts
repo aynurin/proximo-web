@@ -24,7 +24,7 @@ export class ScheduleWizardButtonCustomElement {
   }
 
   onScheduleSave(schedule: TranTemplate) {
-    var event = new CustomEvent('create', {
+    const event = new CustomEvent('create', {
       detail: schedule,
       bubbles: true
     });

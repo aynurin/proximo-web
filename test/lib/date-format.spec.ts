@@ -1,7 +1,7 @@
 import { DateFormat } from 'lib/date-format';
 
 describe("DateFormat", () => {
-  var formatter = new DateFormat(["en-US"]);
+  const formatter = new DateFormat(["en-US"]);
 
   it("toHumanReadableShort", done => {
     const given = new Date(2021, 3, 28);
@@ -46,7 +46,7 @@ describe("DateFormat", () => {
     done();
   });
   it("toDayOfWeek", done => {
-    const given = new Date(Date.now());
+    const given = new Date(1984, 1, 18);
     const expected = 'Saturday';
     const actual = formatter.toDayOfWeek(given);
     expect(actual).toBe(expected);
@@ -54,7 +54,7 @@ describe("DateFormat", () => {
   });
   it("fromDateOfMonth", done => {
     const given = "4";
-    let ref = new Date();
+    const ref = new Date();
     const expected = new Date(ref.getFullYear(), ref.getMonth(), 4);
     const actual = formatter.fromDateOfMonth(parseInt(given));
     expect(actual).toStrictEqual(expected);

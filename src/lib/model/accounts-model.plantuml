@@ -1,0 +1,153 @@
+@startuml Proximo Data Model
+
+hide circle
+
+class Application {
+}
+
+entity Person {
+  * person_id : UUID <<generated>>
+  --
+  //foreign keys//:
+  * accounts : Account[]
+  --
+  ==
+  addAccount()
+  getAccount(id: UUID)
+}
+
+note left of Person
+  the logged in user
+  and the owner of an account
+endnote
+
+Application ||--|| Person
+
+entity Account {
+  * account_id : UUID <<generated>>
+  --
+  //foreign keys//:
+  * timetable : TimeTable
+  * ledger : Ledger
+  --
+  * friendly_name : string
+  * date_created : Date
+  * balance : number
+  * colorCode : string
+  ==
+  runTransaction(transaction: PostedTransaction)
+  updateBalance(newBalance: number)
+  updateAccount(name: string)
+}
+
+Person }|--|{ Account
+
+note left of Account
+  an account could potentially 
+  be owned by several people,
+  so it's a many-to-many
+endnote
+
+entity TimeTable {
+  * timetable_id : UUID <<generated>>
+  --
+  //foreign keys//:
+  * timetable : ScheduledTransaction[]
+  --
+  ==
+  add(transaction: ScheduledTransaction)
+  replace(original: ScheduledTransaction, replacement: ScheduledTransaction)
+  remove(transaction: ScheduledTransaction)
+}
+
+Account ||--|| TimeTable
+
+note left of TimeTable
+  add must set account for the transaction
+  --
+  TimeTable holds the schedules for all transactions
+endnote
+
+entity Ledger {
+  * ledger_id : UUID <<generated>>
+  --
+  //foreign keys//:
+  * transactions : PostedTransaction[]
+  --
+  ==
+  ?? what are the operations allowed on ledger?
+}
+
+Account ||--|| Ledger
+
+' ==================== ScheduledTransaction ====================
+
+entity ScheduledTransaction {
+  * scheduled_id: UUID <<generated>>
+  --
+  //foreign keys//:
+  * transaction_schedule: Schedule
+  * account_id: UUID
+  transfer_to_account_id: UUID
+  --
+  * date_created: Date
+  * date_reference: Date
+  * amount: number
+  deviation: number
+  description: string
+}
+
+TimeTable ||--|{ ScheduledTransaction
+Account ||--|{ ScheduledTransaction : account_id
+Account |o--o{ ScheduledTransaction : transfer_to_account_id
+
+entity Schedule {
+  * schedule_id: UUID <<generated>>
+  --
+  * cron: string[]
+  * label: string
+  holidayRule: HolidayRule
+  dateSince: Date
+  dateTill: Date
+}
+
+ScheduledTransaction ||-l-|| Schedule
+
+' ==================== PostedTransaction ====================
+
+entity PostedTransaction {
+  * transaction_id: UUID <<generated>>
+  --
+  //foreign keys//:
+  * account_id: UUID
+  transfer_to_account_id: UUID
+  --
+  ledger_order: number
+  * date_posted: Date
+  * amount: number
+  * account_balance: number
+  * state: TransactionState;
+  description: string
+}
+
+note right of PostedTransaction
+  ledger_order is tricky
+  we don't need to order within
+  the same date as it doesn't matter
+  we also don't need to use anything other
+  than date to actually order things
+  and we can maintain sorting by the 
+  order in the list
+endnote
+
+Ledger ||--|{ PostedTransaction
+Account ||--|{ PostedTransaction : account_id
+Account |o--o{ PostedTransaction : transfer_to_account_id
+
+ScheduledTransaction ||-r-|{ PostedTransaction
+
+
+'layout
+
+TimeTable -r[hidden]-> Ledger
+@enduml

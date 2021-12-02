@@ -22,10 +22,11 @@ export class NumberFormat {
   }
 
   parse(val: string) {
-    return (val = val.trim()
+    val = val.trim()
       .replace(this._group, "")
       .replace(this._decimal, ".")
-      .replace(this._numeral, this._index)) ? +val : NaN;
+      .replace(this._numeral, this._index)
+    return val ? +val : NaN;
   }
 
   format(val: number) {

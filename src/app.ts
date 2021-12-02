@@ -19,12 +19,11 @@ import { PLATFORM } from 'aurelia-pal';
 
 import environment from '../config/environment.json';
 
-import { State } from 'lib/state';
-import { TranStateActions } from "lib/model/tran-actions";
-import { IntroStateActions } from "lib/model/intro-actions";
-
 import { IntroBuildingContext } from "lib/intro-building-context";
 import { waitForHtmlElement } from "lib/utils";
+import Person, { IPerson } from "lib/model/Person";
+import StateActionsFactory from "lib/StateActionsFactory";
+import TransactionSchedule from "lib/model/TransactionSchedule";
 
 const COMPONENT_NAME = "app";
 
@@ -52,18 +51,19 @@ Current totals can change whenever:
 @autoinject()
 export class App {
   private router: Router;
-  private state: State;
-  private rehydrateCompleted: boolean = false;
+  private loggedInPersonState: IPerson;
+  private loggedInPerson: Person;
+  private rehydrateCompleted = false;
   private resizeTimer: number;
 
-  get isProduction(): boolean { return environment.debug === false; };
+  get isProduction(): boolean { return environment.debug === false; }
 
   public constructor(
-    private store: Store<State>,
-    private tranActions: TranStateActions,
-    private introActions: IntroStateActions,
+    private store: Store<IPerson>,
     private ea: EventAggregator,
-    private introContext: IntroBuildingContext) { }
+    private introContext: IntroBuildingContext,
+    private readonly stateActionsFactory: StateActionsFactory) { }
+    
 
   /**
    * Invoked after constructor. At this point in time, the view has also been created and both the view-model and the view are 
@@ -72,18 +72,19 @@ export class App {
    */
   async created(/*owningView: View, myView: View*/) {
     log.debug("created");
-    this.tranActions.register();
-    this.introActions.register();
+    this.stateActionsFactory.registerActions();
     this.store.registerMiddleware(
       localStorageMiddleware,
       MiddlewarePlacement.After,
       { key: environment.storeKey }
     );
-    this.store.registerAction("RehydrateSate", (state: State, key: string) => rehydrateFromLocalStorage(state, key) || false);
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-return
+    this.store.registerAction("RehydrateSate", (person: IPerson, key: string) => rehydrateFromLocalStorage(person, key) || false);
     this.ea.subscribe(RouterEvent.Processing, this.navigationProcessing);
     this.ea.subscribe(RouterEvent.Success, this.navigationSuccess);
     await this.store.dispatch("RehydrateSate", environment.storeKey);
     this.rehydrateCompleted = true;
+    this.loggedInPerson = new Person(this.loggedInPersonState);
     this.ea.publish("state-hydrated");
     this.stateChanged();
   }
@@ -102,7 +103,8 @@ export class App {
   attached() {
     log.debug("attached");
     this.resized();
-    PLATFORM.global.addEventListener("resize", () => this.resized());
+    //PLATFORM.global.addEventListener("resize", () => this.resized());
+    PLATFORM.addEventListener("resize", () => this.resized());
   }
 
   /**
@@ -127,7 +129,8 @@ export class App {
    * navigating away or other reasons.
    */
   detached() {
-    PLATFORM.global.removeEventListener("resize", () => this.resized());
+    //PLATFORM.global.removeEventListener("resize", () => this.resized());
+    PLATFORM.removeEventListener("resize", () => this.resized());
   }
 
   resized() {
@@ -137,18 +140,20 @@ export class App {
     }, 300);
   }
 
-  async stateChanged() {
+  stateChanged() {
     if (this.rehydrateCompleted) {
-      let showDashboard = this.state && this.state.schedule && this.state.schedule.length > 0;
-      let originalLocationPath = document.location.pathname.trim().substr(1);
-      let targetRouteName = showDashboard ? "dashboard" : "welcome";
-      let allowRedirect = originalLocationPath === "" 
+      const showDashboard = this.loggedInPerson != null && this.loggedInPerson.hasAnySchedules();
+      const originalLocationPath = document.location.pathname.trim().substr(1);
+      const targetRouteName = showDashboard ? "dashboard" : "welcome";
+      const allowRedirect = originalLocationPath === "" 
         || targetRouteName === "welcome" 
         || originalLocationPath === "welcome";
 
       if (allowRedirect) {
         if (originalLocationPath !== targetRouteName) {
-            await this.router.navigateToRoute(targetRouteName);
+            if (!this.router.navigateToRoute(targetRouteName)) {
+              log.debug("stateChanged: could not redirect to route, showDashboard =", showDashboard, targetRouteName, document.location.href);
+            }
         } else {
           log.debug("stateChanged: no redirect necessary, showDashboard =", showDashboard, document.location.href);
         }
@@ -157,18 +162,17 @@ export class App {
     }
   }
 
-  async createSchedule(evt) {
+  createSchedule(evt: CustomEvent<TransactionSchedule>) {
     log.debug("createSchedule (ea:schedule-changed)", evt.detail);
-    await this.tranActions.addSchedule(evt.detail);
+    this.stateActionsFactory.transactionSchedule.addSchedule(evt.detail);
     this.ea.publish('schedule-changed');
-
     this.showHintsAfterScheduleChanged();
   }
 
   showHintsAfterScheduleChanged() {
-    let intro = this.introContext.getContainer("welcome");
+    const intro = this.introContext.getContainer("welcome");
     waitForHtmlElement("dashboard-tab-button", element => {
-      let introPages = this.introContext.getPagesToShow(intro, [
+      const introPages = this.introContext.getPagesToShow(intro, [
         { element, id: 'transaction-added.dashboard',
           onStepEnter: (introContext: IntroBuildingContext) => {
             log.debug("attaching dashboard-tab-button.click");
