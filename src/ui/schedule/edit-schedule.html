@@ -4,7 +4,8 @@
 -->
 <template bindable="displayStartButton">
     <dialogue-frame>
-        <require from="../../lib/schedule-view-engine-hooks"></require>
+      <require from="./holiday-rules-hooks"></require>
+      <require from="./transaction-type-hooks"></require>
         <!-- Modal -->
         <form ref="scheduleForm" submit.trigger="saveSchedule()">
             <flow-stage>
@@ -13,7 +14,7 @@
                         <div class="col-auto">
                             <label for="editScheduleDate" style="padding-top: 7px">Reference date:</label></div>
                         <div class="col-auto"><input type="date" id="editScheduleDate" name="date"
-                                value.bind="tranwr.value.date" class="form-control" />
+                                value.bind="builder.buffer.refDate" class="form-control" />
                         </div>
                     </div>
                 </div>
@@ -29,7 +30,7 @@
                 </div>
                 <div class="form-group">
                     <label>If it is a holiday, execute
-                        <select id="editScheduleHolidayRule" value.bind="tranwr.value.selectedSchedule.holidayRule">
+                        <select id="editScheduleHolidayRule" value.bind="builder.buffer.holidayRule">
                             <option model.bind="HolidayRule[holidayRule]" repeat.for="holidayRule of HolidayRules">
                                 ${holidayRule}
                             </option>
@@ -39,11 +40,11 @@
                     <label for="editScheduleDateRangeSince">Optionally, repeat only between</label>
                     <div class="form-row align-items-center">
                         <div class="col-auto"><input type="date" class="form-control" id="editScheduleDateRangeSince"
-                                name="dateRangeSince" value.bind="tranwr.value.selectedSchedule.dateSince" /></div>
+                                name="dateRangeSince" value.bind="builder.buffer.dateSinceIncl" /></div>
                         <div class="col-auto">and</div>
                         <div class="col-auto"><input type="date" class="form-control" id="editScheduleDateRangeTill"
-                                name="dateRangeTill" value.bind="tranwr.value.selectedSchedule.dateTill"
-                                min.bind="minDateTill" />
+                                name="dateRangeTill" value.bind="builder.buffer.dateTillIncl"
+                                min.bind="dateTillMinBoundary" />
                         </div>
                     </div>
                 </div>
@@ -55,36 +56,36 @@
                                     <div class="input-group-text">$</div>
                                 </div><input id="editScheduleAmount" placeholder="Amount" type="text"
                                     class="form-control money" required pattern="^(:?\+|-|\()?\d*\.?\d*(:?\))?$"
-                                    title="Transaction amount" value.bind="tranwr.value.amount | textToFloat" />
+                                    title="Transaction amount" value.bind="builder.buffer.amount | textToFloat" />
                             </div>
                         </div>
                     </div>
                     <div class="form-row tranTypeSwitch">
                         <div class="col" repeat.for="ttype of TranTypes">
                             <label class="my-0"><input type="radio" name="wzTranType"
-                                model.bind="TranType[ttype]" checked.bind="tranwr.tranType" />
+                                model.bind="TranType[ttype]" checked.bind="transactionType" />
                                 ${ttype}</label>
                         </div>
                     </div>
-                    <div class="form-row" if.bind="!tranwr.value.isTransfer">
+                    <div class="form-row" if.bind="!isTransfer">
                         <div class="col">
                             <label for="account">Account</label>
                             <input id="account" type="text" class="form-control" required pattern=".+"
-                                title="Account on which this transaction is simulated" value.bind="tranwr.value.account | trimSpace"
+                                title="Account on which this transaction is simulated" value.bind="builder.buffer.accountFriendlyName"
                                 placeholder="My banking account *1234" />
                         </div>
                     </div>
-                    <div class="form-row" if.bind="tranwr.value.isTransfer">
+                    <div class="form-row" if.bind="isTransfer">
                         <div class="col col-xs-6">
                             <label for="wzSourceAccount">Source account</label>
                             <input id="wzSourceAccount" type="text" class="form-control" required pattern=".+"
-                                title="Own account to transfer from" value.bind="tranwr.value.account | trimSpace"
+                                title="Own account to transfer from" value.bind="builder.buffer.accountFriendlyName"
                                 placeholder="My banking account *1234" />
                         </div>
                         <div class="col col-xs-6">
                             <label for="wzTargetAccount">Destination account</label>
                             <input id="wzTargetAccount" type="text" class="form-control" required pattern=".+"
-                                title="Own account to transfer to" value.bind="tranwr.value.transferToAccount | trimSpace"
+                                title="Own account to transfer to" value.bind="builder.buffer.transferToAccountFriendlyName"
                                 placeholder="My credit card *5678" />
                         </div>
                     </div>
@@ -93,7 +94,7 @@
                             <label for="editScheduleDescription">Description</label>
                             <input id="editScheduleDescription" placeholder="Description" type="text"
                                 class="form-control" required pattern=".+" title="Transaction description"
-                                value.bind="tranwr.value.description | trimSpace" />
+                                value.bind="builder.buffer.description" />
                         </div>
                     </div>
                 </div>

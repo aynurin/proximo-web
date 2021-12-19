@@ -1,6 +1,3 @@
-import {
-  computedFrom
-} from "aurelia-framework";
 import { I18N } from "aurelia-i18n";
 import { DateFormat } from "lib/DateFormat";
 import CustomError from "lib/model/CustomError";
@@ -13,12 +10,11 @@ import PostingSchedule, { IPostingSchedule } from "lib/model/PostingSchedule";
 // Every year, on {monthAndDate: date}
 // Once, on the {shortDate: date}
 
-export class PostingScheduleView {
-  constructor(public readonly person: Person, public readonly postingSchedule: IPostingSchedule, private i18next: I18N, private readonly dateFormatter: DateFormat) {}
+export class ScheduleRenderer {
+  constructor(public readonly person: Person, private i18next: I18N, private readonly dateFormatter: DateFormat) {}
   
-  @computedFrom("postingSchedule")
-  get scheduleLabel(): string {
-    const postingSchedule = new PostingSchedule(this.postingSchedule);
+  renderLabel(schedule: IPostingSchedule): string {
+    const postingSchedule = new PostingSchedule(schedule);
     const stringified = {
       nthMonth: this.shortOrdinal(postingSchedule.getNthMonth),  // 1-12
       nthWeek: this.shortOrdinal(postingSchedule.getNthWeek),    // 1-5
@@ -30,7 +26,7 @@ export class PostingScheduleView {
       year: this.fullYear(postingSchedule.getYear),
       refDate: this.shortDate(postingSchedule.getRefDate),
     }
-    return this.i18next.tr(this.postingSchedule.label, stringified);
+    return this.i18next.tr(schedule.label, stringified);
   }
 
   private shortOrdinal(n: number): string {
@@ -69,3 +65,25 @@ export class PostingScheduleView {
   }
 }
 
+/*
+Previous implementation: 
+
+    const sched = this.tranwr.value.schedule;
+    let label = cronstr(sched.cron);
+    if (Schedule.allowsHolidayRule(sched)) {
+      label += ", " + HolidayRule[sched.holidayRule] + " holidays";
+    }
+    if (sched.dateSince && sched.dateTill) {
+      label +=
+        ", between " +
+        this.dateFormatter.toHumanReadableShort(sched.dateSince) +
+        " and " +
+        this.dateFormatter.toHumanReadableShort(sched.dateTill);
+    } else if (sched.dateSince) {
+      label +=
+        ", starting from " + this.dateFormatter.toHumanReadableShort(sched.dateSince);
+    } else if (sched.dateTill) {
+      label += ", until " + this.dateFormatter.toHumanReadableShort(sched.dateTill);
+    }
+    return label;
+*/

@@ -25,6 +25,7 @@ export class LedgerCustomElement {
       this.intro.ready([{
         element: scheduleWizardButton, 
         intro: `${COMPONENT_NAME}:intro.schedule-wizard-button`,
+        hint: null,
         version: 1,
         priority: 100,
         onStepEnter: (introContext: IntroBuildingContext) => {

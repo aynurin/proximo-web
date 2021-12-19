@@ -7,12 +7,13 @@ import { LogManager } from 'aurelia-framework';
 import { EventAggregator } from "aurelia-event-aggregator";
 import { Store, connectTo } from 'aurelia-store';
 
-import { State } from "lib/state";
+import { IPerson } from "lib/model/Person"
 
 import { IntroContainer, IntroBuildingContext } from "lib/intro-building-context";
 
-import { AccountBalance } from 'lib/model/account-balance';
-import { TranStateActions } from 'lib/model/tran-actions';
+import Account, { IAccount } from "lib/model/Account"
+import StateMutationFactory from 'lib/state/StateMutationFactory';
+import ColorProvider from 'lib/ColorProvider';
 
 const COMPONENT_NAME = "accounts";
 
@@ -22,16 +23,17 @@ const log = LogManager.getLogger(COMPONENT_NAME);
 @connectTo()
 export class AccountsCustomElement {
   newAccForm: HTMLFormElement;
-  @bindable newAccount: AccountBalance;
-  public state: State;
+  @bindable newAccount: IAccount;
+  public state: IPerson;
 
   private htmlElement: HTMLElement;
   private intro: IntroContainer;
 
-  public constructor(private store: Store<State>,
-    private tranActions: TranStateActions,
+  public constructor(private store: Store<IPerson>,
+    private tranActions: StateMutationFactory,
     private ea: EventAggregator,
-    private introContext: IntroBuildingContext) {
+    private introContext: IntroBuildingContext,
+    private colorProvider: ColorProvider) {
   }
 
   created() {
@@ -45,36 +47,15 @@ export class AccountsCustomElement {
     this.intro.ready([{
       element: this.htmlElement,
       intro: `dashboard:intro.${COMPONENT_NAME}`,
+      hint: null,
       version: 1,
       priority: 20
     }]);
   }
 
-  @computedFrom("state.schedule")
-  get accounts(): AccountBalance[] {
-    let existingAccounts = {};
-    for (let account of this.state.accounts2) {
-      existingAccounts[account.account] = account;
-    }
-    let accounts = {};
-    for (let schedule of this.state.schedule) {
-      if (!(schedule.account in accounts)) {
-        if (schedule.account in existingAccounts) {
-          accounts[schedule.account] = existingAccounts[schedule.account];
-        } else {
-          accounts[schedule.account] = { account: schedule.account, date: new Date(), balance: 0, inUse: true };
-        }
-      }
-    }
-    return Object.values(accounts);
-  }
-
-  async saveAccount(account: AccountBalance) {
+  async saveAccount(account: IAccount) {
     if (this.canSave(account)) {
-      if (typeof account.balance === 'string') {
-        account.balance = parseFloat(account.balance);
-      }
-      await this.tranActions.saveAccount(account);
+      await this.tranActions.accountActions.updateAccount(account);
       this.ea.publish('accounts-changed');
     }
   }
@@ -85,7 +66,7 @@ export class AccountsCustomElement {
   }
 
   reset() {
-    this.newAccount = { account: null, date: null, balance: null, inUse: null };
+    this.newAccount = Account.createNew(this.colorProvider);
   }
 
   async saveNewAccount() {
@@ -94,16 +75,12 @@ export class AccountsCustomElement {
     this.newAccForm.reset();
   }
 
-  @computedFrom('newAccount', 'newAccount.account', 'newAccount.balance')
+  @computedFrom('newAccount', 'newAccount.friendlyName', 'newAccount.balance')
   get canSaveNewAccount(): boolean {
     return this.canSave(this.newAccount);
   }
 
-  canSave(account: AccountBalance): boolean {
-    return (
-      account != null &&
-      account.account != null &&
-      account.balance != null
-    );
+  canSave(account: IAccount): boolean {
+    return Account.isValid(account);
   }
 }

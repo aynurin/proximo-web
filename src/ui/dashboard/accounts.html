@@ -6,8 +6,8 @@
       </tr>
     </thead>
     <tbody>
-      <tr repeat.for="account of accounts">
-        <td><label for="acc_${$index}" class="col-form-label col-form-label-sm">${account.account}</label></td>
+      <tr repeat.for="account of state.accounts">
+        <td><label for="acc_${$index}" class="col-form-label col-form-label-sm">${account.friendlyName}</label></td>
         <td><input type="text" id="acc_${$index}" size="6" class="form-control form-control-sm money py-1"
             value.bind="account.balance" pattern="^(:?\+|-|\()?\d*\.?\d*(:?\))?$"
             title="Current balance on this account" change.delegate="saveAccount(account)" /></td>

@@ -4,7 +4,8 @@
 -->
 <template bindable="displayStartButton">
     <dialogue-frame>
-        <require from="../../../lib/schedule-view-engine-hooks"></require>
+      <require from="../holiday-rules-hooks"></require>
+      <require from="../transaction-type-hooks"></require>
         <!-- Modal -->
         <form ref="scheduleWizardForm" id="scheduleWizardForm" submit.trigger="addNewTran()">
             <flow-stage if.bind="flow.isInitial && displayStartButton">
@@ -13,26 +14,26 @@
             </flow-stage>
             <flow-stage if.bind="flow.isDate">
                 <stage-title>When is this transaction going to happen?</stage-title>
-                <input type="date" id="date" name="date" value.bind="tranwr.value.date" class="form-control"
+                <input type="date" id="date" name="date" value.bind="builder.buffer.refDate" class="form-control"
                     change.delegate="formChange()" />
                 <endnote>Date of the next occurance of this transaction. You will set up a recurring schedule if
                     necessary on the next steps.</endnote>
             </flow-stage>
             <flow-stage if.bind="flow.isSchedule" class="form-check">
                 <stage-title>Choose a schedule for the transaction happening on
-                    <nobr>${tranwr.value.date | dateFormat:'MMMM Do YYYY'}:</nobr>
+                    <nobr>${builder.buffer.refDate | dateFormat:'MMMM Do YYYY'}:</nobr>
                 </stage-title>
                 <div class="form-check" repeat.for="schedule of allOptions">
                     <label class="form-check-label">
                         <input class="form-check-input" type="radio" name="scheduleOption" model.bind="schedule"
-                            checked.bind="tranwr.value.selectedSchedule" />${schedule.label}</label>
+                            checked.bind="flow.transaction.selectedSchedule" />${schedule.label}</label>
                 </div>
             </flow-stage>
             <flow-stage if.bind="flow.isHolidayRule">
                 <label for="holidayRule" if.bind="showHolidayRule">
-                    <nobr>If ${tranwr.value.selectedSchedule.label}</nobr> falls on holiday,
+                    <nobr>If ${builder.buffer.scheduleLabel}</nobr> falls on holiday,
                     execute
-                    <select id="holidayRule" value.bind="tranwr.value.selectedSchedule.holidayRule"
+                    <select id="holidayRule" value.bind="builder.buffer.holidayRule"
                         disabled.bind="!showHolidayRule">
                         <option model.bind="HolidayRule[holidayRule]" repeat.for="holidayRule of HolidayRules">
                             ${holidayRule}
@@ -44,10 +45,10 @@
                 <label for="createScheduleDateRangeSince">Optionally, repeat only between</label>
                 <div class="form-row align-items-center">
                     <div class="col-auto"><input type="date" class="form-control" id="createScheduleDateRangeSince"
-                            name="dateRangeSince" value.bind="tranwr.value.selectedSchedule.dateSince" /></div>
+                            name="dateRangeSince" value.bind="builder.buffer.dateSinceIncl" /></div>
                     <div class="col-auto">and</div>
                     <div class="col-auto"><input type="date" class="form-control" id="createScheduleDateRangeTill"
-                            name="dateRangeTill" value.bind="tranwr.value.selectedSchedule.dateTill" min.bind="minDateTill" />
+                            name="dateRangeTill" value.bind="builder.buffer.dateTillIncl" min.bind="dateTillMinBoundary" />
                     </div>
                 </div>
                 <endnote>If set, this schedule will be active only between these dates. You can set just the first date
@@ -56,7 +57,7 @@
             </flow-stage>
             <flow-stage if.bind="flow.isParameters">
                 <div class="form-group">
-                    <div class="row">We will simulate the following transaction ${tranwr.value.selectedSchedule |
+                    <div class="row">We will simulate the following transaction ${flow.transaction.selectedSchedule |
                         scheduleLabel}:</div>
                 </div>
                 <div class="form-group">
@@ -68,36 +69,36 @@
                                     <div class="input-group-text">$</div>
                                 </div><input id="amount" type="text" class="form-control money" required
                                     pattern="^(:?\+|-|\()?\d*\.?\d*(:?\))?$" title="Transaction amount"
-                                    value.bind="tranwr.value.amount" numbers placeholder="-9.99" />
+                                    value.bind="builder.buffer.amount" numbers placeholder="-9.99" />
                             </div>
                         </div>
                     </div>
                     <div class="row mt-2 no-gutters tranTypeSwitch">
                         <div class="col" repeat.for="ttype of TranTypes">
                             <label class="my-0"><input type="radio" name="wzTranType"
-                                model.bind="TranType[ttype]" checked.bind="tranwr.tranType" />
+                                model.bind="TranType[ttype]" checked.bind="transactionType" />
                                 ${ttype}</label>
                         </div>
                     </div>
-                    <div class="row mt-2 no-gutters" if.bind="!tranwr.value.isTransfer">
+                    <div class="row mt-2 no-gutters" if.bind="!isTransfer">
                         <div class="col">
                             <label for="account">Account</label>
                             <input id="account" type="text" class="form-control" required pattern=".+"
-                                title="Account on which this transaction is simulated" value.bind="tranwr.value.account | trimSpace"
+                                title="Account on which this transaction is simulated" value.bind="builder.buffer.accountFriendlyName"
                                 placeholder="My banking account *1234" />
                         </div>
                     </div>
-                    <div class="row mt-2" if.bind="tranwr.value.isTransfer">
+                    <div class="row mt-2" if.bind="isTransfer">
                         <div class="col col-xs-6">
                             <label for="wzSourceAccount">Source account</label>
                             <input id="wzSourceAccount" type="text" class="form-control" required pattern=".+"
-                                title="Own account to transfer from" value.bind="tranwr.value.account | trimSpace"
+                                title="Own account to transfer from" value.bind="builder.buffer.accountFriendlyName"
                                 placeholder="My banking account *1234" />
                         </div>
                         <div class="col col-xs-6">
                             <label for="wzTargetAccount">Destination account</label>
                             <input id="wzTargetAccount" type="text" class="form-control" required pattern=".+"
-                                title="Own account to transfer to" value.bind="tranwr.value.transferToAccount | trimSpace"
+                                title="Own account to transfer to" value.bind="builder.buffer.transferToAccountFriendlyName"
                                 placeholder="My credit card *5678" />
                         </div>
                     </div>
@@ -105,7 +106,7 @@
                         <div class="col">
                             <label for="description">Description</label>
                             <input id="description" type="text" class="form-control" required pattern=".+"
-                                title="Transaction description" value.bind="tranwr.value.description | trimSpace"
+                                title="Transaction description" value.bind="builder.buffer.description"
                                 placeholder="E.g., COMCAST CABLE COMM 800-COMCAST WA" />
                         </div>
                     </div>

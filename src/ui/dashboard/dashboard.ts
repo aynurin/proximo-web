@@ -24,11 +24,13 @@ export class DashboardCustomElement {
     waitForHtmlElement("schedule-tab-button", (scheduleTabButton: HTMLElement) => {
       this.intro.ready([{
         intro: `${COMPONENT_NAME}:intro.default`,
+        hint: null,
         version: 1,
         priority: 0
       }, {
         element: scheduleTabButton, 
         intro: `${COMPONENT_NAME}:intro.schedule-tab`,
+        hint: null,
         version: 1,
         priority: 100,
         onStepEnter: (introContext: IntroBuildingContext) => {

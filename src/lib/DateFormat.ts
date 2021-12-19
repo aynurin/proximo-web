@@ -1,3 +1,4 @@
+import { firstOfTheMonth } from "./utils";
 
 // https://dockyard.com/blog/2020/02/14/you-probably-don-t-need-moment-js-anymore
 export class DateFormat {
@@ -22,6 +23,10 @@ export class DateFormat {
     return this._shortFormatter.format(date);
   }
 
+  toShortMonthName(date: Date) {
+    return this._shortFormatter.formatToParts(date).filter(p => p.type === "month")[0].value;
+  }
+
   toParts(date: Date) {
     return this._fullFormatter.formatToParts(date);
   }
@@ -38,6 +43,10 @@ export class DateFormat {
       year: "numeric",
       month: "short"
     }).format(date);
+  }
+
+  toFirstOfMonth(date: Date): Date {
+    return firstOfTheMonth(date);
   }
 
   toDateOfMonth(date: Date): string {

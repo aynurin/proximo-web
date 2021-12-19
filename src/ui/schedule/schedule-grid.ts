@@ -5,18 +5,16 @@ import { LogManager } from 'aurelia-framework';
 import { EventAggregator } from "aurelia-event-aggregator";
 import { connectTo } from "aurelia-store";
 
-import { DateFormat } from "lib/date-format";
+import { IScheduledTransaction } from "lib/model/ScheduledTransaction";
+import StateMutationFactory from 'lib/state/StateMutationFactory';
 
-import { HolidayRule, Schedule } from "lib/model/schedule";
-import { TranTemplate, TranScheduleWrapper } from "lib/model/tran-template";
-import { TranStateActions } from "lib/model/tran-actions";
-
-import { State } from "lib/state";
+import { IPerson } from "lib/model/Person";
 import { IntroContainer, IntroBuildingContext } from "lib/intro-building-context";
-import cronstr from "lib/cronstr";
 
 import environment from '../../../config/environment.json';
 import { waitFor } from "lib/utils";
+import { ScheduleRenderer } from "lib/view/ScheduleRenderer"
+import { AccountRenderer } from "lib/view/AccountRenderer";
 
 const COMPONENT_NAME = "schedule-grid";
 
@@ -25,15 +23,16 @@ const log = LogManager.getLogger(COMPONENT_NAME);
 @autoinject()
 @connectTo()
 export class ScheduleGridCustomElement {
-  public state: State;
+  public state: IPerson;
   private htmlElement: HTMLTableElement;
   private intro: IntroContainer;
-  private dateFormatter = new DateFormat();
 
   public constructor(
-    private tranActions: TranStateActions,
+    private tranActions: StateMutationFactory,
     private ea: EventAggregator,
-    private introContext: IntroBuildingContext) { }
+    private introContext: IntroBuildingContext,
+    private scheduleRenderer: ScheduleRenderer,
+    private accountRenderer: AccountRenderer) { }
 
   created() {
     this.intro = this.introContext.getContainer(COMPONENT_NAME);
@@ -48,41 +47,25 @@ export class ScheduleGridCustomElement {
     this.intro.ready([{
       element: this.htmlElement,
       intro: `schedule:${COMPONENT_NAME}.intro.default`,
+      hint: null,
       version: 1,
       priority: 0
     }]);
   }
 
-  async removeSchedule(tran: TranTemplate) {
-    await this.tranActions.removeSchedule(tran);
+  async removeSchedule(tran: IScheduledTransaction) {
+    await this.tranActions.timeTableActions.removeScheduled(tran);
     this.ea.publish('schedule-changed');
   }
 
   // TODO: Move to somewhere global
-  get isProduction(): boolean { return environment.debug === false; };
+  get isProduction(): boolean { return environment.debug === false; }
 
-  scheduleLabel(tran: TranTemplate): string {
-    const sched = tran.selectedSchedule;
-    let label = cronstr(sched.cron);
-    if (Schedule.allowsHolidayRule(sched)) {
-      label += ", " + HolidayRule[sched.holidayRule] + " holidays";
-    }
-    if (sched.dateSince && sched.dateTill) {
-      label +=
-        ", between " +
-        this.dateFormatter.toHumanReadableShort(sched.dateSince) +
-        " and " +
-        this.dateFormatter.toHumanReadableShort(sched.dateTill);
-    } else if (sched.dateSince) {
-      label +=
-        ", starting from " + this.dateFormatter.toHumanReadableShort(sched.dateSince);
-    } else if (sched.dateTill) {
-      label += ", until " + this.dateFormatter.toHumanReadableShort(sched.dateTill);
-    }
-    return label;
+  scheduleLabel(tran: IScheduledTransaction): string {
+    return this.scheduleRenderer.renderLabel(tran.schedule);
   }
 
-  accountLabel(tran: TranTemplate): string {
-    return (new TranScheduleWrapper(tran).accountLabel);
+  accountLabel(tran: IScheduledTransaction): string {
+    return this.accountRenderer.renderScheduledAccountLabel(tran);
   }
 }

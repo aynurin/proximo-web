@@ -1,7 +1,7 @@
-import { NumberFormat } from 'lib/number-format';
+import { NumberFormat } from 'lib/NumberFormat';
 
 describe("NumberFormat", () => {
-  var formatter = new NumberFormat(["en-US"]);
+  const formatter = new NumberFormat(["en-US"]);
 
   it("parse", done => {
     const given = '453,635.35';

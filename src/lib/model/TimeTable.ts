@@ -1,4 +1,3 @@
-import CustomError from "./CustomError";
 import { IScheduledTransaction } from "./ScheduledTransaction";
 
 export interface ITimeTable {
@@ -12,6 +11,10 @@ export default class TimeTable {
 
   constructor(timetable: ITimeTable) {
     this.timetable = timetable;
+  }
+
+  getSchedule(scheduledId: string) {
+    return this.timetable.timetable.find(s => s.scheduledId == scheduledId);
   }
 
   static cloneState(oldState: ITimeTable): ITimeTable {

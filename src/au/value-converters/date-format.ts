@@ -1,4 +1,4 @@
-import { DateFormat } from 'lib/date-format';
+import { DateFormat } from 'lib/DateFormat';
 
 export class DateFormatValueConverter {
   private dateFormatter = new DateFormat();

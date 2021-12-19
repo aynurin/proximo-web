@@ -1,4 +1,4 @@
-import { interfaceString, isNonEmptyString } from "lib/utils";
+import { interfaceDesc, isNonEmptyString } from "lib/utils";
 import CustomError from "./CustomError";
 import generateId from "./UUIDProvider";
 
@@ -6,9 +6,6 @@ const MODEL_TYPE_NAME = "IPostingSchedule";
 
 export interface IPostingSchedule {
   _typeName: string;
-
-  scheduleId: string;
-  accountId: string;
 
   schedule: number[];
   label: ScheduleLabel;
@@ -28,28 +25,21 @@ export enum HolidayRule {
   after = "after"
 }
 
-// Monthly, every {nthMonth} month, on the {dateOfMonth}[, starting from {refDate}(this month)]
-// Monthly, every {nthMonth} month, on the {nthWeek} {dayOfWeek} of the month[, starting from {refDate}(this month)]
-// Weekly, every {nthWeek} week, on {dayOfWeek}[, starting from {refDate}(this week)]
-// Every year, on {month} {dateOfMonth}
-// Once, on the {dateOfMonth} of {month}, {year}
+// See lib/view/ScheduleRenderer for possible schedule options
 
-// not clear how I am going to construct and use this... Need to try.
 export default class PostingSchedule {
   public readonly postingSchedule: IPostingSchedule;
 
   constructor(postingSchedule: IPostingSchedule) {
     if (!PostingSchedule.isValid(postingSchedule)) {
-      throw new CustomError("This object is not a valid IPostingSchedule" + interfaceString(postingSchedule));
+      throw new CustomError("This object is not a valid IPostingSchedule" + interfaceDesc(postingSchedule));
     }
     this.postingSchedule = postingSchedule;
   }
 
-  static createNew(accountId: string): PostingSchedule {
+  static createNew(): PostingSchedule {
     return new PostingSchedule({
       _typeName: MODEL_TYPE_NAME,
-      scheduleId: generateId(),
-      accountId: accountId,
       schedule: null,
       label: null
     });
@@ -60,64 +50,93 @@ export default class PostingSchedule {
       return false;
     }
     if (!("_typeName" in postingSchedule)) {
-      throw new CustomError("This object doesn't look like 'IPostingSchedule': " + interfaceString(postingSchedule));
+      throw new CustomError("This object doesn't look like 'IPostingSchedule': " + interfaceDesc(postingSchedule));
     }
     if (postingSchedule._typeName !== MODEL_TYPE_NAME) {
-      throw new CustomError("This object is not an 'IPostingSchedule': " + interfaceString(postingSchedule));
+      throw new CustomError("This object is not an 'IPostingSchedule': " + interfaceDesc(postingSchedule));
     }
     return postingSchedule.label in ScheduleLabel
-      && isNonEmptyString(postingSchedule.scheduleId)
-      && isNonEmptyString(postingSchedule.accountId)
       && postingSchedule.schedule != null
       && postingSchedule.schedule.length === 7;
   }
 
+  allowsDateRange(): boolean {
+    return PostingSchedule.allowsDateRange(this.postingSchedule.label);
+  }
+
+  allowsHolidayRule(): boolean {
+    return PostingSchedule.allowsHolidayRule(this.postingSchedule.label);
+  }
+
+  static allowsDateRange(scheduleLabel: string): boolean {
+    return scheduleLabel != ScheduleLabel.once;
+  }
+
+  static allowsHolidayRule(scheduleLabel: string): boolean {
+    return scheduleLabel != ScheduleLabel.weekly 
+        && scheduleLabel != ScheduleLabel.secondWeek
+        && scheduleLabel != ScheduleLabel.thirdWeek
+        && scheduleLabel != ScheduleLabel.nthWeek;
+  }
+
   monthly(dateOfMonth: number) {
-    this.set({ dateOfMonth }, ScheduleLabel.monthly);
+    return this.set({ dateOfMonth }, ScheduleLabel.monthly);
   }
 
   nthMonth(nthMonth: number, dateOfMonth: number, refDate: Date) {
-    this.set({ nthMonth, dateOfMonth, refDate }, ScheduleLabel.nthMonth);
+    return this.set({ nthMonth, dateOfMonth, refDate }, ScheduleLabel.nthMonth);
   }
 
   secondMonth(dateOfMonth: number, refDate: Date) {
-    this.set({ nthMonth: 2, dateOfMonth, refDate }, ScheduleLabel.secondMonth);
+    return this.set({ nthMonth: 2, dateOfMonth, refDate }, ScheduleLabel.secondMonth);
   }
 
   thirdMonth(dateOfMonth: number, refDate: Date) {
-    this.set({ nthMonth: 3, dateOfMonth, refDate }, ScheduleLabel.thirdMonth);
+    return this.set({ nthMonth: 3, dateOfMonth, refDate }, ScheduleLabel.thirdMonth);
   }
 
   weekly(dayOfWeek: number) {
-    this.set({ dayOfWeek }, ScheduleLabel.weekly);
+    return this.set({ dayOfWeek }, ScheduleLabel.weekly);
   }
 
   nthWeek(nthWeek: number, dayOfWeek: number, refDate: Date) {
-    this.set({ nthWeek, dayOfWeek, refDate }, ScheduleLabel.nthWeek);
+    return this.set({ nthWeek, dayOfWeek, refDate }, ScheduleLabel.nthWeek);
   }
 
-  secondWeek(dateOfMonth: number, refDate: Date) {
-    this.set({ nthWeek: 2, dateOfMonth, refDate }, ScheduleLabel.secondWeek);
+  secondWeek(dayOfWeek: number, refDate: Date) {
+    return this.set({ nthWeek: 2, dayOfWeek, refDate }, ScheduleLabel.secondWeek);
   }
 
-  thirdWeek(dateOfMonth: number, refDate: Date) {
-    this.set({ nthWeek: 3, dateOfMonth, refDate }, ScheduleLabel.thirdWeek);
+  thirdWeek(dayOfWeek: number, refDate: Date) {
+    return this.set({ nthWeek: 3, dayOfWeek, refDate }, ScheduleLabel.thirdWeek);
   }
 
   nthMonthNthWeek(nthMonth: number, dateOfMonth: number, nthWeek: number, dayOfWeek: number, refDate: Date) {
-    this.set({ nthMonth, dateOfMonth, nthWeek, dayOfWeek, refDate }, ScheduleLabel.nthMonthNthWeek);
+    return this.set({ nthMonth, dateOfMonth, nthWeek, dayOfWeek, refDate }, ScheduleLabel.nthMonthNthWeek);
   }
 
   annually(month: number, dateOfMonth: number) {
-    this.set({ dateOfMonth, month }, ScheduleLabel.everyYear);
+    return this.set({ dateOfMonth, month }, ScheduleLabel.everyYear);
   }
 
   once(month: number, dateOfMonth: number, year: number) {
-    this.set({ dateOfMonth, month, year }, ScheduleLabel.once);
+    return this.set({ dateOfMonth, month, year }, ScheduleLabel.once);
+  }
+
+  fromLabel(scheduleLabel: ScheduleLabel, refDate: Date, nthWeek: number, nthMonth: number): IPostingSchedule {
+    return this.set({
+      nthMonth: nthMonth, 
+      nthWeek: nthWeek, 
+      dayOfWeek: refDate.getDay(), 
+      dateOfMonth: refDate.getDate(), 
+      month: refDate.getMonth(), 
+      year: refDate.getFullYear(), 
+      refDate: refDate
+    }, scheduleLabel);
   }
 
   private set(schedule: {nthMonth?: number, nthWeek?: number, dayOfWeek?: number, dateOfMonth?: number, month?: number, year?: number, refDate?: Date},
-      label: ScheduleLabel) {
+      label: ScheduleLabel): IPostingSchedule {
     this.postingSchedule.label = label;
     this.postingSchedule.schedule = [
       schedule.nthMonth ?? 0,
@@ -128,6 +147,7 @@ export default class PostingSchedule {
       schedule.year ?? 0,
       schedule.refDate.valueOf()
     ];
+    return this.postingSchedule;
   }
 
   get getNthMonth(): number { return this.postingSchedule.schedule[0]; }

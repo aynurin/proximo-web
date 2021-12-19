@@ -1,3 +1,4 @@
+import { IScheduledTransaction } from 'lib/model/ScheduledTransaction';
 import { autoinject } from "aurelia-framework";
 import { LogManager } from 'aurelia-framework';
 import {
@@ -22,8 +23,7 @@ import environment from '../config/environment.json';
 import { IntroBuildingContext } from "lib/intro-building-context";
 import { waitForHtmlElement } from "lib/utils";
 import Person, { IPerson } from "lib/model/Person";
-import StateActionsFactory from "lib/StateActionsFactory";
-import TransactionSchedule from "lib/model/TransactionSchedule";
+import StateMutationFactory from "lib/state/StateMutationFactory";
 
 const COMPONENT_NAME = "app";
 
@@ -62,7 +62,7 @@ export class App {
     private store: Store<IPerson>,
     private ea: EventAggregator,
     private introContext: IntroBuildingContext,
-    private readonly stateActionsFactory: StateActionsFactory) { }
+    private readonly stateMutation: StateMutationFactory) { }
     
 
   /**
@@ -72,7 +72,7 @@ export class App {
    */
   async created(/*owningView: View, myView: View*/) {
     log.debug("created");
-    this.stateActionsFactory.registerActions();
+    this.stateMutation.register();
     this.store.registerMiddleware(
       localStorageMiddleware,
       MiddlewarePlacement.After,
@@ -162,9 +162,9 @@ export class App {
     }
   }
 
-  createSchedule(evt: CustomEvent<TransactionSchedule>) {
+  async createSchedule(evt: CustomEvent<IScheduledTransaction>) {
     log.debug("createSchedule (ea:schedule-changed)", evt.detail);
-    this.stateActionsFactory.transactionSchedule.addSchedule(evt.detail);
+    await this.stateMutation.timeTableActions.addScheduled(evt.detail);
     this.ea.publish('schedule-changed');
     this.showHintsAfterScheduleChanged();
   }
@@ -176,12 +176,15 @@ export class App {
         { element, id: 'transaction-added.dashboard',
           onStepEnter: (introContext: IntroBuildingContext) => {
             log.debug("attaching dashboard-tab-button.click");
+            // eslint-disable-next-line @typescript-eslint/no-misused-promises
             element.addEventListener("click", introContext.completeIntro);
           },
           onStepExit: (introContext: IntroBuildingContext) => {
             log.debug("detaching dashboard-tab-button.click");
+            // eslint-disable-next-line @typescript-eslint/no-misused-promises
             element.removeEventListener("click", introContext.completeIntro);
-          } 
+          },
+          intro: null, hint: null
         },
       ]);
       this.introContext.startIntroWithPages(introPages);
@@ -208,10 +211,15 @@ export class App {
   }
 
   get mainNav() {
-    return this.router.navigation.filter(nav => nav.settings.mainNav);
+    return this.router.navigation.filter(nav => (nav.settings as INavSettings).mainNav);
   }
 
   get secondaryNav() {
-    return this.router.navigation.filter(nav => nav.settings.secondaryNav);
+    return this.router.navigation.filter(nav => (nav.settings as INavSettings).secondaryNav);
   }
+}
+
+interface INavSettings {
+  mainNav?: boolean,
+  secondaryNav?: boolean,
 }

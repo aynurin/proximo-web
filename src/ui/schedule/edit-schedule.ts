@@ -4,37 +4,43 @@ import {
   computedFrom
 } from "aurelia-framework";
 import { EventAggregator } from "aurelia-event-aggregator";
-import cronstr from "lib/cronstr";
-import { DateFormat } from "lib/date-format";
+import { DateFormat } from "lib/DateFormat";
 
-import { State } from "lib/state";
+import Person, { IPerson } from "lib/model/Person";
 
-import { Schedule, HolidayRule } from "lib/model/schedule";
-import { TranTemplate, TranScheduleWrapper } from "lib/model/tran-template";
-import { TranStateActions } from "lib/model/tran-actions";
+import PostingSchedule, { IPostingSchedule } from "lib/model/PostingSchedule";
 import { DialogController } from 'aurelia-dialog';
 import { LogManager } from 'aurelia-framework';
+import StateMutationFactory from 'lib/state/StateMutationFactory';
+import { IScheduledTransaction } from "lib/model/ScheduledTransaction";
+import TransactionBuilder, { TransactionType } from "lib/model/TransactionBuilder";
+import { connectTo } from "aurelia-store";
+import { ScheduleRenderer } from "lib/view/ScheduleRenderer";
 
 const log = LogManager.getLogger('edit-schedule');
 
 
+@connectTo()
 @autoinject()
 export class EditScheduleCustomElement {
-  @bindable tranwr: TranScheduleWrapper<TranTemplate> = new TranScheduleWrapper(new TranTemplate());
-  originalTran: TranTemplate = null;
+  @bindable originalTransaction: IScheduledTransaction;
+  public builder: TransactionBuilder;
   scheduleForm: HTMLFormElement;
-  public state: State;
-  private dateFormatter = new DateFormat();
+  public state: IPerson;
+  protected dateFormatter = new DateFormat();
+
+  refDate: Date;
 
   public constructor(
-    private dialogController: DialogController,
-    private tranActions: TranStateActions, 
-    private ea: EventAggregator) { }
+    protected dialogController: DialogController,
+    protected tranActions: StateMutationFactory, 
+    protected ea: EventAggregator,
+    protected scheduleRenderer: ScheduleRenderer) { }
 
-  activate(tran: TranTemplate) {
-    this.originalTran = tran;
-    this.tranwr = new TranScheduleWrapper(Object.assign({}, tran));
-    this.tranwr.value.selectedSchedule = Object.assign({}, this.tranwr.value.selectedSchedule);
+  activate(tran: IScheduledTransaction) {
+    log.debug('activate', tran);
+    this.originalTransaction = tran;
+    this.builder = new TransactionBuilder(tran, new Person(this.state));
   }
 
   async cancelForm() {
@@ -45,101 +51,68 @@ export class EditScheduleCustomElement {
   async saveSchedule() {
     log.debug('saveSchedule');
     if (this.canSave) {
-      await this.tranActions.replaceSchedule(this.originalTran, this.tranwr.value);
+      const changeSet = this.builder.build();
+      await this.tranActions.save(changeSet);
       this.ea.publish('schedule-changed');
-      await this.dialogController.ok();
-      this.tranwr = new TranScheduleWrapper(new TranTemplate());
+      await this.dialogController.ok(changeSet);
     }
   }
 
-  scheduleMatcher(a: Schedule, b: Schedule) {
-    return Schedule.equals(a, b);
+  scheduleMatcher(a: IPostingSchedule, b: IPostingSchedule) {
+    return a.label == b.label;
   }
 
-  @computedFrom("tranwr.value.selectedSchedule.dateSince")
-  get minDateTill(): string {
-    return this.dateFormatter.toISODate(this.tranwr.value.selectedSchedule.dateSince);
+  get dateTillMinBoundary(): string {
+    return this.dateFormatter.toISODate(this.builder.buffer.dateSinceIncl);
   }
 
-  @computedFrom("tranwr.value.selectedSchedule")
+  @computedFrom("builder.buffer.amount", "builder.buffer.transferToAccountId", "builder.buffer.transferToAccountRequired")
+  get transactionType(): TransactionType {
+    return this.builder.transactionType;
+  }
+
+  set transactionType(type: TransactionType) {
+    this.builder.transactionType = type;
+  }
+
+  @computedFrom("builder.buffer.amount", "builder.buffer.transferToAccountId", "builder.buffer.transferToAccountRequired")
+  get isTransfer(): boolean {
+    return this.builder.transactionType === TransactionType.Transfer;
+  }
+
+  @computedFrom("builder.buffer")
   get showHolidayRule(): boolean {
-    return (
-      this.tranwr && this.tranwr.value &&
-      Schedule.allowsHolidayRule(this.tranwr.value.selectedSchedule)
-    );
+    return PostingSchedule.allowsHolidayRule(this.builder.buffer.scheduleLabel);
   }
 
-  @computedFrom("tranwr.value.selectedSchedule")
+  @computedFrom("builder.buffer")
   get showDateRange(): boolean {
-    return (
-      this.tranwr && this.tranwr.value &&
-      Schedule.allowsDateRange(this.tranwr.value.selectedSchedule)
-    );
+    return PostingSchedule.allowsDateRange(this.builder.buffer.scheduleLabel);
   }
 
-  @computedFrom("tranwr.value.date")
-  get allOptions(): Schedule[] {
-    const date = this.tranwr.value.date;
-    const options: Schedule[] = [];
+  @computedFrom("builder.buffer")
+  get allOptions(): IPostingSchedule[] {
+    log.debug('allOptions for', this.dateFormatter.toHumanReadableShort(this.builder.buffer.refDate));
 
-    if (this.tranwr.value.date == null) {
-      return options;
-    }
+    const refDate = this.builder.buffer.refDate;
+    const options: IPostingSchedule[] = [];
 
-    options.push(
-      new Schedule(date, "Every " + this.dateFormatter.toDayOfWeek(date), {
-        dayOfWeek: date.getDay()
-      })
-    );
-
-    options.push(
-      new Schedule(date, "Monthly, on the " + this.dateFormatter.toDate(date), {
-        day: date.getDate()
-      })
-    );
-
-    options.push(
-      new Schedule(date, "Once a year, on " + this.dateFormatter.toDateOfMonth(date), {
-        day: date.getDate(),
-        month: date.getMonth() + 1
-      })
-    );
-
-    options.push(
-      new Schedule(date, "Once, on " + this.dateFormatter.toHumanReadableShort(date), {
-        day: date.getDate(),
-        month: date.getMonth() + 1,
-        year: date.getFullYear()
-      })
-    );
+    options.push(PostingSchedule.createNew().weekly(refDate.getDay()));
+    options.push(PostingSchedule.createNew().secondWeek(refDate.getDay(), refDate));
+    options.push(PostingSchedule.createNew().monthly(refDate.getDate()));
+    options.push(PostingSchedule.createNew().annually(refDate.getMonth() + 1, refDate.getDate()));
+    options.push(PostingSchedule.createNew().once(refDate.getFullYear(), refDate.getMonth() + 1, refDate.getDate()));
 
     return options;
   }
 
-  @computedFrom("tranwr.isValid")
+  @computedFrom("builder.buffer")
   get canSave(): boolean {
-    return this.tranwr && this.tranwr.isValid;
+    return this.builder.canBuild;
   }
 
-  @computedFrom("tranwr.value.selectedSchedule")
+  @computedFrom("builder.buffer")
   get scheduleLabel(): string {
-    const sched = this.tranwr.value.selectedSchedule;
-    let label = cronstr(sched.cron);
-    if (Schedule.allowsHolidayRule(sched)) {
-      label += ", " + HolidayRule[sched.holidayRule] + " holidays";
-    }
-    if (sched.dateSince && sched.dateTill) {
-      label +=
-        ", between " +
-        this.dateFormatter.toHumanReadableShort(sched.dateSince) +
-        " and " +
-        this.dateFormatter.toHumanReadableShort(sched.dateTill);
-    } else if (sched.dateSince) {
-      label +=
-        ", starting from " + this.dateFormatter.toHumanReadableShort(sched.dateSince);
-    } else if (sched.dateTill) {
-      label += ", until " + this.dateFormatter.toHumanReadableShort(sched.dateTill);
-    }
-    return label;
+    return this.scheduleRenderer.renderLabel(this.builder.createPostingSchedule());
   }
 }

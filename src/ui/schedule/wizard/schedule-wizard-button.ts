@@ -3,29 +3,27 @@ import {
 } from "aurelia-framework";
 import { DialogService } from 'aurelia-dialog';
 import { PLATFORM } from 'aurelia-pal';
-import { TranTemplate } from "lib/model/tran-template";
+import { IScheduledTransaction } from 'lib/model/ScheduledTransaction';
 
 @autoinject()
 export class ScheduleWizardButtonCustomElement {
-  public isDialogUp: boolean = false;
-  public tran: TranTemplate = null;
+  public isDialogUp = false;
 
   public constructor(
     private dialogService: DialogService,
     private element: Element) { }
 
-  openScheduleWizard() {
+  async openScheduleWizard() {
     this.isDialogUp = true;
-    this.tran = new TranTemplate();
-    this.dialogService.open({ viewModel: PLATFORM.moduleName('ui/schedule/wizard/schedule-wizard'), model: this.tran, lock: false }).whenClosed(response => {
+    await this.dialogService.open({ viewModel: PLATFORM.moduleName('ui/schedule/wizard/schedule-wizard'), lock: false }).whenClosed(response => {
       this.isDialogUp = false;
-      this.onScheduleSave(response.output);
+      this.onScheduleSave(response.output as IScheduledTransaction);
     });
   }
 
-  onScheduleSave(schedule: TranTemplate) {
+  onScheduleSave(scheduled: IScheduledTransaction) {
     const event = new CustomEvent('create', {
-      detail: schedule,
+      detail: scheduled,
       bubbles: true
     });
 

@@ -1,32 +1,17 @@
-import { Schedule, HolidayRule } from 'lib/model/schedule';
-import { DateFormat } from 'lib/date-format';
-import cronstr from 'lib/cronstr';
+import { autoinject } from 'aurelia-framework';
+import { IPostingSchedule } from 'lib/model/PostingSchedule';
+import { ScheduleRenderer } from 'lib/view/ScheduleRenderer';
 
+@autoinject
 export class ScheduleLabelValueConverter {
-  private dateFormatter = new DateFormat();
+  constructor(private scheduleRenderer: ScheduleRenderer) {}
   /*
     format can be:
       alone: 1st of the month
       when: The following transaction will run ...:
   */
-  toView(sched: Schedule, format?: string) {
+  toView(sched: IPostingSchedule, format?: string) {
     if (!sched) return null;
-    let label = cronstr(sched.cron);
-    if (Schedule.allowsHolidayRule(sched) && sched.holidayRule > 0) {
-      label += ", " + HolidayRule[sched.holidayRule] + " holidays";
-    }
-    if (sched.dateSince && sched.dateTill) {
-      label +=
-        ", between " +
-        this.dateFormatter.toHumanReadableShort(sched.dateSince) +
-        " and " +
-        this.dateFormatter.toHumanReadableShort(sched.dateTill);
-    } else if (sched.dateSince) {
-      label +=
-        ", starting from " + this.dateFormatter.toHumanReadableShort(sched.dateSince);
-    } else if (sched.dateTill) {
-      label += ", until " + this.dateFormatter.toHumanReadableShort(sched.dateTill);
-    }
-    return label;
+    return this.scheduleRenderer.renderLabel(sched);
   }
 }

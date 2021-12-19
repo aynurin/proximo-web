@@ -4,11 +4,12 @@
 -->
 <template bindable="displayStartButton">
     <dialogue-frame>
-        <require from="../../lib/schedule-view-engine-hooks"></require>
+      <require from="./holiday-rules-hooks"></require>
+      <require from="./transaction-type-hooks"></require>
         <!-- Modal -->
         <flow-stage>
             <p>Deleting schedule that runs the following transaction ${scheduleLabel}:</p>
-            <p>${tran.amount | textToMoney}, ${tran.description | trimSpace}, on account ${tran.account | trimSpace}</p>
+            <p>${tran.amount | textToMoney}, ${tran.description}, on account ${tran.accountFriendlyName}</p>
             <p>This operation cannot be undone. Do you confirm deletion?</p>
             <div class="form-group flowButtons">
                 <button class="btn btn-light" type="button" click.delegate="cancelForm()">cancel</button>

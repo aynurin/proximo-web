@@ -1,4 +1,4 @@
-import { DateFormat } from 'lib/date-format';
+import { DateFormat } from 'lib/DateFormat';
 
 describe("DateFormat", () => {
   const formatter = new DateFormat(["en-US"]);
@@ -50,14 +50,6 @@ describe("DateFormat", () => {
     const expected = 'Saturday';
     const actual = formatter.toDayOfWeek(given);
     expect(actual).toBe(expected);
-    done();
-  });
-  it("fromDateOfMonth", done => {
-    const given = "4";
-    const ref = new Date();
-    const expected = new Date(ref.getFullYear(), ref.getMonth(), 4);
-    const actual = formatter.fromDateOfMonth(parseInt(given));
-    expect(actual).toStrictEqual(expected);
     done();
   });
 });

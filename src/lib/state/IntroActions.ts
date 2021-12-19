@@ -1,47 +1,65 @@
 import { Store } from "aurelia-store";
-import { IIntroStep } from "lib/model/IntroStep";
+import { IIntroState } from "lib/model/IntroState";
 import CustomError from "../model/CustomError";
 import Person, { IPerson } from "../model/Person";
 
 export class IntroActions {
 
-  public constructor(private readonly store: Store<IPerson>) {}
-  
+  public constructor(private readonly store: Store<IPerson>) { }
+
   registerActions() {
-    this.store.registerAction('addIntroStep', addIntroStepAction);
-    this.store.registerAction('updateIntroStep', updateIntroStepAction);
-    this.store.registerAction('removeIntroStep', removeIntroStepAction);
+    this.store.registerAction('addIntroState', addIntroStateAction);
+    this.store.registerAction('addOrUpdateIntroState', addOrUpdateIntroStateAction);
+    this.store.registerAction('updateIntroState', updateIntroStateAction);
+    this.store.registerAction('removeIntroState', removeIntroStateAction);
   }
 
-  public async addIntroStep(introStep: IIntroStep) {
-    await this.store.dispatch('addIntroStep', introStep);
+  /**
+   * @todo Avoid use of addOrUpdate as that means that you don't know what's going on
+   * @deprecated
+   */
+  public async addOrUpdateIntroState(introStep: IIntroState) {
+    await this.store.dispatch('addOrUpdateIntroState', introStep);
   }
 
-  public async updateIntroStep(introStep: IIntroStep) {
-    await this.store.dispatch('updateIntroStep', introStep);
+  public async addIntroState(introStep: IIntroState) {
+    await this.store.dispatch('addIntroState', introStep);
   }
 
-  public async removeIntroStep(introStep: IIntroStep) {
-    await this.store.dispatch('removeIntroStep', introStep);
+  public async updateIntroState(introStep: IIntroState) {
+    await this.store.dispatch('updateIntroState', introStep);
+  }
+
+  public async removeIntroState(introStep: IIntroState) {
+    await this.store.dispatch('removeIntroState', introStep);
   }
 }
 
-const addIntroStepAction = (state: IPerson, introStep: IIntroStep) => {
+const addIntroStateAction = (state: IPerson, introStep: IIntroState) => {
   return updateState(state, { add: introStep });
 }
 
-const updateIntroStepAction = (state: IPerson, introStep: IIntroStep) => {
+/**
+ * @todo Avoid use of addOrUpdate as that means that you don't know what's going on
+ * @deprecated
+ */
+const addOrUpdateIntroStateAction = (state: IPerson, introStep: IIntroState) => {
+  return updateState(state, { add: introStep, replace: introStep });
+}
+
+const updateIntroStateAction = (state: IPerson, introStep: IIntroState) => {
   return updateState(state, { replace: introStep });
 }
 
-const removeIntroStepAction = (state: IPerson, introStep: IIntroStep) => {
+const removeIntroStateAction = (state: IPerson, introStep: IIntroState) => {
   return updateState(state, { remove: introStep });
 }
 
-function updateState (state: IPerson, updateIntroPages: { 
-    add?: IIntroStep, 
-    replace?: IIntroStep, 
-    remove?: IIntroStep }): IPerson {
+function updateState(state: IPerson, updateIntroPages: {
+  add?: IIntroState,
+  replace?: IIntroState,
+  remove?: IIntroState
+}): IPerson {
   const newState = Person.cloneState(state);
 
   if (newState.introSteps == null) {
@@ -75,7 +93,7 @@ function updateState (state: IPerson, updateIntroPages: {
       }
     }
 
-    newState.introSteps.sort((a,b) => a.stepId.localeCompare(b.stepId));
+    newState.introSteps.sort((a, b) => a.stepId.localeCompare(b.stepId));
 
     return newState;
   }

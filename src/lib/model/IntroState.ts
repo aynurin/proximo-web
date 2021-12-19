@@ -1,5 +1,5 @@
 
-export interface IIntroStep {
+export interface IIntroState {
     stepId: string;
     versionCompleted?: number;
     completedDate?: Date;

@@ -1,4 +1,4 @@
-import { NumberFormat } from "lib/number-format";
+import { NumberFormat } from "lib/NumberFormat";
 
 export class TextToMoneyValueConverter {
   private _parser = new NumberFormat();

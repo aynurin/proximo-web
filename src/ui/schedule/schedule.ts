@@ -26,6 +26,7 @@ export class ScheduleCustomElement {
       this.intro.ready([{
         element: ledgerTabButton, 
         intro: `${COMPONENT_NAME}:intro.ledger-tab`,
+        hint: null,
         version: 1,
         priority: 100,
         onStepEnter: (introContext: IntroBuildingContext) => {

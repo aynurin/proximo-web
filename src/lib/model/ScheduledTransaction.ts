@@ -1,21 +1,23 @@
 import { IPostingSchedule } from './PostingSchedule';
 import CustomError from "./CustomError";
 import generateId from "./UUIDProvider";
-import { interfaceString } from 'lib/utils';
+import { interfaceDesc } from 'lib/utils';
 
 const MODEL_TYPE_NAME = "IScheduledTransaction";
 
-// ex. TranTemplate
+// ex. IScheduledTransaction
 export interface IScheduledTransaction {
   _typeName: string;
 
   scheduledId: string;
+  dateCreated: Date;
 
   schedule: IPostingSchedule;
   accountId: string;
+  accountFriendlyName: string;
   transferToAccountId: string;
+  transferToAccountFriendlyName: string;
 
-  dateCreated: Date;
   amount: number;
   deviation?: number;
   description?: string;
@@ -28,16 +30,25 @@ export default class ScheduledTransaction {
     this.scheduledTransaction = scheduledTransaction;
   }
 
-  static createNew(accountId: string, schedule: IPostingSchedule): IScheduledTransaction {
+  static createNew(accountId: string, accountFriendlyName: string, schedule: IPostingSchedule): IScheduledTransaction {
     return {
       _typeName: MODEL_TYPE_NAME,
       scheduledId: generateId(),
-      schedule: schedule,
-      accountId: accountId,
+      schedule,
+      accountId,
+      accountFriendlyName,
       transferToAccountId: null,
+      transferToAccountFriendlyName: null,
       dateCreated: new Date(),
       amount: NaN
     }
+  }
+
+  static clone(other: IScheduledTransaction): IScheduledTransaction {
+    const cloned = Object.assign({}, other);
+    cloned.schedule = Object.assign({}, other.schedule);
+    cloned.schedule.options = Object.assign({}, other.schedule.options);
+    return cloned;
   }
 
   static isValid(scheduled: IScheduledTransaction): boolean {
@@ -45,10 +56,10 @@ export default class ScheduledTransaction {
       return false;
     }
     if (!("_typeName" in scheduled)) {
-      throw new CustomError("This object doesn't look like 'IScheduledTransaction': " + interfaceString(scheduled));
+      throw new CustomError("This object doesn't look like 'IScheduledTransaction': " + interfaceDesc(scheduled));
     }
     if (scheduled._typeName !== MODEL_TYPE_NAME) {
-      throw new CustomError("This object is not an 'IScheduledTransaction': " + interfaceString(scheduled));
+      throw new CustomError("This object is not an 'IScheduledTransaction': " + interfaceDesc(scheduled));
     }
     if (scheduled.schedule == null) {
       return false;

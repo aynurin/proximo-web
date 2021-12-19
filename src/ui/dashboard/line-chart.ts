@@ -3,45 +3,26 @@ import { LogManager } from 'aurelia-framework';
 import { EventAggregator } from "aurelia-event-aggregator";
 import { connectTo } from 'aurelia-store';
 
-import { DateFormat } from 'lib/date-format';
-
-import { State } from 'lib/state';
-import { TranGenerated } from "lib/model/tran-template";
+import { IPerson } from "lib/model/Person";
 
 import Chart from "./alt-chartjs";
 import { lineChartType } from "./alt-chartjs";
 import { IntroContainer, IntroBuildingContext } from "lib/intro-building-context";
-import { NumberFormat } from "lib/number-format";
+import Ledger from 'lib/model/Ledger';
+import { ChartConfiguration,  ChartDataset } from 'chart.js';
 
 const COMPONENT_NAME = "line-chart";
 
 const log = LogManager.getLogger(COMPONENT_NAME);
 
-const __colors = [
-  "#45A831",
-  "#EBBB07",
-  "#B81AE8",
-  "#2685FF",
-
-  "#82E5FF",
-  "#7AE876",
-  "#F79B72",
-  "#EF61FF",
-];
-let __lastUsedColor = -1;
-const __accountColors = {}
-
 @autoinject()
 @connectTo()
 export class LineChartCustomElement {
   private chartArea: HTMLCanvasElement;
-  private lineChart: Chart;
+  private lineChart: Chart<typeof lineChartType, { x: Date; y: number; }[]>;
   private canvas: CanvasRenderingContext2D;
-  private datasets: any[] = [];
-  private state: State;
-  private lastVersion: number;
-  private numberFormatter = new NumberFormat();
-  private dateFormatter = new DateFormat();
+  private datasets: ChartDataset<typeof lineChartType,{x: Date, y: number}[]>[] = [];
+  private state: IPerson;
 
   private intro: IntroContainer;
 
@@ -49,20 +30,32 @@ export class LineChartCustomElement {
     private ea: EventAggregator,
     private introContext: IntroBuildingContext) { }
 
+    readyForIntro() {
+      log.debug("readyForIntro");
+      this.intro.ready([{
+        element: this.chartArea,
+        intro: `dashboard:intro.${COMPONENT_NAME}`,
+        hint: null,
+        version: 1,
+        priority: 20
+      }]);
+    }
+
   created() {
     log.debug('created');
     this.ea.subscribe("ledger-changed", () => this.ledgerChanged());
     this.intro = this.introContext.getContainer(COMPONENT_NAME);
   }
 
-  readyForIntro() {
-    log.debug("readyForIntro");
-    this.intro.ready([{
-      element: this.chartArea,
-      intro: `dashboard:intro.${COMPONENT_NAME}`,
-      version: 1,
-      priority: 20
-    }]);
+  detached() {
+    log.debug('detached');
+  }
+
+  // when control is attached to dom - need to initialize the chart drawing area
+  attached() {
+    log.debug('attached');
+    this.resetChartContext();
+    this.generateChart(this.state);
   }
 
   ledgerChanged = () => {
@@ -70,24 +63,12 @@ export class LineChartCustomElement {
     this.generateChart(this.state);
   }
 
-  ifLedgerChanged(action: (state: State) => void) {
-    if (this.state && (isNaN(this.lastVersion) || this.lastVersion < this.state.scheduleVersion)) {
-      action(this.state);
-      this.lastVersion = this.state.scheduleVersion;
-    }
-  }
-
   // when data is changed - need to update datasets
-  generateChart = (state: State) => {
-    log.debug('generateChart', state ? state.scheduleVersion : 'none');
-    let newDataSets = [];
-    if (state.ledger) {
-      newDataSets = this.generateDatasets(state.ledger);
-    } else {
-      newDataSets = [];
-    }
+  generateChart = (state: IPerson) => {
+    log.debug('generateChart');
     this.datasets.length = 0;
-    for (let d of newDataSets) {
+    const datasets = this.generateDatasets(state);
+    for (const d of datasets) {
       this.datasets.push(d);
     }
     if (this.lineChart) {
@@ -96,15 +77,36 @@ export class LineChartCustomElement {
     }
   }
 
-  // when control is attached to dom - need to initialize the chart drawing area
-  attached() {
-    log.debug('attached');
-    this.resetChartContext();
-    this.ifLedgerChanged(this.generateChart);
+  makeChart() {
+    log.debug('makeChart', this.datasets.length);
+    const chartConfig: ChartConfiguration<typeof lineChartType,{x: Date, y: number}[]> = {
+      type: lineChartType,
+      data: { datasets: this.datasets },
+      options: {
+        scales: {
+              xAxes: {
+                  type: "time",
+                  offset: true
+                },
+              yAxes: {
+                  display: true,
+                }
+        }
+      }
+    };
+    this.lineChart = new Chart(this.canvas, chartConfig);
   }
 
-  detached() {
-    log.debug('detached');
+  generateDatasets(state: IPerson): ChartDataset<typeof lineChartType,{x: Date, y: number}[]>[] {
+    return state.accounts.map(account => ({
+        label: account.friendlyName,
+        // ex. data: [{x:'2016-12-25', y:20}, {x:'2016-12-26', y:10}], from https://www.chartjs.org/docs/latest/general/data-structures.html
+        data: Array.from(new Ledger(account.ledger).groupByDate().values()).map(t => ({ x: t.key, y: t.last.accountBalance, all: t })),
+        borderColor: account.colorCode,
+        fill: false,
+        stepped: true,
+        parsing: false,
+      }));
   }
 
   resetChartContext() {
@@ -115,30 +117,32 @@ export class LineChartCustomElement {
     this.canvas = this.chartArea.getContext("2d");
     this.makeChart();
   }
+}
 
-  makeChart() {
-    log.debug('makeChart', this.state && this.state.ledger ? this.state.ledger.length : 'none', this.datasets.length);
-    const chartConfig = {
-      type: lineChartType,
-      data: { datasets: this.datasets },
+
+/*
+
+Lots of chart options commented during refactoring:
+
+
       // options: {
       //   responsive: true,
       //   // tooltips: {
-    	// 	// 	// intersect: false,
-    	// 	// 	// mode: 'index',
-    	// 	// 	callbacks: {
-    	// 	// 		label: function(tooltipItem, myData) {
-    	// 	// 			var label = myData.datasets[tooltipItem.datasetIndex].label || '';
-    	// 	// 			if (label) {
-    	// 	// 				label += ': ';
-    	// 	// 			}
-    	// 	// 			label += numberFormatter.format(tooltipItem.value);
-    	// 	// 			return label;
+      //   //   // intersect: false,
+      //   //   // mode: 'index',
+      //   //   callbacks: {
+      //   //     label: function(tooltipItem, myData) {
+      //   //       var label = myData.datasets[tooltipItem.datasetIndex].label || '';
+      //   //       if (label) {
+      //   //         label += ': ';
+      //   //       }
+      //   //       label += numberFormatter.format(tooltipItem.value);
+      //   //       return label;
       //   //     },
       //   //     title: function(tooltipItems, myData) {
       //   //       return this.dateFormatter.format(tooltipItems[0].label);//.format("MMMM Do, YYYY");
       //   //     }
-    	// 	// 	}
+      //   //   }
       //   // },
       //   // hover: {
       //   //   mode: "nearest",
@@ -183,68 +187,7 @@ export class LineChartCustomElement {
 
       //   }
       // }
-    };
-    this.lineChart = new Chart(this.canvas, chartConfig);
-  }
 
 
-  accountColor(acc: string): string {
-    if (!(acc in __accountColors)) {
-      __lastUsedColor++;
-      if (__lastUsedColor == __colors.length) {
-        __lastUsedColor = 0;
-      }
-      __accountColors[acc] = __colors[__lastUsedColor];
-    }
-    return __accountColors[acc];
-  }
 
-  newDataset(acc: string): any {
-    return {
-      label: acc,
-      borderColor: this.accountColor(acc),
-      data: [],
-
-      backgroundColor: "rgba(255,255,255,0)",
-      fill: false,
-      lineTension: 0.2,
-      borderWidth: 2
-    }
-  }
-
-  generateDatasets(ledger: TranGenerated[]): any[] {
-    // const data = {
-    //   labels: ['Day 1', 'Day 2', 'Day 3', 'Day 4', 'Day 5', 'Day 6'],
-    //   datasets: [
-    //     {
-    //       label: 'Dataset',
-    //       data: Utils.numbers({count: 6, min: -100, max: 100}),
-    //       borderColor: Utils.CHART_COLORS.red,
-    //       fill: false,
-    //       stepped: true,
-    //     }
-    //   ]
-    // };
-
-    let datasets: { [account: string]: any } = {};
-    const addTran = (accountName: string, tran: TranGenerated) => {
-      if (!(accountName in datasets)) {
-        datasets[accountName] = this.newDataset(accountName);
-      }
-      console.log('tran.date', tran.date, typeof tran.date);
-      let tranDate: Date = null;
-      if (typeof tran.date === "string") {
-        tranDate = new Date(tran.date);
-      }
-      datasets[accountName].data.push({ x: tranDate, y: tran.balances[tran.account] });
-    }
-    for (let tran of ledger) {
-      addTran(tran.account, tran);
-      if (tran.isTransfer) {
-        addTran(tran.transferToAccount, Object.assign({}, tran, { account: tran.transferToAccount }));
-      }
-    }
-    return Object.values(datasets);
-  }
-
-}
+*/

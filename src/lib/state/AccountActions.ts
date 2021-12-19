@@ -31,7 +31,7 @@ const addAccountAction = (state: IPerson, account: IAccount) => {
 }
 
 const updateAccountAction = (state: IPerson, account: IAccount) => {
-  return updateState(state, { replace: account });
+  return updateState(state, { update: account });
 }
 
 const removeAccountAction = (state: IPerson, account: IAccount) => {
@@ -40,7 +40,7 @@ const removeAccountAction = (state: IPerson, account: IAccount) => {
 
 function updateState (state: IPerson, updateAccounts: { 
     add?: IAccount, 
-    replace?: IAccount, 
+    update?: IAccount, 
     remove?: IAccount }): IPerson {
   const newState = Person.cloneState(state);
 
@@ -48,20 +48,26 @@ function updateState (state: IPerson, updateAccounts: {
     newState.accounts = [];
   }
 
-  if (updateAccounts.add == null && updateAccounts.remove == null && updateAccounts.replace == null) {
+  if (updateAccounts.add == null && updateAccounts.remove == null && updateAccounts.update == null) {
     newState.accounts = [...newState.accounts];
   } else {
     if (updateAccounts.add != null) {
       newState.accounts = [...newState.accounts, updateAccounts.add];
     }
 
-    if (updateAccounts.replace != null) {
-      const newIdx = newState.accounts.findIndex(s => s.accountId == updateAccounts.replace.accountId);
+    if (updateAccounts.update != null) {
+      const newIdx = newState.accounts.findIndex(s => s.accountId == updateAccounts.update.accountId);
       if (newIdx >= 0) {
         newState.accounts = [...newState.accounts];
-        newState.accounts[newIdx] = updateAccounts.replace;
+        // account schedule and ledger cannot be updated via update account
+        // account id and dateCreated cannot be updated at all
+        const newAccount = Object.assign({}, newState.accounts[newIdx]);
+        newAccount.balance = updateAccounts.update.balance;
+        newAccount.friendlyName = updateAccounts.update.friendlyName;
+        newAccount.colorCode = updateAccounts.update.colorCode;
+        newState.accounts[newIdx] = newAccount;
       } else {
-        throw new CustomError(`Account with ID ${updateAccounts.replace.accountId} to replace was not found for person ${newState.personId}`);
+        throw new CustomError(`Account with ID ${updateAccounts.update.accountId} to replace was not found for person ${newState.personId}`);
       }
     }
 

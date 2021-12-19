@@ -3,32 +3,33 @@ import { LogManager } from 'aurelia-framework';
 import { EventAggregator } from "aurelia-event-aggregator";
 import { connectTo } from "aurelia-store";
 
-import { DateFormat } from "lib/date-format";
+import Person, { IPerson } from "lib/model/Person";
 
-import { State } from "lib/state";
-
-import { Schedule } from "lib/model/schedule";
-import { TranTemplate } from "lib/model/tran-template";
-import { TranStateActions } from "lib/model/tran-actions";
+import ScheduledTransaction, { IScheduledTransaction } from "lib/model/ScheduledTransaction";
+import StateMutationFactory from 'lib/state/StateMutationFactory';
+import PostingSchedule from "lib/model/PostingSchedule";
+import Account, { IAccount } from "lib/model/Account";
+import ColorProvider from "lib/ColorProvider";
 
 const log = LogManager.getLogger('welcome');
 
 @autoinject()
 @connectTo()
 export class WelcomeCustomElement {
-  tran1: FormRowTranTemplate = new FormRowTranTemplate();
-  tran2: FormRowTranTemplate = new FormRowTranTemplate();
-  tran3: FormRowTranTemplate = new FormRowTranTemplate();
-  tran4: FormRowTranTemplate = new FormRowTranTemplate();
-  tran5: FormRowTranTemplate = new FormRowTranTemplate();
-  addedTrans: FormRowTranTemplate[] = [];
+  tran1 = new WelcomeScreenTransaction();
+  tran2 = new WelcomeScreenTransaction();
+  tran3 = new WelcomeScreenTransaction();
+  tran4 = new WelcomeScreenTransaction();
+  tran5 = new WelcomeScreenTransaction();
+  addedTrans: WelcomeScreenTransaction[] = [];
   welcomeForm: HTMLFormElement;
-  public state: State;
-  private dateFormatter = new DateFormat();
+  public state: IPerson;
+  person: Person;
 
   public constructor(
-    private tranActions: TranStateActions,
-    private ea: EventAggregator) { }
+    private tranActions: StateMutationFactory,
+    private ea: EventAggregator,
+    private colorProvider: ColorProvider) { }
 
   get canSave(): boolean {
     const toSave = this.getTransactionsToSave();
@@ -39,9 +40,13 @@ export class WelcomeCustomElement {
     log.debug("attached");
   }
 
-  getTransactionsToSave(): FormRowTranTemplate[] | false {
+  activate() {
+    this.person = new Person(this.state);
+  }
+
+  getTransactionsToSave(): WelcomeScreenTransaction[] | false {
     const allTrans = [this.tran1, this.tran2, this.tran3, this.tran4, this.tran5, ...this.addedTrans];
-    const toSave = [];
+    const toSave: WelcomeScreenTransaction[] = [];
     for (const tran of allTrans) {
       if (tran != null && tran.isRequired && !tran.isValid) {
         return false;
@@ -54,23 +59,33 @@ export class WelcomeCustomElement {
   }
 
   addMore() {
-    this.addedTrans.push(new FormRowTranTemplate());
+    this.addedTrans.push(new WelcomeScreenTransaction());
   }
 
+  /**
+   * @todo: refactor vanilla account schedule creation
+   */
   async saveSchedule() {
     const toSave = this.getTransactionsToSave();
     if (toSave !== false && toSave.length > 0) {
-      const trans = toSave.map(t => this.createSchedule(t));
-      await this.tranActions.replaceAccounts([]);
-      for (let tran of trans) {
-        await this.tranActions.addSchedule(tran);
+      if (this.person.person.accounts.length == 0) {
+        const newAccount = Account.createNew(this.colorProvider);
+        newAccount.balance = 0;
+        newAccount.friendlyName = "My Bank Account";
+        await this.tranActions.accountActions.addAccount(newAccount);
+      }
+      const account = this.person.person.accounts[0];
+      const trans = toSave.map(t => this.createSchedule(account, t));
+      //await this.tranActions.accountActions.replaceAccounts([]);
+      for (const tran of trans) {
+        await this.tranActions.timeTableActions.addScheduled(tran);
       }
       this.ea.publish("state-hydrated");
-      this.tran1 = new FormRowTranTemplate();
-      this.tran2 = new FormRowTranTemplate();
-      this.tran3 = new FormRowTranTemplate();
-      this.tran4 = new FormRowTranTemplate();
-      this.tran5 = new FormRowTranTemplate();
+      this.tran1 = new WelcomeScreenTransaction();
+      this.tran2 = new WelcomeScreenTransaction();
+      this.tran3 = new WelcomeScreenTransaction();
+      this.tran4 = new WelcomeScreenTransaction();
+      this.tran5 = new WelcomeScreenTransaction();
       this.addedTrans = [];
       if (this.welcomeForm) {
         this.welcomeForm.reset();
@@ -78,21 +93,16 @@ export class WelcomeCustomElement {
     }
   }
 
-  createSchedule(tran: FormRowTranTemplate): TranTemplate {
-    const date = this.dateFormatter.fromDateOfMonth(parseInt(tran.monthDate));
-    const template = new TranTemplate();
-    template.account = "My account";
-    template.amount = parseInt(tran.amount);
-    template.date = date;
-    template.description = tran.description;
-    template.selectedSchedule = new Schedule(date, "Monthly, on the " + this.dateFormatter.toDate(date), {
-        day: date.getDate()
-      });
-    return template;
+  createSchedule(account: IAccount, tran: WelcomeScreenTransaction): IScheduledTransaction {
+    const dateOfMonth = parseInt(tran.monthDate);
+    const scheduled = ScheduledTransaction.createNew(account.accountId, account.friendlyName, PostingSchedule.createNew().monthly(dateOfMonth));
+    scheduled.amount = parseInt(tran.amount);
+    scheduled.description = tran.description;
+    return scheduled;
   }
 }
 
-export class FormRowTranTemplate {
+export class WelcomeScreenTransaction {
   amount: string;
   monthDate: string;
   description: string;
