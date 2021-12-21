@@ -10,8 +10,13 @@ export class ScheduleLabelValueConverter {
       alone: 1st of the month
       when: The following transaction will run ...:
   */
-  toView(sched: IPostingSchedule, format?: string) {
+  toView(sched: IPostingSchedule, format?: string | ScheduleLabelViewFormat) {
     if (!sched) return null;
     return this.scheduleRenderer.renderLabel(sched);
   }
+}
+
+export enum ScheduleLabelViewFormat {
+  alone = "alone",
+  when = "when"
 }

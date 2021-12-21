@@ -1,6 +1,6 @@
 import Ledger, { ILedger } from './../model/Ledger';
 import { Store } from "aurelia-store";
-import Account from "../model/Account";
+import Account, { IAccount } from "../model/Account";
 import CustomError from "../model/CustomError";
 import Person, { IPerson } from "../model/Person";
 
@@ -12,24 +12,24 @@ export class LedgerActions {
     this.store.registerAction('mutateLedger', mutateLedgerAction);
   }
 
-  public async mutateLedger(ledger: ILedger) {
-    await this.store.dispatch('mutateLedger', ledger);
+  public async mutateLedger(account: IAccount, ledger: ILedger) {
+    await this.store.dispatch('mutateLedger', account, ledger);
   }
 }
 
-const mutateLedgerAction = (state: IPerson, ledger: ILedger) => {
-  return updateState(state, { mutate: ledger });
+const mutateLedgerAction = (state: IPerson, account: IAccount, ledger: ILedger) => {
+  return updateState(state, account, { mutate: ledger });
 }
 
-function updateState (state: IPerson, updateLedger: { mutate: ILedger }): IPerson {
+function updateState (state: IPerson, account: IAccount, updateLedger: { mutate: ILedger }): IPerson {
   const person = Person.cloneState(state);
-  const accountIndex = person.accounts.findIndex(a => a.accountId == updateLedger.mutate.accountId);
+  const accountIndex = person.accounts.findIndex(a => a.accountId == account.accountId);
 
   if (accountIndex < 0) {
-    throw new CustomError(`Ledger to be mutated was not found (accountId: ${updateLedger.mutate.accountId})`);
+    throw new CustomError(`Ledger to be mutated was not found (accountId: ${account.accountId})`);
   }
 
-  const account = Account.cloneState(person.accounts[accountIndex]);
+  account = Account.cloneState(person.accounts[accountIndex]);
   const ledger = Ledger.cloneState(account.ledger);
 
   ledger.transactions = updateLedger.mutate.transactions;

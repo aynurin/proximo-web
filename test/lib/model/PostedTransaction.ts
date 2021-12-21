@@ -1,10 +1,7 @@
-import { OrderedAggregate } from "./Aggregate";
-import CustomError from "./CustomError";
+import { OrderedAggregate } from "lib/model/Aggregate";
+import CustomError from "lib/model/CustomError";
 
 // ex. TranGenerated
-/**
- * @todo Create a ScheduledTransaction method that generates a PostedTransaction based on ScheduledTransaction
- */
 export interface IPostedTransaction {
   transactionId: string;
 
@@ -47,8 +44,8 @@ export class TransactionsPostedOnDate implements OrderedAggregate<Date, IPostedT
   totals: number[];
   all: IPostedTransaction[];
 
-  constructor(dateKey: Date, firstTransaction: IPostedTransaction) {
-    this.key = dateKey;
+  constructor(date: Date, firstTransaction: IPostedTransaction) {
+    this.key = date;
     this.first = firstTransaction;
     this.last = firstTransaction;
     this.high = [firstTransaction];
@@ -63,10 +60,10 @@ export class TransactionsPostedOnDate implements OrderedAggregate<Date, IPostedT
     }
     this.last = transaction;
     if (transaction.accountBalance < this.low[0].accountBalance) {
-      this.low[0] = transaction;
+      this.low.push(transaction);
     }
-    if (transaction.accountBalance > this.high[0].accountBalance) {
-      this.high[0] = transaction;
+    if (transaction.accountBalance < this.high[0].accountBalance) {
+      this.high.push(transaction);
     }
     if (transaction.amount > 0) {
       this.totals[1] += transaction.amount;
@@ -79,7 +76,7 @@ export class TransactionsPostedOnDate implements OrderedAggregate<Date, IPostedT
   static combine(segments: TransactionsPostedOnDate[]): TransactionsPostedOnDate {
     const sameKey = segments.every((value: TransactionsPostedOnDate, index: number, array: TransactionsPostedOnDate[]) => index === 0 || value.key == array[index-1].key);
     if (!sameKey) {
-      throw new CustomError("TransactionsPostedOnDate.combine can only merge segments with the same key. Provided keys: " + segments.map(t => t.key).join(", "))
+      throw new CustomError("TransactionsPostedOnDate.combine can only merge segments with the same key. Provided keys: " + segments.map(t => t.key.toISOString()).join(", "))
     }
     const key = segments[0].key;
     return segments.reduce((accumulator: TransactionsPostedOnDate, current: TransactionsPostedOnDate) => {
@@ -108,4 +105,4 @@ export class TransactionsPostedOnDate implements OrderedAggregate<Date, IPostedT
   }
 }
 
-export type MapOfTransactionsPostedOnDate = Map<number, TransactionsPostedOnDate>;
+export type MapOfTransactionsPostedOnDate = Map<Date, TransactionsPostedOnDate>;

@@ -22,11 +22,21 @@ export class NumberFormat {
   }
 
   parse(val: string) {
-    val = val.trim()
-      .replace(this._group, "")
-      .replace(this._decimal, ".")
-      .replace(this._numeral, this._index)
-    return val ? +val : NaN;
+    if (val == null) {
+      return NaN;
+    }
+    const tp = typeof val;
+    if (tp !== 'string' && tp !== 'number') {
+      return parseFloat(val);
+    } else if (tp === 'number') {
+      return val;
+    } else {
+      val = val.trim()
+        .replace(this._group, "")
+        .replace(this._decimal, ".")
+        .replace(this._numeral, this._index)
+      return val ? +val : NaN;
+    }
   }
 
   format(val: number) {

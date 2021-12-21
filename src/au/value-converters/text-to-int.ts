@@ -5,7 +5,9 @@ export class TextToIntValueConverter {
   // }
 
   fromView(val: string) {
-    if (!val) return null;
+    if (val != null && typeof val === 'string') {
+      val = val.replace(/\s+/g, '');
+    }
     return parseInt(val);
   }
 }

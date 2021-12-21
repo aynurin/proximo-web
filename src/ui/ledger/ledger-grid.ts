@@ -54,7 +54,7 @@ export class LedgerGridCustomElement {
 
   bind() {
     log.debug('bind');
-    if (Person.hasLedgers(this.state)) {
+    if (new Person(this.state).hasLedgers()) {
       this.ledgerChanged(this.state);
     }
   }

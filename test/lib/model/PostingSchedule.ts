@@ -1,6 +1,6 @@
 import { interfaceDesc, isNonEmptyString } from "lib/utils";
-import CustomError from "./CustomError";
-import generateId from "./UUIDProvider";
+import CustomError from "lib/model/CustomError";
+import generateId from "lib/model/UUIDProvider";
 
 const MODEL_TYPE_NAME = "IPostingSchedule";
 
@@ -144,7 +144,7 @@ export default class PostingSchedule {
       schedule.dateOfMonth ?? 0,
       schedule.month ?? 0,
       schedule.year ?? 0,
-      schedule.refDate?.valueOf()
+      schedule.refDate.valueOf()
     ];
     return this.postingSchedule;
   }

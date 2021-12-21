@@ -142,7 +142,7 @@ export class App {
 
   stateChanged() {
     if (this.rehydrateCompleted) {
-      const showDashboard = this.loggedInPerson != null && this.loggedInPerson.hasAnySchedules();
+      const showDashboard = this.loggedInPerson != null && this.loggedInPerson.hasSchedules();
       const originalLocationPath = document.location.pathname.trim().substr(1);
       const targetRouteName = showDashboard ? "dashboard" : "welcome";
       const allowRedirect = originalLocationPath === "" 

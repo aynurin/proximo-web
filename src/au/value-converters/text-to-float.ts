@@ -1,3 +1,4 @@
+import { isNonEmptyString } from 'lib/utils';
 // import numeral from 'numeral';
 
 export class TextToFloatValueConverter {
@@ -7,12 +8,9 @@ export class TextToFloatValueConverter {
   // }
 
   fromView(val: string) {
-    if (!val) return null;
-    if (val.trim() == '-') return val;
-    try {
-      return parseFloat(val);
-    } catch {
-      return null;
+    if (val != null && typeof val === 'string') {
+      val = val.replace(/\s+/g, '');
     }
+    return parseFloat(val);
   }
 }

@@ -1,8 +1,6 @@
 import { IPostedTransaction, MapOfTransactionsPostedOnDate, TransactionsPostedOnDate } from "./PostedTransaction";
 
 export interface ILedger {
-  ledgerId: string;
-  accountId: string;
   transactions: IPostedTransaction[];
   dateUpdated: Date;
 }
@@ -18,16 +16,17 @@ export default class Ledger {
     return Object.assign({}, oldState);
   }
 
-  groupByDate(keyConverter: (transaction: IPostedTransaction) => Date = null): MapOfTransactionsPostedOnDate {
+  groupByDate(keyConverter: (transaction: IPostedTransaction) => Date  = null): MapOfTransactionsPostedOnDate {
     return this.ledger.transactions.reduce<MapOfTransactionsPostedOnDate>(
       (accumulator: MapOfTransactionsPostedOnDate, current: IPostedTransaction): MapOfTransactionsPostedOnDate => {
         const key = keyConverter == null ? current.datePosted : keyConverter(current);
-        if (accumulator.has(key)) {
-          accumulator.get(key).add(current);
+        const keyVal = key.valueOf();
+        if (accumulator.has(keyVal)) {
+          accumulator.get(keyVal).add(current);
         } else {
-          accumulator.set(key, new TransactionsPostedOnDate(key, current));
+          accumulator.set(keyVal, new TransactionsPostedOnDate(key, current));
         }
         return accumulator;
-      }, new Map<Date, TransactionsPostedOnDate>());
+      }, new Map<number, TransactionsPostedOnDate>());
   }
 }

@@ -12,17 +12,24 @@ export default class Person {
   person: IPerson;
 
   constructor(person: IPerson) {
-    if (this.person == null) {
+    if (person == null) {
       throw new CustomError("Null initialization of Person");
     }
     this.person = person;
   }
 
-  hasAnySchedules() : boolean {
+  hasSchedules() : boolean {
     return this.person != null 
       && this.person.accounts != null 
       && this.person.accounts.length > 0 
       && this.person.accounts.find(a => a != null && a.timetable != null && a.timetable.timetable.length > 0) != null;
+  }
+
+  hasLedgers(): boolean {
+    return this.person != null 
+      && this.person.accounts != null 
+      && this.person.accounts.length > 0 
+      && this.person.accounts.some(a => a.ledger?.transactions.length > 0);
   }
 
   getAccount(accountId: string): IAccount {
@@ -34,9 +41,5 @@ export default class Person {
 
   static cloneState(oldState: IPerson) : IPerson {
     return Object.assign({}, oldState);
-  }
-
-  static hasLedgers(state: IPerson): boolean {
-    return state != null && state.accounts.some(a => a.ledger.transactions.length > 0);
   }
 }

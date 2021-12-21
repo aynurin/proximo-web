@@ -62,7 +62,7 @@ export class AccountsSummaryCustomElement {
     if (this.state) {
       this.person = new Person(this.state);
     }
-    if (this.person && this.person.hasAnySchedules()) {
+    if (this.person && this.person.hasSchedules()) {
       this.generateTable(this.state);
     }
   }
@@ -99,7 +99,7 @@ export class AccountsSummaryCustomElement {
       ).keys()
     ).sort();
 
-    const totals: MonthlyAggregateGroup = { key: null, aggregates: new Map<Date, TransactionsPostedOnDate>() };
+    const totals: MonthlyAggregateGroup = { key: null, aggregates: new Map<number, TransactionsPostedOnDate>() };
 
     for (const month of months) {
       // get all transactions on all accounts for this date
@@ -107,7 +107,7 @@ export class AccountsSummaryCustomElement {
         TransactionsPostedOnDate.combine(accountsSummary.map(a => a.aggregates.get(month)).filter(t => t !== undefined).flat()));
     }
 
-    this.months = months;
+    this.months = months.map(m => new Date(m));
     this.accountsByMonth = accountsSummary;
     this.totalsByMonth = totals;
 
@@ -132,8 +132,8 @@ export class AccountsSummaryCustomElement {
   }
 
   tryGet(date: Date, monthly: MonthlyAggregateGroup, accessor: (transactionAggregate: TransactionsPostedOnDate) => string): string {
-    if (monthly.aggregates.has(date)) {
-      return accessor(monthly.aggregates.get(date));
+    if (monthly.aggregates.has(date.valueOf())) {
+      return accessor(monthly.aggregates.get(date.valueOf()));
     } else {
       return "";
     }

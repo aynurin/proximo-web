@@ -1,5 +1,8 @@
 import { NumberFormat } from "lib/NumberFormat";
 
+/**
+ * @todo: This should use an actual Money data type, not a float
+ */
 export class TextToMoneyValueConverter {
   private _parser = new NumberFormat();
   
@@ -9,7 +12,9 @@ export class TextToMoneyValueConverter {
   }
 
   fromView(val: string) {
-    if (!val) return null;
+    if (val != null && typeof val === 'string') {
+      val = val.replace(/\s+|^[^-\d\\.]+|\D+$/g, '');
+    }
     return this._parser.parse(val);
   }
 }

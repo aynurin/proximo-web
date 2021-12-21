@@ -1,6 +1,7 @@
-import { IScheduledTransaction } from "./ScheduledTransaction";
+import { IScheduledTransaction } from "lib/model/ScheduledTransaction";
 
 export interface ITimeTable {
+  timetableId: string;
   timetable: IScheduledTransaction[];
   dateLastChanged: Date;
 }
