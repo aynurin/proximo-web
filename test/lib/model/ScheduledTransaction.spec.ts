@@ -3,7 +3,7 @@ import PostingSchedule from 'lib/model/PostingSchedule';
 
 const FAKE_UUID = '468a0887-ebbc-4bd3-9371-ef84d54b996f';
 
-jest.mock('lib/model/UUIDProvider', () => ({
+jest.mock('lib/UUIDProvider', () => ({
   __esModule: true,
   default: jest.fn(() => FAKE_UUID),
 }));

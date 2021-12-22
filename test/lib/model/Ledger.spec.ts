@@ -1,16 +1,5 @@
 import Ledger, { ILedger } from 'lib/model/Ledger';
 import { IPostedTransaction } from 'lib/model/PostedTransaction';
-
-// return this.ledger.transactions.reduce<MapOfTransactionsPostedOnDate>(
-//   (accumulator: MapOfTransactionsPostedOnDate, current: IPostedTransaction): MapOfTransactionsPostedOnDate => {
-//     const key = keyConverter == null ? current.datePosted : keyConverter(current);
-//     if (accumulator.has(key)) {
-//       accumulator.get(key).add(current);
-//     } else {
-//       accumulator.set(key, new TransactionsPostedOnDate(key, current));
-//     }
-//     return accumulator;
-//   }, new Map<Date, TransactionsPostedOnDate>());
     
 describe('Ledger', () => {
   const transactionTemplate : IPostedTransaction = {

@@ -1,5 +1,5 @@
 import { IPerson } from 'lib/model/Person';
-import generateId from "lib/model/UUIDProvider";
+import generateId from "lib/UUIDProvider";
 
 export function createEmptyState(): IPerson {
   return {

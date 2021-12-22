@@ -121,7 +121,7 @@ export class AccountsSummaryCustomElement {
   accountHealth(transactions: TransactionsPostedOnDate): AccountHealth {
     if (transactions.low[0].accountBalance < 0) {
       return AccountHealth.Danger;
-    } else if (transactions.totals[0] + transactions.totals[1] < 0) {
+    } else if (transactions.totalSpend + transactions.totalIncome < 0) {
       return AccountHealth.Warning;
     }
     return AccountHealth.Healthy;

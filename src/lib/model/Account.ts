@@ -1,9 +1,9 @@
 import ColorProvider from "lib/ColorProvider";
 import { interfaceDesc, isNonEmptyString } from "lib/utils";
-import CustomError from "./CustomError";
-import { ILedger } from "./Ledger";
-import { ITimeTable } from "./TimeTable";
-import generateId from "./UUIDProvider";
+import CustomError from "lib/model/CustomError";
+import { ILedger } from "lib/model/Ledger";
+import { ITimeTable } from "lib/model/TimeTable";
+import generateId from "lib/UUIDProvider";
 
 const MODEL_TYPE_NAME = "IAccount";
 

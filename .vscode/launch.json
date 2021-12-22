@@ -2,15 +2,30 @@
   "version": "0.2.0",
   "configurations": [
     {
-      "name": "Chrome",
-      "type": "chrome",
-      "request": "launch",
-      "url": "http://localhost:8080",
-      "webRoot": "${workspaceRoot}/src",
-      "userDataDir": "${workspaceRoot}/.chrome",
-      "sourceMapPathOverrides": {
-        "webpack:///./src/*": "${webRoot}/*"
-      }
+        "name": "Chrome",
+        "type": "chrome",
+        "request": "launch",
+        "url": "http://localhost:8080",
+        "webRoot": "${workspaceRoot}/src",
+        "userDataDir": "${workspaceRoot}/.chrome",
+        "sourceMapPathOverrides": {
+            "webpack:///./src/*": "${webRoot}/*"
+        }
+    },
+    {
+        "type": "node",
+        "name": "vscode-jest-tests",
+        "request": "launch",
+        "console": "integratedTerminal",
+        "internalConsoleOptions": "neverOpen",
+        "disableOptimisticBPs": true,
+        "program": "/usr/bin/au",
+        "cwd": "${workspaceFolder}",
+        "args": [
+            "test",
+            "--runInBand",
+            "--watchAll=false"
+        ]
     }
-  ]
+]
 }

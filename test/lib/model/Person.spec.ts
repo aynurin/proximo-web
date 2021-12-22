@@ -5,21 +5,11 @@ import Person, { IPerson } from "lib/model/Person";
 import ScheduledTransaction from "lib/model/ScheduledTransaction";
 import { IPostedTransaction } from 'lib/model/PostedTransaction';
     
-const FAKE_COLOR = "fkecde";
-const FAKE_UUIDS = [
-  '468a0887-ebbc-4bd3-9371-ef84d54b996f',
-  '02ec369e-a597-4cc6-8586-8ff1d8a80fab',
-  'e357b036-5718-4886-9015-60d8ed61b3db',
-  'c3bf6353-5082-45f3-a786-e3c82345aa64',
-];
-let fakeUUIDNbr = 0;
 
-jest.mock('lib/model/UUIDProvider', () => ({
-  __esModule: true,
-  default: jest.fn(() => FAKE_UUIDS[fakeUUIDNbr++]),
-}));
+const FAKE_COLOR = "fkeclr";
 
 jest.mock("lib/ColorProvider");
+jest.mock('lib/UUIDProvider');
 
 describe('Person', () => {
   const transactionTemplate : IPostedTransaction = {
@@ -42,8 +32,6 @@ describe('Person', () => {
   };
 
   const colorProvider = new ColorProvider({ personId: person1.personId, accounts: null, introSteps: null });
-  const newColorFn = jest.fn(() => FAKE_COLOR);
-  colorProvider.newColor = newColorFn;
 
   const account1 = Account.createNew(colorProvider);
   account1.friendlyName = "Account 1";
@@ -72,6 +60,12 @@ describe('Person', () => {
   person1.accounts = [account1, account2, account3];
 
   const p = new Person(person1);
+
+  it('chose a color for the account', () => {
+    expect(p.person.accounts[0].colorCode).toBe(FAKE_COLOR);
+    expect(p.person.accounts[1].colorCode).toBe(FAKE_COLOR);
+    expect(p.person.accounts[2].colorCode).toBe(FAKE_COLOR);
+  })
 
   it('should show if it has any schedules', () => {
     expect(p.hasSchedules()).toBe(true);

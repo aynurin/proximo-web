@@ -1,6 +1,6 @@
 import { IPostingSchedule } from './PostingSchedule';
 import CustomError from "./CustomError";
-import generateId from "./UUIDProvider";
+import generateId from "lib/UUIDProvider";
 import { interfaceDesc } from 'lib/utils';
 
 const MODEL_TYPE_NAME = "IScheduledTransaction";

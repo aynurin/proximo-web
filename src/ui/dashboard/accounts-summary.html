@@ -26,13 +26,13 @@
             <tr>
                 <td><div class="label label-sm" title="How much money was spent during the period">spent</div></td>
                 <td repeat.for="month of months" class="${tryGet(month, acc, t => accountCSS(t))}">
-                    <div class="money" title="${'Spent in ' + monthName(month)}">${tryGet(month, totalsByMonth, t => t.totals[0]) | textToMoney}</div>
+                    <div class="money" title="${'Spent in ' + monthName(month)}">${tryGet(month, totalsByMonth, t => t.totalSpend) | textToMoney}</div>
                 </td>
             </tr>
             <tr>
                 <td><div class="label label-sm" title="How much money was deposited during the period">earned</div></td>
                 <td repeat.for="month of months" class="${tryGet(month, acc, t => accountCSS(t))}">
-                    <div class="money" title="${'Deposited in ' + monthName(month)}">${tryGet(month, totalsByMonth, t => t.totals[1]) | textToMoney}</div>
+                    <div class="money" title="${'Deposited in ' + monthName(month)}">${tryGet(month, totalsByMonth, t => t.totalIncome) | textToMoney}</div>
                 </td>
             </tr>
         </tbody>
@@ -54,13 +54,13 @@
             <tr>
                 <td><div class="label label-sm">spent</div></td>
                 <td repeat.for="month of months" class="${tryGet(month, totalsByMonth, t => accountCSS(t))}">
-                  <div class="money">${tryGet(month, totalsByMonth, t => t.totals[0]) | textToMoney}</div>
+                  <div class="money">${tryGet(month, totalsByMonth, t => t.totalSpend) | textToMoney}</div>
                 </td>
             </tr>
             <tr>
                 <td><div class="label label-sm">earned</div></td>
                 <td repeat.for="month of months" class="${tryGet(month, totalsByMonth, t => accountCSS(t))}">
-                  <div class="money">${tryGet(month, totalsByMonth, t => t.totals[1]) | textToMoney}</div>
+                  <div class="money">${tryGet(month, totalsByMonth, t => t.totalIncome) | textToMoney}</div>
                 </td>
             </tr>
         </tbody>

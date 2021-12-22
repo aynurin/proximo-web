@@ -4,12 +4,11 @@ export interface AggregatesGroup<TID, TKey, TValue> {
   aggregates: Map<TKey, TValue>;
 }
 
-export interface OrderedAggregate<TKey, TItem,TTotals> {
+export interface OrderedAggregate<TKey, TItem> {
   key: TKey;
   first: TItem;
   last: TItem;
   low: TItem[];
   high: TItem[];
-  totals: TTotals[];
   all: TItem[];
 }

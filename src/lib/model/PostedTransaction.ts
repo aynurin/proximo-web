@@ -16,7 +16,17 @@ export interface IPostedTransaction {
   dateGenerated: Date;
   datePosted: Date;
   amount: number;
+  /**
+   * Account balance *after* applying this transaction
+   */
   accountBalance: number;
+  /**
+   * Transaction state, possible values are `Planned`, `Processing`, 
+   * `Executed`, `Deleted`.
+   * Basically this is a convenience property, to show if the *today* account 
+   * balance is impacted by this transaction or not. This has relation to 
+   * `datePosted` - if the `state` is `Planned` then `datePosted` cannot be in the past
+   */
   state: TransactionState;
 
   ledgerOrder?: number;
@@ -38,73 +48,120 @@ export default class PostedTransaction {
   }
 }
 
-export class TransactionsPostedOnDate implements OrderedAggregate<Date, IPostedTransaction, number> {
+export class TransactionsPostedOnDate implements OrderedAggregate<Date, IPostedTransaction> {
   key: Date;
   first: IPostedTransaction;
   last: IPostedTransaction;
-  low: IPostedTransaction[];
-  high: IPostedTransaction[];
-  totals: number[];
-  all: IPostedTransaction[];
+  /**
+   * Transactions resulting in the lowest account balance for this date key.
+   */
+  low: IPostedTransaction[] = [];
+  /**
+   * Transactions resulting in the lowest account balance for this date key.
+   */
+  high: IPostedTransaction[] = [];
+  all: IPostedTransaction[] = [];
+
+  totalIncome = 0;
+  totalSpend = 0;
 
   constructor(dateKey: Date, firstTransaction: IPostedTransaction) {
     this.key = dateKey;
-    this.first = firstTransaction;
-    this.last = firstTransaction;
-    this.high = [firstTransaction];
-    this.low = [firstTransaction];
-    this.totals = firstTransaction.amount > 0 ? [0, firstTransaction.amount] : [firstTransaction.amount, 0];
-    this.all = [firstTransaction];
+    if (firstTransaction !== null) {
+      this.first = firstTransaction;
+      this.last = firstTransaction;
+      this.high = [firstTransaction];
+      this.low = [firstTransaction];
+      if (firstTransaction.amount > 0) {
+        this.totalIncome = firstTransaction.amount;
+      } else {
+        this.totalSpend = firstTransaction.amount;
+      }
+      this.all = [firstTransaction];   
+    }
   }
 
+  /**
+   * This will add the transaction to this bucket without testing 
+   * if it belongs to the `key` or not. 
+   * You need to sort all properties after adding if you expect to be
+   * adding in an order other than ascending by datePosted.
+   * @param transaction Transaction to add to this key
+   */
   add(transaction: IPostedTransaction) {
-    if (transaction.accountId != this.first.accountId) {
+    if (this.first != null && transaction.accountId != this.first.accountId) {
       throw new CustomError(`This transaction is from a different account: ${transaction.accountId} (expexted ${this.first.accountId})`);
     }
-    this.last = transaction;
-    if (transaction.accountBalance < this.low[0].accountBalance) {
-      this.low[0] = transaction;
+
+    if (this.first == null || transaction.datePosted < this.first.datePosted) {
+      this.first = transaction;
     }
-    if (transaction.accountBalance > this.high[0].accountBalance) {
-      this.high[0] = transaction;
+    if (this.last == null || transaction.datePosted > this.last.datePosted) {
+      this.last = transaction;
     }
+
+    if (this.low.length == 0 || transaction.accountBalance < this.low[0].accountBalance) {
+      this.low = [transaction];
+    } else if (transaction.accountBalance == this.low[0].accountBalance) {
+      this.low.push(transaction);
+    }
+    if (this.high.length == 0 || transaction.accountBalance > this.high[0].accountBalance) {
+      this.high = [transaction];
+    } else if (transaction.accountBalance == this.high[0].accountBalance) {
+      this.high.push(transaction);
+    }
+
     if (transaction.amount > 0) {
-      this.totals[1] += transaction.amount;
+      this.totalIncome += transaction.amount;
     } else {
-      this.totals[0] += transaction.amount;
+      this.totalSpend += transaction.amount;
     }
+
     this.all.push(transaction);
   }
 
   static combine(segments: TransactionsPostedOnDate[]): TransactionsPostedOnDate {
-    const sameKey = segments.every((value: TransactionsPostedOnDate, index: number, array: TransactionsPostedOnDate[]) => index === 0 || value.key == array[index-1].key);
+    const sameKey = segments.every(
+      (value, index, array) => index === 0 || 
+        (value.key === array[index-1].key 
+          && value.first.accountId == array[index-1].first.accountId));
     if (!sameKey) {
       throw new CustomError("TransactionsPostedOnDate.combine can only merge segments with the same key. Provided keys: " + segments.map(t => t.key).join(", "))
     }
+
     const key = segments[0].key;
-    return segments.reduce((accumulator: TransactionsPostedOnDate, current: TransactionsPostedOnDate) => {
-      if (accumulator.first == null || accumulator.first.datePosted > current.first.datePosted) {
-        accumulator.first = current.first;
+
+    const combined = segments.reduce((combined, current) => {
+      if (combined.first == null || combined.first.datePosted > current.first.datePosted) {
+        combined.first = current.first;
       }
-      if (accumulator.last == null || accumulator.last.datePosted < current.last.datePosted) {
-        accumulator.last = current.last;
+      if (combined.last == null || combined.last.datePosted < current.last.datePosted) {
+        combined.last = current.last;
       }
-      if (accumulator.high.length == 0 || accumulator.high[0].amount < current.high[0].amount) {
-        accumulator.high = current.high;
-      } else if (accumulator.high[0].amount == current.high[0].amount) {
-        accumulator.high = [...accumulator.high, ...current.high];
-        accumulator.high.sort((a,b) => a.datePosted.valueOf() - b.datePosted.valueOf());
+
+      if (combined.high.length == 0 || combined.high[0].accountBalance < current.high[0].accountBalance) {
+        combined.high = current.high;
+      } else if (combined.high[0].amount == current.high[0].amount) {
+        combined.high = [...combined.high, ...current.high];
       }
-      if (accumulator.low.length == 0 || accumulator.low[0].amount > current.low[0].amount) {
-        accumulator.low = current.low;
-      } else if (accumulator.low[0].amount == current.low[0].amount) {
-        accumulator.low = [...accumulator.low, ...current.low];
-        accumulator.low.sort((a,b) => a.datePosted.valueOf() - b.datePosted.valueOf());
+      if (combined.low.length == 0 || combined.low[0].accountBalance > current.low[0].accountBalance) {
+        combined.low = current.low;
+      } else if (combined.low[0].accountBalance == current.low[0].accountBalance) {
+        combined.low = [...combined.low, ...current.low];
       }
-      accumulator.totals[0] += current.totals[0];
-      accumulator.totals[1] += current.totals[1];
-      return accumulator;
+
+      combined.all = [...combined.all, ...current.all];
+
+      combined.totalIncome += current.totalIncome;
+      combined.totalSpend += current.totalSpend;
+
+      return combined;
     }, new TransactionsPostedOnDate(key, null));
+    
+    combined.high.sort((a,b) => a.datePosted.valueOf() - b.datePosted.valueOf());
+    combined.low.sort((a,b) => a.datePosted.valueOf() - b.datePosted.valueOf());
+    combined.all.sort((a,b) => a.datePosted.valueOf() - b.datePosted.valueOf());
+    return combined;
   }
 }
 
