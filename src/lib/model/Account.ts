@@ -61,10 +61,11 @@ export default class Account {
     if (account._typeName !== MODEL_TYPE_NAME) {
       throw new CustomError("This object is not an 'IPostingSchedule': " + interfaceDesc(account));
     }
-    if (typeof account.balance === 'string') {
+    if (account.balance == null || typeof account.balance !== 'number') {
       throw new CustomError("account.balance must be numeric");
     }
-    return isNonEmptyString(account.accountId)
+    return !isNaN(account.balance)
+      && isNonEmptyString(account.accountId)
       && account.dateCreated != null
       && isNonEmptyString(account.colorCode)
       && account.colorCode.length == 6;

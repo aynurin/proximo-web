@@ -20,6 +20,14 @@ describe('TextToMoneyValueConverter', () => {
     converter = new TextToMoneyValueConverter();
   });
 
+  it('should render $0.00 in case of zero', () => {
+    expect(converter.toView(0)).toBe("$0.00");
+  });
+
+  it('should render none in case of null', () => {
+    expect(converter.toView(null)).toBe("");
+  });
+
   it('should produce NaN if cannot parse', () => {
     expect(converter.fromView("asdf")).toBeNaN();
   });
