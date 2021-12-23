@@ -1,6 +1,5 @@
 import { interfaceDesc, isNonEmptyString } from "lib/utils";
 import CustomError from "./CustomError";
-import generateId from "lib/UUIDProvider";
 
 const MODEL_TYPE_NAME = "IPostingSchedule";
 
@@ -45,6 +44,13 @@ export default class PostingSchedule {
     });
   }
 
+  static clone(other: IPostingSchedule): IPostingSchedule {
+    const clone = Object.assign({}, other);
+    clone.schedule = [...other.schedule];
+    clone.options = other.options ? Object.assign({}, other.options) : null;
+    return clone;
+  }
+
   static isValid(postingSchedule: IPostingSchedule): boolean {
     if (postingSchedule == null) {
       return false;
@@ -57,14 +63,6 @@ export default class PostingSchedule {
     }
     return (postingSchedule.label == null || Object.values(ScheduleLabel).includes(postingSchedule.label))
       && (postingSchedule.schedule == null || postingSchedule.schedule.length === 7);
-  }
-
-  allowsDateRange(): boolean {
-    return PostingSchedule.allowsDateRange(this.postingSchedule.label);
-  }
-
-  allowsHolidayRule(): boolean {
-    return PostingSchedule.allowsHolidayRule(this.postingSchedule.label);
   }
 
   static allowsDateRange(scheduleLabel: string): boolean {
@@ -190,165 +188,4 @@ export enum ScheduleLabel {
   nthMonthNthWeek = "schedule.label.nthmonthnthweek",
   everyYear = "schedule.label.everyyear",
   once = "schedule.label.once",
-}
-
-/**
- * This is supposed to be a custom jest matcher, but I couldn't figure out how to expect.extend - getting a "expect is undefined"
- * @param received IPostingSchedule to be validated
- * @returns `true` if IPostingSchedule is valid, otherwise `string[]` listing all identified issues
- */
-export function validateSchedule(received: IPostingSchedule): boolean | string[] {
-  const p = new PostingSchedule(received);
-  const msg: string[] = [];
-  if (p.postingSchedule.schedule.length !== 7) {
-    msg.push(`Expected to have 7 parts of the schedule, got ${p.postingSchedule.schedule.length}: ` + p.postingSchedule.schedule.join(','));
-  } else {
-    switch (received.label) {
-      case ScheduleLabel.monthly:
-        if (p.getDateOfMonth == null || isNaN(p.getDateOfMonth)) {
-          msg.push(`Expected ${received.label} to specify date of month, but it doesn't`);
-        }
-        break;
-
-      case ScheduleLabel.nthMonth:
-        if (p.getDateOfMonth == null || isNaN(p.getDateOfMonth)) {
-          msg.push(`Expected ${received.label} to specify date of month, but it doesn't`);
-        }
-        if (p.getNthMonth == null || isNaN(p.getNthMonth)) {
-          msg.push(`Expected ${received.label} to specify Nth month, but it doesn't`);
-        } else if (p.getNthMonth <= 3) {
-          let suggest = p.getNthMonth == 1 ? "monthly" : p.getNthMonth == 2 ? "secondMonth" : "thirdMonth";
-          msg.push(`Expected ${received.label} to specify Nth month >= 4, but got ${p.getNthMonth}, try using ${suggest} instead`);
-        }
-        if (p.getRefDate == null) {
-          msg.push(`Expected ${received.label} to specify ref date, but it doesn't`);
-        }
-        break;
-
-      case ScheduleLabel.secondMonth:
-        if (p.getDateOfMonth == null || isNaN(p.getDateOfMonth)) {
-          msg.push(`Expected ${received.label} to specify date of month, but it doesn't`);
-        }
-        if (p.getNthMonth == null || isNaN(p.getNthMonth)) {
-          msg.push(`Expected ${received.label} to specify Nth month, but it doesn't`);
-        } else if (p.getNthMonth != 2) {
-          msg.push(`Expected ${received.label} to specify Nth month = 2, but it specifies ${p.getNthMonth}`);
-        }
-        if (p.getRefDate == null) {
-          msg.push(`Expected ${received.label} to specify ref date, but it doesn't`);
-        }
-        break;
-
-      case ScheduleLabel.thirdMonth:
-        if (p.getDateOfMonth == null || isNaN(p.getDateOfMonth)) {
-          msg.push(`Expected ${received.label} to specify date of month, but it doesn't`);
-        }
-        if (p.getNthMonth == null || isNaN(p.getNthMonth)) {
-          msg.push(`Expected ${received.label} to specify Nth month, but it doesn't`);
-        } else if (p.getNthMonth != 3) {
-          msg.push(`Expected ${received.label} to specify Nth month = 3, but it specifies ${p.getNthMonth}`);
-        }
-        if (p.getRefDate == null) {
-          msg.push(`Expected ${received.label} to specify ref date, but it doesn't`);
-        }
-        break;
-
-      case ScheduleLabel.weekly:
-        if (p.getDayOfWeek == null || isNaN(p.getDayOfWeek)) {
-          msg.push(`Expected ${received.label} to specify day of week, but it doesn't`);
-        }
-        break;
-
-      case ScheduleLabel.nthWeek:
-        if (p.getDayOfWeek == null || isNaN(p.getDayOfWeek)) {
-          msg.push(`Expected ${received.label} to specify day of week, but it doesn't`);
-        }
-        if (p.getNthWeek == null || isNaN(p.getNthWeek)) {
-          msg.push(`Expected ${received.label} to specify Nth week, but it doesn't`);
-        } else if (p.getNthWeek < 4) {
-          let suggest = p.getNthWeek == 1 ? "weekly" : p.getNthWeek == 2 ? "secondWeek" : "thirdWeek";
-          msg.push(`Expected ${received.label} to specify Nth week >= 4, but it specifies ${p.getNthWeek}. Use ${suggest} instead.`);
-        }
-        if (p.getRefDate == null) {
-          msg.push(`Expected ${received.label} to specify ref date, but it doesn't`);
-        }
-        break;
-
-      case ScheduleLabel.secondWeek:
-        if (p.getDayOfWeek == null || isNaN(p.getDayOfWeek)) {
-          msg.push(`Expected ${received.label} to specify day of week, but it doesn't`);
-        }
-        if (p.getNthWeek == null || isNaN(p.getNthWeek)) {
-          msg.push(`Expected ${received.label} to specify Nth week, but it doesn't`);
-        } else if (p.getNthWeek != 2) {
-          msg.push(`Expected ${received.label} to specify Nth week = 2, but it specifies ${p.getNthWeek}`);
-        }
-        if (p.getRefDate == null) {
-          msg.push(`Expected ${received.label} to specify ref date, but it doesn't`);
-        }
-        break;
-
-      case ScheduleLabel.thirdWeek:
-        if (p.getDayOfWeek == null || isNaN(p.getDayOfWeek)) {
-          msg.push(`Expected ${received.label} to specify day of week, but it doesn't`);
-        }
-        if (p.getNthWeek == null || isNaN(p.getNthWeek)) {
-          msg.push(`Expected ${received.label} to specify Nth week, but it doesn't`);
-        } else if (p.getNthWeek != 3) {
-          msg.push(`Expected ${received.label} to specify Nth week = 3, but it specifies ${p.getNthWeek}`);
-        }
-        if (p.getRefDate == null) {
-          msg.push(`Expected ${received.label} to specify ref date, but it doesn't`);
-        }
-        break;
-
-      case ScheduleLabel.nthMonthNthWeek:
-        if (p.getNthMonth == null || isNaN(p.getNthMonth)) {
-          msg.push(`Expected ${received.label} to specify Nth month, but it doesn't`);
-        }
-        if (p.getDayOfWeek == null || isNaN(p.getDayOfWeek)) {
-          msg.push(`Expected ${received.label} to specify day of week, but it doesn't`);
-        }
-        if (p.getNthWeek == null || isNaN(p.getNthWeek)) {
-          msg.push(`Expected ${received.label} to specify Nth week, but it doesn't`);
-        } else if (p.getNthWeek > 5) {
-          msg.push(`Expected ${received.label} to specify Nth week < 5, but it specifies ${p.getNthWeek}`);
-        }
-        if (p.getRefDate == null) {
-          msg.push(`Expected ${received.label} to specify ref date, but it doesn't`);
-        }
-        break;
-
-      case ScheduleLabel.everyYear:
-        if (p.getMonth == null || isNaN(p.getMonth)) {
-          msg.push(`Expected ${received.label} to specify month, but it doesn't`);
-        }
-        if (p.getDateOfMonth == null || isNaN(p.getDateOfMonth)) {
-          msg.push(`Expected ${received.label} to specify date of month, but it doesn't`);
-        }
-        break;
-
-      case ScheduleLabel.once:
-        if (p.getYear == null || isNaN(p.getYear)) {
-          msg.push(`Expected ${received.label} to specify year, but it doesn't`);
-        }
-        if (p.getMonth == null || isNaN(p.getMonth)) {
-          msg.push(`Expected ${received.label} to specify month, but it doesn't`);
-        }
-        if (p.getDateOfMonth == null || isNaN(p.getDateOfMonth)) {
-          msg.push(`Expected ${received.label} to specify date of month, but it doesn't`);
-        }
-        break;
-
-      default:
-        break;
-    }
-  }
-
-  if (msg.length === 0) {
-    return true;
-  }
-  else {
-    return msg;
-  }
 }

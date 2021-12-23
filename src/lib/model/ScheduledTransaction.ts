@@ -1,4 +1,4 @@
-import { IPostingSchedule } from './PostingSchedule';
+import PostingSchedule, { IPostingSchedule } from './PostingSchedule';
 import CustomError from "./CustomError";
 import generateId from "lib/UUIDProvider";
 import { interfaceDesc } from 'lib/utils';
@@ -24,12 +24,6 @@ export interface IScheduledTransaction {
 }
 
 export default class ScheduledTransaction {
-  scheduledTransaction: IScheduledTransaction;
-
-  constructor(scheduledTransaction: IScheduledTransaction) {
-    this.scheduledTransaction = scheduledTransaction;
-  }
-
   static createNew(accountId: string, accountFriendlyName: string, schedule: IPostingSchedule): IScheduledTransaction {
     return {
       _typeName: MODEL_TYPE_NAME,
@@ -46,8 +40,7 @@ export default class ScheduledTransaction {
 
   static clone(other: IScheduledTransaction): IScheduledTransaction {
     const cloned = Object.assign({}, other);
-    cloned.schedule = Object.assign({}, other.schedule);
-    cloned.schedule.options = Object.assign({}, other.schedule.options);
+    cloned.schedule = PostingSchedule.clone(other.schedule);
     return cloned;
   }
 

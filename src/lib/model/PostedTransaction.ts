@@ -40,14 +40,6 @@ export enum TransactionState {
   Deleted = 3
 }
 
-export default class PostedTransaction {
-  postedTransaction: IPostedTransaction;
-
-  constructor(postedTransaction: IPostedTransaction) {
-    this.postedTransaction = postedTransaction;
-  }
-}
-
 export class TransactionsPostedOnDate implements OrderedAggregate<Date, IPostedTransaction> {
   key: Date;
   first: IPostedTransaction;

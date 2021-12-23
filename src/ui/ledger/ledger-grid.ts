@@ -89,7 +89,7 @@ export class LedgerGridCustomElement {
   }
 
   accountLabel(tran: IPostedTransaction): string {
-    const scheduledTransaction = new TimeTable(new Person(this.state).getAccount(tran.accountId).timetable).getSchedule(tran.scheduledId);
+    const scheduledTransaction = new TimeTable(new Person(this.state).getAccount(tran.accountId).timetable).getScheduled(tran.scheduledId);
     return this.postingScheduleRenderer.renderLabel(scheduledTransaction.schedule);
   }
 

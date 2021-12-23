@@ -12,7 +12,7 @@ export default class TimeTable {
     this.timetable = timetable;
   }
 
-  getSchedule(scheduledId: string) {
+  getScheduled(scheduledId: string) {
     return this.timetable.timetable.find(s => s.scheduledId == scheduledId);
   }
 

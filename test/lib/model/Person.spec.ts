@@ -78,4 +78,22 @@ describe('Person', () => {
   it('can find an account', () => {
     expect(p.getAccount(account2.accountId).friendlyName).toBe(account2.friendlyName);
   });
+
+  it('throws if constructed with a null', () => {
+    expect(() => new Person(null)).toThrow();
+  });
+
+  it('getAccount is predictable when no accounts', () => {
+    const tmpacc = p.person.accounts;
+    p.person.accounts = [];
+    expect(p.getAccount(tmpacc[0].accountId)).toBeNull();
+    p.person.accounts = tmpacc;
+  });
+
+  it('should shallow clone', () => {
+    const cloned = Person.cloneState(p.person);
+
+    expect(cloned).not.toBe(p.person);
+    expect(cloned.accounts[0]).toBe(p.person.accounts[0]);
+  });
 });

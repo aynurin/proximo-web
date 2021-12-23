@@ -22,12 +22,6 @@ export interface IAccount {
 }
 
 export default class Account {
-  account: IAccount;
-
-  constructor(account: IAccount) {
-    this.account = account;
-  }
-
   static cloneState(oldState: IAccount): IAccount {
     if (oldState == null) {
       return null;
