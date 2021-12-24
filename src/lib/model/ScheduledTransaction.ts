@@ -1,7 +1,7 @@
 import PostingSchedule, { IPostingSchedule } from './PostingSchedule';
 import CustomError from "./CustomError";
 import generateId from "lib/UUIDProvider";
-import { interfaceDesc } from 'lib/utils';
+import { interfaceDesc, isNonEmptyString } from 'lib/utils';
 
 const MODEL_TYPE_NAME = "IScheduledTransaction";
 
@@ -54,16 +54,22 @@ export default class ScheduledTransaction {
     if (scheduled._typeName !== MODEL_TYPE_NAME) {
       throw new CustomError("This object is not an 'IScheduledTransaction': " + interfaceDesc(scheduled));
     }
-    if (scheduled.schedule == null) {
+    if (!PostingSchedule.isValid(scheduled.schedule)) {
       return false;
     }
-    if (scheduled.amount == null || isNaN(scheduled.amount) || typeof scheduled.amount !== "number" || scheduled.amount == 0) {
+    if (!isNonEmptyString(scheduled.accountId)) {
       return false;
     }
-    if (scheduled.accountId == null || scheduled.accountId.trim().length == 0) {
+    if (!isNonEmptyString(scheduled.accountFriendlyName)) {
+      return false;
+    }
+    if (scheduled.transferToAccountId != null && !isNonEmptyString(scheduled.transferToAccountFriendlyName)) {
       return false;
     }
     if (scheduled.transferToAccountId === scheduled.accountId) {
+      return false;
+    }
+    if (scheduled.amount == null || isNaN(scheduled.amount) || typeof scheduled.amount !== "number" || scheduled.amount == 0) {
       return false;
     }
     if (scheduled.description == null || scheduled.description.trim().length == 0) {

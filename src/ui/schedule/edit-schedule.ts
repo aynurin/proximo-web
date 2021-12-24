@@ -6,7 +6,7 @@ import {
 import { EventAggregator } from "aurelia-event-aggregator";
 import { DateFormat } from "lib/DateFormat";
 
-import Person, { IPerson } from "lib/model/Person";
+import { IPerson } from "lib/model/Person";
 
 import PostingSchedule, { IPostingSchedule } from "lib/model/PostingSchedule";
 import { DialogController } from 'aurelia-dialog';
@@ -40,7 +40,7 @@ export class EditScheduleCustomElement {
   activate(tran: IScheduledTransaction) {
     log.debug('activate', tran);
     this.originalTransaction = tran;
-    this.builder = new TransactionBuilder(tran, new Person(this.state));
+    this.builder = new TransactionBuilder(tran);
   }
 
   async cancelForm() {

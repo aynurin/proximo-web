@@ -15,13 +15,9 @@ export enum TransactionType {
 export interface ITransactionBuilder {
   _typeName: string;
   original?: IScheduledTransaction;
-  refDate?: Date;
   nthWeek?: number;
   nthMonth?: number;
-  scheduleLabel?: ScheduleLabel;
-  holidayRule?: HolidayRule;
-  dateSinceIncl?: Date;
-  dateTillIncl?: Date;
+  schedule?: IPostingSchedule;
   accountId?: string;
   accountIsNew?: boolean;
   accountFriendlyName?: string;
@@ -43,7 +39,7 @@ export interface ITransactionBuilder {
 export default class TransactionBuilder {
   public readonly buffer: ITransactionBuilder;
 
-  constructor(scheduled: IScheduledTransaction = null, person: Person) {
+  constructor(scheduled: IScheduledTransaction = null) {
     if (scheduled == null) {
       this.buffer = {
         _typeName: MODEL_TYPE_NAME,
@@ -55,23 +51,23 @@ export default class TransactionBuilder {
       this.buffer = {
         _typeName: MODEL_TYPE_NAME,
         original: scheduled,
-        refDate: new PostingSchedule(scheduled.schedule).getRefDate,
-        scheduleLabel: scheduled.schedule.label,
-        holidayRule: scheduled.schedule.options?.holidayRule,
-        dateSinceIncl: scheduled.schedule.options?.dateSinceIncl,
-        dateTillIncl: scheduled.schedule.options?.dateTillIncl,
+        schedule: PostingSchedule.clone(scheduled.schedule),
         accountId: scheduled.accountId,
         accountIsNew: false,
-        accountFriendlyName: person.getAccount(scheduled.accountId).friendlyName,
+        accountFriendlyName: scheduled.accountFriendlyName,
         amount: scheduled.amount,
         deviation: scheduled.deviation,
         description: scheduled.description,
+        transferToAccountRequired: false,
+        transferToAccountIsNew: undefined,
+        transferToAccountId: null,
+        transferToAccountFriendlyName: null
       };
       if (scheduled.transferToAccountId != null) {
         this.buffer.transferToAccountRequired = true;
         this.buffer.transferToAccountId = scheduled.transferToAccountId;
         this.buffer.transferToAccountIsNew = false;
-        this.buffer.transferToAccountFriendlyName = person.getAccount(scheduled.transferToAccountId).friendlyName;
+        this.buffer.transferToAccountFriendlyName = scheduled.transferToAccountFriendlyName;
       }
     }
   }
@@ -96,7 +92,7 @@ export default class TransactionBuilder {
       this.buffer.transferToAccountRequired = true;
       this.buffer.amount = -Math.abs(this.buffer.amount);
     } else {
-      this.buffer.amount = 0;
+      throw new CustomError(`Unknown transaction type: ${type}`);
     }
   }
 
@@ -109,7 +105,7 @@ export default class TransactionBuilder {
   }
 
   createPostingSchedule(): IPostingSchedule {
-    return PostingSchedule.createNew().fromLabel(this.buffer.scheduleLabel, this.buffer.refDate, this.buffer.nthWeek, this.buffer.nthMonth);
+    return this.buffer.schedule;
   }
   
 }

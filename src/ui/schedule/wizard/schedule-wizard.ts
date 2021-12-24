@@ -13,7 +13,6 @@ import { LogManager } from 'aurelia-framework';
 import { IntroContainer, IntroBuildingContext, IIntroItem } from "lib/intro-building-context";
 import { waitForHtmlElement, waitFor, isNonEmptyString, isValidNumber } from "lib/utils";
 import { ScheduleRenderer } from "lib/view/ScheduleRenderer";
-import Person from "lib/model/Person";
 import TransactionBuilder from "lib/model/TransactionBuilder";
 import { EditScheduleCustomElement } from "../edit-schedule";
 import StateMutationFactory from "lib/state/StateMutationFactory";
@@ -71,7 +70,7 @@ export class ScheduleWizardCustomElement extends EditScheduleCustomElement {
   }
 
   startFlow(tran: IScheduledTransaction = null) {
-    this.builder = new TransactionBuilder(tran, new Person(this.state));
+    this.builder = new TransactionBuilder(tran);
     this.flow = new AddTransactionWorkflow(this.builder);
     this.flow.initialStage = ScheduleStage.Date;
     this.flow.onStageChangedCallback = this.showIntroPage;
