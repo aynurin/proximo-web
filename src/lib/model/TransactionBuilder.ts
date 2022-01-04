@@ -17,6 +17,7 @@ export interface ITransactionBuilder {
   original?: IScheduledTransaction;
   nthWeek?: number;
   nthMonth?: number;
+  refDate?: Date;
   schedule?: IPostingSchedule;
   accountId?: string;
   accountIsNew?: boolean;
@@ -51,6 +52,7 @@ export default class TransactionBuilder {
       this.buffer = {
         _typeName: MODEL_TYPE_NAME,
         original: scheduled,
+        refDate: new PostingSchedule(scheduled.schedule).getRefDate,
         schedule: PostingSchedule.clone(scheduled.schedule),
         accountId: scheduled.accountId,
         accountIsNew: false,
@@ -105,6 +107,9 @@ export default class TransactionBuilder {
   }
 
   createPostingSchedule(): IPostingSchedule {
+    if (!PostingSchedule.isValid(this.buffer.schedule)) {
+      throw new CustomError("This posting schedule is not valid", this.buffer.schedule);
+    }
     return this.buffer.schedule;
   }
   

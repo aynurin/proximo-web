@@ -1,5 +1,3 @@
-import { firstOfTheMonth } from "./utils";
-
 // https://dockyard.com/blog/2020/02/14/you-probably-don-t-need-moment-js-anymore
 export class DateFormat {
   private _locales: string[];
@@ -65,4 +63,11 @@ export class DateFormat {
       weekday: "long"
     }).format(date);
   }
+}
+
+export function firstOfTheMonth(date: Date = null): Date {
+  if (date == null) {
+    date = new Date();
+  }
+  return new Date(date.getFullYear(), date.getMonth(), 1);
 }

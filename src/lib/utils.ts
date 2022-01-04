@@ -1,7 +1,19 @@
 import CustomError from "./model/CustomError";
 
-export function isNonEmptyString(val: null | string) {
-  return val != null && typeof val === "string" && val.length > 0 && lenTrimmed(val) > 0;
+export function isNumber(val: unknown) {
+  return val != null && typeof val === "number" && !isNaN(val);
+}
+
+export function isString(val: unknown) {
+  return val != null && typeof val === "string";
+}
+
+export function isNonEmptyString(val: unknown) {
+  if (val != null && typeof val === "string") {
+    const strVal = val as string;
+    return strVal.length > 0 && lenTrimmed(strVal) > 0;
+  }
+  return false;
 }
 
 export function lenTrimmed(val: string) {
@@ -14,8 +26,11 @@ export function lenTrimmed(val: string) {
   return val.trim().length;
 }
 
+/**
+ * @deprecated Use `isNumber` instead
+ */
 export function isValidNumber(val: null | number) {
-  return val != null && typeof val === "number" && !isNaN(val)
+  return isNumber(val);
 }
 
 export function interfaceDesc(val: object): string {
@@ -24,13 +39,6 @@ export function interfaceDesc(val: object): string {
   } else {
     return "{ " + Object.keys(val).map(x => x + ": " + (x == "_typeName" ? JSON.stringify(val[x]) : typeof val[x])).join(", ") + " }";
   }
-}
-
-export function firstOfTheMonth(date: Date = null): Date {
-  if (date == null) {
-    date = new Date();
-  }
-  return new Date(date.getFullYear(), date.getMonth(), 1);
 }
 
 export function waitForHtmlElement(elementId: string, action: (element: HTMLElement) => any) {

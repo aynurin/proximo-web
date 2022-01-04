@@ -5,7 +5,7 @@ import Person, { IPerson } from "../model/Person";
 import { IScheduledTransaction } from "../model/ScheduledTransaction";
 import TimeTable from "../model/TimeTable";
 
-export class TimeTableActionsActions {
+export class TimeTableActions {
 
   public constructor(private readonly store: Store<IPerson>) {}
   
@@ -67,6 +67,7 @@ function updateState(state: IPerson, accountId: string, updateTimetable: {
       const newIdx = timetable.timetable.findIndex(s => s.scheduledId == updateTimetable.replace.scheduledId);
       if (newIdx >= 0) {
         timetable.timetable = [...timetable.timetable];
+        updateTimetable.replace._generation += 1;
         timetable.timetable[newIdx] = updateTimetable.replace;
       } else {
         throw new CustomError(`Scheduled transaction with ID ${updateTimetable.replace.scheduledId} to replace was not found in account ${updateTimetable.replace.accountId} timetable`)

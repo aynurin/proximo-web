@@ -63,7 +63,7 @@ export class EditScheduleCustomElement {
   }
 
   get dateTillMinBoundary(): string {
-    return this.dateFormatter.toISODate(this.builder.buffer.dateSinceIncl);
+    return this.dateFormatter.toISODate(this.builder.buffer.schedule.options.dateSinceIncl);
   }
 
   @computedFrom("builder.buffer.amount", "builder.buffer.transferToAccountId", "builder.buffer.transferToAccountRequired")
@@ -82,12 +82,12 @@ export class EditScheduleCustomElement {
 
   @computedFrom("builder.buffer")
   get showHolidayRule(): boolean {
-    return PostingSchedule.allowsHolidayRule(this.builder.buffer.scheduleLabel);
+    return PostingSchedule.allowsHolidayRule(this.builder.buffer.schedule.label);
   }
 
   @computedFrom("builder.buffer")
   get showDateRange(): boolean {
-    return PostingSchedule.allowsDateRange(this.builder.buffer.scheduleLabel);
+    return PostingSchedule.allowsDateRange(this.builder.buffer.schedule.label);
   }
 
   @computedFrom("builder.buffer")

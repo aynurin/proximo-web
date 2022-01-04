@@ -36,6 +36,9 @@ export class IntroActions {
 }
 
 const addIntroStateAction = (state: IPerson, introStep: IIntroState) => {
+  if (introStep == null) {
+    throw new CustomError("Step to add is null");
+  }
   return updateState(state, { add: introStep });
 }
 
@@ -44,14 +47,23 @@ const addIntroStateAction = (state: IPerson, introStep: IIntroState) => {
  * @deprecated
  */
 const addOrUpdateIntroStateAction = (state: IPerson, introStep: IIntroState) => {
+  if (introStep == null) {
+    throw new CustomError("Step to add or update is null");
+  }
   return updateState(state, { add: introStep, replace: introStep });
 }
 
 const updateIntroStateAction = (state: IPerson, introStep: IIntroState) => {
+  if (introStep == null) {
+    throw new CustomError("Step to update is null");
+  }
   return updateState(state, { replace: introStep });
 }
 
 const removeIntroStateAction = (state: IPerson, introStep: IIntroState) => {
+  if (introStep == null) {
+    throw new CustomError("Step to remove is null");
+  }
   return updateState(state, { remove: introStep });
 }
 
@@ -77,7 +89,7 @@ function updateState(state: IPerson, updateIntroPages: {
       const newIdx = newState.introSteps.findIndex(s => s.stepId == updateIntroPages.replace.stepId);
       if (newIdx >= 0) {
         newState.introSteps = [...newState.introSteps];
-        newState.introSteps[newIdx] = updateIntroPages.replace;
+        newState.introSteps[newIdx] = Object.assign({}, updateIntroPages.replace);
       } else {
         throw new CustomError(`Intro Step ${updateIntroPages.replace.stepId} to replace was not found for person ${newState.personId}`);
       }
@@ -94,7 +106,6 @@ function updateState(state: IPerson, updateIntroPages: {
     }
 
     newState.introSteps.sort((a, b) => a.stepId.localeCompare(b.stepId));
-
-    return newState;
   }
+  return newState;
 }

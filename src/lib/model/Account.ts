@@ -9,6 +9,7 @@ const MODEL_TYPE_NAME = "IAccount";
 
 export interface IAccount {
   _typeName: string;
+  _generation: number;
 
   accountId: string;
 
@@ -32,6 +33,7 @@ export default class Account {
   static createNew(colorProvider: ColorProvider): IAccount {
     return {
       _typeName: MODEL_TYPE_NAME,
+      _generation: 1,
 
       accountId: generateId(),
 
@@ -62,7 +64,8 @@ export default class Account {
       && isNonEmptyString(account.accountId)
       && account.dateCreated != null
       && isNonEmptyString(account.colorCode)
-      && account.colorCode.length == 6;
+      && account.colorCode.length == 6
+      && account._generation != null && typeof account._generation == 'number';
   }
 }
 

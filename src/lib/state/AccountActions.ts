@@ -14,31 +14,40 @@ export class AccountActions {
   }
 
   public async addAccount(account: IAccount) {
-    await this.store.dispatch('addAccount', account);
+    await this.store.dispatch(addAccountAction, account);
   }
 
   public async updateAccount(account: IAccount) {
-    await this.store.dispatch('updateAccount', account);
+    await this.store.dispatch(updateAccountAction, account);
   }
 
   public async removeAccount(account: IAccount) {
-    await this.store.dispatch('removeAccount', account);
+    await this.store.dispatch(removeAccountAction, account);
   }
 }
 
 const addAccountAction = (state: IPerson, account: IAccount) => {
+  if (account == null) {
+    throw new CustomError("Account to add is null");
+  }
   return updateState(state, { add: account });
 }
 
 const updateAccountAction = (state: IPerson, account: IAccount) => {
+  if (account == null) {
+    throw new CustomError("Account to update is null");
+  }
   return updateState(state, { update: account });
 }
 
 const removeAccountAction = (state: IPerson, account: IAccount) => {
+  if (account == null) {
+    throw new CustomError("Account to remove is null");
+  }
   return updateState(state, { remove: account });
 }
 
-function updateState (state: IPerson, updateAccounts: { 
+export function updateState (state: IPerson, updateAccounts: { 
     add?: IAccount, 
     update?: IAccount, 
     remove?: IAccount }): IPerson {
@@ -65,6 +74,7 @@ function updateState (state: IPerson, updateAccounts: {
         newAccount.balance = updateAccounts.update.balance;
         newAccount.friendlyName = updateAccounts.update.friendlyName;
         newAccount.colorCode = updateAccounts.update.colorCode;
+        newAccount._generation += 1;
         newState.accounts[newIdx] = newAccount;
       } else {
         throw new CustomError(`Account with ID ${updateAccounts.update.accountId} to replace was not found for person ${newState.personId}`);
@@ -82,7 +92,6 @@ function updateState (state: IPerson, updateAccounts: {
     }
     
     newState.accounts.sort((a, b) => a.friendlyName.localeCompare(b.friendlyName));
-
-    return newState;
   }
+  return newState;
 }

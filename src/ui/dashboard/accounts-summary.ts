@@ -1,4 +1,3 @@
-import { firstOfTheMonth } from 'lib/utils';
 import {
   bindable,
   autoinject,
@@ -7,7 +6,7 @@ import { LogManager } from 'aurelia-framework';
 import { EventAggregator } from "aurelia-event-aggregator";
 import { connectTo } from 'aurelia-store';
 
-import { DateFormat } from "lib/DateFormat";
+import { DateFormat, firstOfTheMonth } from "lib/DateFormat";
 
 import Person, { IPerson } from 'lib/model/Person';
 import { IntroBuildingContext, IntroContainer } from "lib/intro-building-context";

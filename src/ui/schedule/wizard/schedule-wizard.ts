@@ -170,8 +170,8 @@ class AddTransactionWorkflow {
       }
     } else {
       // check if the new step is not skipped
-      if ((newStage == ScheduleStage.HolidayRule && !PostingSchedule.allowsHolidayRule(this.builder.buffer.scheduleLabel))
-          || (newStage == ScheduleStage.DateRange && !PostingSchedule.allowsDateRange(this.builder.buffer.scheduleLabel))) {
+      if ((newStage == ScheduleStage.HolidayRule && !PostingSchedule.allowsHolidayRule(this.builder.buffer.schedule.label))
+          || (newStage == ScheduleStage.DateRange && !PostingSchedule.allowsDateRange(this.builder.buffer.schedule.label))) {
         if (step > 0) step++;
         else step--;
         this.advance(step);
@@ -203,17 +203,17 @@ class AddTransactionWorkflow {
         break;
 
       case ScheduleStage.Schedule:
-        isStageComplete = this.builder.buffer.scheduleLabel != null;
+        isStageComplete = this.builder.buffer.schedule.label != null;
         break;
 
       case ScheduleStage.HolidayRule:
         // return this.transaction.schedule.holidayRule != null && Object.values(HolidayRule).includes(this.transaction.schedule.holidayRule);
-        isStageComplete = this.builder.buffer.holidayRule == null || this.builder.buffer.holidayRule in HolidayRule;
+        isStageComplete = this.builder.buffer.schedule.options.holidayRule == null || this.builder.buffer.schedule.options.holidayRule in HolidayRule;
         break;
 
       case ScheduleStage.DateRange:
-        isStageComplete = (this.builder.buffer.dateSinceIncl == null && this.builder.buffer.dateTillIncl == null)
-             || this.builder.buffer.dateSinceIncl < this.builder.buffer.dateTillIncl;
+        isStageComplete = (this.builder.buffer.schedule.options.dateSinceIncl == null && this.builder.buffer.schedule.options.dateTillIncl == null)
+             || this.builder.buffer.schedule.options.dateSinceIncl < this.builder.buffer.schedule.options.dateTillIncl;
         break;
 
       case ScheduleStage.Parameters:

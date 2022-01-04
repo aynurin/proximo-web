@@ -1,4 +1,4 @@
-import { TimeTableActionsActions } from './TimeTableActions';
+import { TimeTableActions } from './TimeTableActions';
 import { IntroActions } from './IntroActions';
 import { AccountActions } from './AccountActions';
 import { autoinject } from 'aurelia-framework';
@@ -13,7 +13,7 @@ export default class StateMutationFactory {
 
   public constructor(
     private readonly store: Store<IPerson>,
-    public readonly timeTableActions: TimeTableActionsActions,
+    public readonly timeTableActions: TimeTableActions,
     public readonly accountActions: AccountActions,
     public readonly introActions: IntroActions,
     public readonly ledgerActions: LedgerActions) {}

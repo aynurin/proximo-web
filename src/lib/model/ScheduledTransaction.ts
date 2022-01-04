@@ -8,6 +8,7 @@ const MODEL_TYPE_NAME = "IScheduledTransaction";
 // ex. IScheduledTransaction
 export interface IScheduledTransaction {
   _typeName: string;
+  _generation: number;
 
   scheduledId: string;
   dateCreated: Date;
@@ -27,6 +28,7 @@ export default class ScheduledTransaction {
   static createNew(accountId: string, accountFriendlyName: string, schedule: IPostingSchedule): IScheduledTransaction {
     return {
       _typeName: MODEL_TYPE_NAME,
+      _generation: 1,
       scheduledId: generateId(),
       schedule,
       accountId,
@@ -73,6 +75,9 @@ export default class ScheduledTransaction {
       return false;
     }
     if (scheduled.description == null || scheduled.description.trim().length == 0) {
+      return false;
+    }
+    if (scheduled._generation == null || typeof scheduled._generation != "number") {
       return false;
     }
     return true;
