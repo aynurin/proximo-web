@@ -1,7 +1,5 @@
-import { IPerson } from "lib/model/Person";
-
 export default class ColorProvider {
-  constructor (private person: IPerson) { }
+  constructor (getLeasedColors: () => string[]) { }
 
   newColor() {
     return "fkeclr";

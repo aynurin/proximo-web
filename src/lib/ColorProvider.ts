@@ -1,21 +1,20 @@
 import { autoinject } from 'aurelia-framework';
 import CustomError from './model/CustomError';
-import { IPerson } from "./model/Person";
 
 @autoinject
 export default class ColorProvider {
-  constructor (private readonly person: IPerson) {
+  constructor (private readonly getLeasedColors: () => string[]) {
 
   }
 
   newColor() {
-    const selectedColors = this.person.accounts.map(a => a.colorCode);
+    const leasedColors = new Set(this.getLeasedColors());
     for (const color of colors) {
-      if (!(color in selectedColors)) {
+      if (!leasedColors.has(color)) {
         return color;
       }
     }
-    throw new CustomError("No more colors left, all taken");
+    throw new CustomError("No more colors left.", leasedColors);
   }
 }
 
@@ -32,4 +31,4 @@ const colors = [
   "437789",
   "BAC77F",
   "686350",
-]
+];

@@ -8,7 +8,7 @@ jest.mock('lib/UUIDProvider');
 jest.mock("lib/ColorProvider");
 
 describe('AccountActions', () => {
-  const colorProvider = new ColorProvider({ personId: null, accounts: null, introSteps: null });
+  const colorProvider = new ColorProvider(() => []);
 
   const acc1 = Account.createNew(colorProvider);
   const acc2 = Account.createNew(colorProvider);

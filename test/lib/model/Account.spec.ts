@@ -10,7 +10,7 @@ const FAKE_COLOR = "fkeclr";
 jest.mock("lib/ColorProvider");
 
 describe('Account', () => {
-  const colorProvider = new ColorProvider({ personId: null, accounts: null, introSteps: null });
+  const colorProvider = new ColorProvider(() => []);
 
   it('should create valid objects', () => {
     const newAccount = Account.createNew(colorProvider);

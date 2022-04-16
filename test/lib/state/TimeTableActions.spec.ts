@@ -11,7 +11,7 @@ jest.mock('lib/UUIDProvider');
 jest.mock("lib/ColorProvider");
 
 describe('TimeTableActions', () => {
-  const colorProvider = new ColorProvider({ personId: null, accounts: null, introSteps: null });
+  const colorProvider = new ColorProvider(() => []);
 
   const acc = Account.createNew(colorProvider);
   acc.friendlyName = "Account 1";

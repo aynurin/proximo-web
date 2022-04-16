@@ -31,7 +31,7 @@ describe('Person', () => {
     introSteps: null
   };
 
-  const colorProvider = new ColorProvider({ personId: person1.personId, accounts: null, introSteps: null });
+  const colorProvider = new ColorProvider(() => []);
 
   const account1 = Account.createNew(colorProvider);
   account1.friendlyName = "Account 1";
